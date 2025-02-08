@@ -36,7 +36,8 @@ const styles = {
     // margin: 0, // Remove any default margin
     // padding: 0, // Remove any default padding
     // height: "100vh",
-    background: "linear-gradient(to bottom,#314755,#26a0da)",
+    // background: "linear-gradient(to bottom,#314755,#26a0da)",
+    background: "black",
     // background: "linear-gradient(to bottom,#0093E9, #80D0C7)", // Purple-Blue Gradient
     color: "white",
     fontFamily: "Arial, sans-serif",

@@ -15,9 +15,6 @@ const Signup = () => {
   const [step, setStep] = useState(1);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [validId, setValidId] = useState(false);
-  const [validPassword, setValidPassword] = useState(false);
-  const [passwordsMatch, setPasswordsMatch] = useState(false);
 
   useEffect(() => {
     document.body.style.background =
@@ -25,17 +22,12 @@ const Signup = () => {
   }, []);
 
   // Real-time validation
-  useEffect(() => {
-    setValidId(/^\d{8}$/.test(studentId));
-  }, [studentId]);
-
-  useEffect(() => {
-    setValidPassword(password.length >= 6);
-    setPasswordsMatch(password === confirmPassword && password.length >= 6);
-  }, [password, confirmPassword]);
+  const validateStudentId = () => /^\d{8}$/.test(studentId);
+  const validatePassword = () => password.length >= 6;
+  const validateConfirmPassword = () => password === confirmPassword;
 
   const handleNext = () => {
-    if (!validId) {
+    if (!validateStudentId()) {
       setMessage("❌ Invalid ID! Please enter an 8-digit LUMS ID.");
       return;
     }
@@ -45,15 +37,19 @@ const Signup = () => {
   };
 
   const handleRegister = async () => {
-    if (!validPassword || !passwordsMatch) {
-      setMessage("❌ Fix password errors before proceeding.");
+    if (!validatePassword()) {
+      setMessage("❌ Password must be at least 6 characters.");
+      return;
+    }
+    if (!validateConfirmPassword()) {
+      setMessage("❌ Passwords do not match!");
       return;
     }
 
     setLoading(true);
     const { error } = await supabase.auth.signUp({ email, password });
-
     setLoading(false);
+
     if (error) {
       setMessage(`❌ ${error.message}`);
     } else {
@@ -64,164 +60,162 @@ const Signup = () => {
 
   return (
     <motion.div
-      className="container"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.8 }}
+      style={styles.container}
     >
       <motion.div
-        className="card"
-        initial={{ y: -50, opacity: 0 }}
+        initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 100 }}
+        transition={{ duration: 0.5 }}
+        style={styles.card}
       >
-        <h1 className="heading">REGISTER</h1>
+        <h1 style={styles.heading}>REGISTER</h1>
 
-        <AnimatePresence mode="wait">
-          {step === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 50 }}
+        {step === 1 && (
+          <>
+            <motion.input
+              type="text"
+              placeholder="Enter your LUMS ID"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              style={{
+                ...styles.input,
+                borderColor:
+                  studentId && !validateStudentId() ? "red" : "#667eea",
+              }}
+              whileFocus={{ scale: 1.05 }}
+            />
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleNext}
+              style={styles.button}
             >
-              <input
-                type="text"
-                placeholder="Enter your LUMS ID"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                className={validId ? "input valid" : "input invalid"}
-              />
-              {!validId && studentId.length > 0 && (
-                <p className="error">❌ Must be 8-digit LUMS ID.</p>
-              )}
-              <button
-                onClick={handleNext}
-                className="button"
-                disabled={!validId}
-              >
-                Next
-              </button>
-            </motion.div>
-          )}
+              Next
+            </motion.button>
+          </>
+        )}
 
-          {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 50 }}
+        {step === 2 && (
+          <>
+            <motion.input
+              type="password"
+              placeholder="Create Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                ...styles.input,
+                borderColor:
+                  password && !validatePassword() ? "red" : "#667eea",
+              }}
+              whileFocus={{ scale: 1.05 }}
+            />
+            <motion.input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={{
+                ...styles.input,
+                borderColor:
+                  confirmPassword && !validateConfirmPassword()
+                    ? "red"
+                    : "#667eea",
+              }}
+              whileFocus={{ scale: 1.05 }}
+            />
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleRegister}
+              style={styles.button}
+              disabled={loading}
             >
-              <input
-                type="password"
-                placeholder="Create Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={validPassword ? "input valid" : "input invalid"}
-              />
-              {!validPassword && password.length > 0 && (
-                <p className="error">❌ At least 6 characters.</p>
-              )}
+              {loading ? "Registering..." : "Verify Email"}
+            </motion.button>
+          </>
+        )}
 
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={passwordsMatch ? "input valid" : "input invalid"}
-              />
-              {!passwordsMatch && confirmPassword.length > 0 && (
-                <p className="error">❌ Passwords must match.</p>
-              )}
+        {step === 3 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            style={styles.success}
+          >
+            ✅ Email verification sent! Check your inbox.
+          </motion.p>
+        )}
 
-              <button
-                onClick={handleRegister}
-                className="button"
-                disabled={!validPassword || !passwordsMatch || loading}
-              >
-                {loading ? "Registering..." : "Verify Email"}
-              </button>
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.p
-              key="step3"
-              className="success"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 100 }}
-            >
-              ✅ Email verification sent! Check your inbox.
-            </motion.p>
-          )}
-        </AnimatePresence>
-
-        {message && <p className="message">{message}</p>}
+        {message && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            style={styles.message}
+          >
+            {message}
+          </motion.p>
+        )}
       </motion.div>
-
-      <style jsx>{`
-        .container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-        }
-        .card {
-          width: 280px;
-          padding: 30px;
-          background: white;
-          border-radius: 10px;
-          box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-          text-align: center;
-        }
-        .heading {
-          font-size: 24px;
-          font-weight: bold;
-          margin-bottom: 20px;
-        }
-        .input {
-          width: 100%;
-          padding: 10px;
-          margin: 10px 0;
-          border-radius: 20px;
-          font-size: 16px;
-          border: 2px solid #ccc;
-          transition: border 0.3s ease-in-out;
-        }
-        .valid {
-          border: 2px solid #2ecc71;
-        }
-        .invalid {
-          border: 2px solid #e74c3c;
-        }
-        .button {
-          width: 80%;
-          padding: 10px;
-          background: black;
-          color: white;
-          border: none;
-          border-radius: 20px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-        .button:disabled {
-          background: gray;
-          cursor: not-allowed;
-        }
-        .error {
-          color: #e74c3c;
-          font-size: 12px;
-        }
-        .success {
-          color: #2ecc71;
-          font-size: 16px;
-          font-weight: bold;
-        }
-      `}</style>
     </motion.div>
   );
+};
+
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    background: "linear-gradient(135deg, #667eea, #764ba2)",
+  },
+  card: {
+    width: "300px",
+    padding: "30px",
+    borderRadius: "10px",
+    background: "#fff",
+    boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
+    textAlign: "center",
+  },
+  heading: {
+    fontSize: "28px",
+    fontWeight: "bold",
+    marginBottom: "20px",
+  },
+  input: {
+    width: "100%",
+    padding: "10px",
+    margin: "10px 0",
+    border: "2px solid #667eea",
+    borderRadius: "20px",
+    fontSize: "16px",
+    outline: "none",
+    transition: "border-color 0.3s ease",
+  },
+  button: {
+    width: "80%",
+    padding: "10px",
+    background: "black",
+    color: "#fff",
+    border: "none",
+    borderRadius: "20px",
+    fontSize: "16px",
+    cursor: "pointer",
+    marginTop: "10px",
+  },
+  message: {
+    marginTop: "10px",
+    color: "#e74c3c",
+    fontSize: "14px",
+  },
+  success: {
+    color: "#2ecc71",
+    fontSize: "16px",
+    fontWeight: "bold",
+  },
 };
 
 export default Signup;

@@ -21,8 +21,13 @@ const Signup = () => {
       "linear-gradient(135deg, #667eea, #764ba2)";
   }, []);
 
+  // Real-time validation
+  const validateStudentId = () => /^\d{8}$/.test(studentId);
+  const validatePassword = () => password.length >= 6;
+  const validateConfirmPassword = () => password === confirmPassword;
+
   const handleNext = () => {
-    if (!/^\d{8}$/.test(studentId)) {
+    if (!validateStudentId()) {
       setMessage("❌ Invalid ID! Please enter an 8-digit LUMS ID.");
       return;
     }
@@ -32,22 +37,19 @@ const Signup = () => {
   };
 
   const handleRegister = async () => {
-    if (password.length < 6) {
+    if (!validatePassword()) {
       setMessage("❌ Password must be at least 6 characters.");
       return;
     }
-    if (password !== confirmPassword) {
+    if (!validateConfirmPassword()) {
       setMessage("❌ Passwords do not match!");
       return;
     }
 
     setLoading(true);
-    const { user, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
+    const { error } = await supabase.auth.signUp({ email, password });
     setLoading(false);
+
     if (error) {
       setMessage(`❌ ${error.message}`);
     } else {
@@ -57,60 +59,108 @@ const Signup = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      style={styles.container}
+    >
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        style={styles.card}
+      >
         <h1 style={styles.heading}>REGISTER</h1>
 
         {step === 1 && (
           <>
-            <input
+            <motion.input
               type="text"
               placeholder="Enter your LUMS ID"
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
-              style={styles.input}
+              style={{
+                ...styles.input,
+                borderColor:
+                  studentId && !validateStudentId() ? "red" : "#667eea",
+              }}
+              whileFocus={{ scale: 1.05 }}
             />
-            <button onClick={handleNext} style={styles.button}>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleNext}
+              style={styles.button2}
+            >
               Next
-            </button>
+            </motion.button>
           </>
         )}
 
         {step === 2 && (
           <>
-            <input
+            <motion.input
               type="password"
               placeholder="Create Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input2}
+              style={{
+                ...styles.input2,
+                borderColor:
+                  password && !validatePassword() ? "red" : "#667eea",
+              }}
+              whileFocus={{ scale: 1.05 }}
             />
-            <input
+            <motion.input
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              style={styles.input3}
+              style={{
+                ...styles.input3,
+                borderColor:
+                  confirmPassword && !validateConfirmPassword()
+                    ? "red"
+                    : "#667eea",
+              }}
+              whileFocus={{ scale: 1.05 }}
             />
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={handleRegister}
-              style={styles.button2}
+              style={styles.button}
               disabled={loading}
             >
               {loading ? "Registering..." : "Verify Email"}
-            </button>
+            </motion.button>
           </>
         )}
 
         {step === 3 && (
-          <p style={styles.success}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            style={styles.success}
+          >
             ✅ Email verification sent! Check your inbox.
-          </p>
+          </motion.p>
         )}
 
-        {message && <p style={styles.message}>{message}</p>}
-      </div>
-    </div>
+        {message && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            style={styles.message}
+          >
+            {message}
+          </motion.p>
+        )}
+      </motion.div>
+    </motion.div>
   );
 };
 
@@ -123,30 +173,30 @@ const styles = {
     background: "linear-gradient(135deg, #667eea, #764ba2)",
   },
   card: {
-    width: "250px",
+    width: "300px",
     padding: "30px",
-    marginLeft: "50px",
     borderRadius: "10px",
     background: "#fff",
     boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
     textAlign: "center",
-    animation: "fadeIn 0.5s ease-in-out",
   },
   heading: {
-    fontSize: "40px",
+    fontSize: "28px",
     fontWeight: "bold",
     marginBottom: "20px",
   },
   input: {
-    width: "90%",
+    width: "70%",
     padding: "10px",
     margin: "10px 0",
     border: "2px solid #667eea",
     borderRadius: "20px",
     fontSize: "16px",
+    outline: "none",
+    transition: "border-color 0.3s ease",
   },
   input2: {
-    width: "90%",
+    width: "80%",
     padding: "10px",
     margin: "0 0",
     border: "2px solid #667eea",
@@ -154,7 +204,7 @@ const styles = {
     fontSize: "16px",
   },
   input3: {
-    width: "90%",
+    width: "80%",
     padding: "10px",
     margin: " 0",
     marginTop: "5px",
@@ -164,6 +214,18 @@ const styles = {
     fontSize: "16px",
   },
   button: {
+    width: "50%",
+    padding: "10px",
+
+    background: "black",
+    color: "#fff",
+    border: "none",
+    borderRadius: "20px",
+    fontSize: "16px",
+    cursor: "pointer",
+    marginTop: "10px",
+  },
+  button2: {
     width: "40%",
     padding: "10px",
     background: "black",
@@ -175,27 +237,15 @@ const styles = {
     transition: "0.3s",
     // margin: "10px",
   },
-  button2: {
-    width: "60%",
-    padding: "10px",
-    background: "black",
-    color: "#fff",
-    border: "none",
-    borderRadius: "20px",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "0.3s",
-    // margin: "10px",
-  },
-  buttonHover: {
-    background: "#5563d2",
-  },
   message: {
-    marginTop: "5px",
+    marginTop: "10px",
     color: "#e74c3c",
+    fontSize: "14px",
   },
   success: {
     color: "#2ecc71",
+    fontSize: "16px",
+    fontWeight: "bold",
   },
 };
 
