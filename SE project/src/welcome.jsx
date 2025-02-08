@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const WelcomePage = () => {
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Welcome to Super LUMS</h1>
@@ -11,7 +11,9 @@ const WelcomePage = () => {
         Sign In
       </button>
       <p style={styles.subtext}>New to SLUMM?</p>
-      <button style={styles.signupButton}>Sign Up</button>
+      <button style={styles.signupButton} onClick={() => navigate("/signup")}>
+        Sign Up
+      </button>
     </div>
   );
 };
