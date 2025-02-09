@@ -21,7 +21,7 @@ const SignIn = () => {
   const handleSignIn = async () => {
     if (userId.length !== 8) {
       setMessage("❌ User ID must be 8 characters long.");
-      setBorderColor("#FF4500"); // Red border if invalid
+      setBorderColor("#FF4500");
       return;
     }
 
@@ -38,7 +38,7 @@ const SignIn = () => {
 
     if (error) {
       setMessage("❌ Invalid User ID or Password.");
-      setBorderColor("#FF4500"); // Red border if login fails
+      setBorderColor("#FF4500");
     } else {
       setMessage("✅ Login successful! Redirecting...");
       setTimeout(() => navigate("/dashboard"), 1500);
@@ -67,7 +67,7 @@ const SignIn = () => {
           value={userId}
           onChange={(e) => {
             setUserId(e.target.value);
-            setBorderColor(userId.length >= 7 ? "#32CD32" : "#FF4500"); // Green if valid, red if invalid
+            setBorderColor(userId.length >= 7 ? "#32CD32" : "#FF4500");
           }}
           style={{ ...styles.input, borderColor }}
           whileFocus={{ scale: 1.05 }}
@@ -119,14 +119,14 @@ export default SignIn;
 // Styles
 const styles = {
   container: {
-    position: "fixed", // Ensures full coverage
+    position: "fixed",
     top: 0,
     left: 0,
-    width: "100vw", // Full width
-    height: "100vh", // Full height
+    width: "100vw",
+    height: "100vh",
     margin: 0,
     padding: 0,
-    overflow: "hidden", // Prevents unwanted scrollbars
+    overflow: "hidden",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
