@@ -15,25 +15,56 @@ const Signup = () => {
   const [step, setStep] = useState(1);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userExists, setUserExists] = useState(false);
 
   useEffect(() => {
     document.body.style.background =
       "linear-gradient(135deg, #667eea, #764ba2)";
   }, []);
 
-  // Real-time validation
   const validateStudentId = () => /^\d{8}$/.test(studentId);
   const validatePassword = () => password.length >= 6;
   const validateConfirmPassword = () => password === confirmPassword;
 
-  const handleNext = () => {
+  const checkUserInDB = async (studentId) => {
+    console.log(studentId);
+    const { data, error } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", studentId)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      console.error("Error checking user:", error);
+      return null;
+    }
+
+    return data ? true : false;
+  };
+
+  const handleNext = async () => {
     if (!validateStudentId()) {
       setMessage("❌ Invalid ID! Please enter an 8-digit LUMS ID.");
       return;
     }
+
     setEmail(`${studentId}@lums.edu.pk`);
-    setStep(2);
-    setMessage("");
+    const exists = await checkUserInDB(studentId);
+
+    if (exists) {
+      setMessage("❌ User already registered.");
+      setUserExists(true);
+    } else {
+      const { error } = await supabase
+        .from("users")
+        .insert([{ id: studentId, email }]);
+      if (error) {
+        setMessage(`❌ Error registering user: ${error.message}`);
+        return;
+      }
+      setStep(2);
+      setMessage("");
+    }
   };
 
   const handleRegister = async () => {
@@ -73,7 +104,7 @@ const Signup = () => {
       >
         <h1 style={styles.heading}>REGISTER</h1>
 
-        {step === 1 && (
+        {step === 1 && !userExists && (
           <>
             <motion.input
               type="text"
@@ -92,8 +123,37 @@ const Signup = () => {
               whileTap={{ scale: 0.9 }}
               onClick={handleNext}
               style={styles.button2}
+              disabled={loading}
             >
-              Next
+              {loading ? "Checking..." : "Next"}
+            </motion.button>
+          </>
+        )}
+
+        {userExists && (
+          <>
+            <p style={styles.errorMessage}>{message}</p>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              style={styles.button}
+              onClick={() => (window.location.href = "/signin")}
+            >
+              Sign In
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              style={styles.buttonAlt}
+              onClick={() => {
+                setUserExists(false);
+                setStudentId("");
+                setEmail("");
+                setMessage("");
+              }}
+            >
+              Register Another Account
             </motion.button>
           </>
         )}
@@ -149,7 +209,7 @@ const Signup = () => {
           </motion.p>
         )}
 
-        {message && (
+        {message && step !== 1 && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -236,6 +296,18 @@ const styles = {
     cursor: "pointer",
     transition: "0.3s",
     // margin: "10px",
+  },
+  buttonAlt: {
+    width: "60%",
+    padding: "10px",
+    background: "blue", // Orange color for differentiation
+    color: "#fff",
+    border: "none",
+    borderRadius: "20px",
+    fontSize: "16px",
+    cursor: "pointer",
+    marginTop: "10px",
+    transition: "0.3s ease",
   },
   message: {
     marginTop: "10px",
