@@ -300,7 +300,7 @@ const styles = {
   buttonAlt: {
     width: "60%",
     padding: "10px",
-    background: "blue", // Orange color for differentiation
+    background: "blue",
     color: "#fff",
     border: "none",
     borderRadius: "20px",
