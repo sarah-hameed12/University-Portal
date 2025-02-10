@@ -36,7 +36,6 @@ const WelcomePage = () => {
   );
 };
 
-// Styling
 const styles = {
   container: {
     display: "flex",
@@ -51,21 +50,20 @@ const styles = {
     justifyContent: "center",
   },
 
-  // Left Side - Image Card
   imageCard: {
-    width: "50%", // Covers more than half but not full width
-    height: "90vh", // A little below top, a little above bottom
+    width: "50%",
+    height: "90vh",
     position: "relative",
-    borderRadius: "40px", // Rounded corners
-    transform: "translateX(-15%)", // Adjust for fine-tuning
+    borderRadius: "40px",
+    transform: "translateX(-15%)",
     overflow: "hidden",
-    boxShadow: "0 30px 30px rgba(0, 0, 0, 0.5)", // Soft shadow for depth
+    boxShadow: "0 30px 30px rgba(0, 0, 0, 0.5)",
   },
 
   backgroundImage: {
     width: "100%",
     height: "100%",
-    objectFit: "cover", // Keeps image proportionate
+    objectFit: "cover",
   },
 
   superLumsText: {
@@ -74,16 +72,15 @@ const styles = {
     font: "Bebas Neue ",
     textTransform: "uppercase",
     letterSpacing: "4px",
-    background: "linear-gradient(45deg, #ff00ff, #00ffff)", // Gradient Text
+    background: "linear-gradient(45deg, #ff00ff, #00ffff)",
     WebkitBackgroundClip: "text",
     color: "transparent",
     marginTop: "-80px",
 
-    marginBottom: "150px", // Space between "SUPER LUMS" and "Welcome Back"
+    marginBottom: "150px",
     textAlign: "right",
   },
 
-  // Right Side - Buttons
   rightContainer: {
     width: "30%",
     height: "100%",
@@ -144,7 +141,6 @@ const styles = {
   },
 };
 
-// **🔹 Global Fix for Any Remaining Borders**
 document.body.style.margin = "0";
 document.body.style.padding = "0";
 document.body.style.overflow = "hidden";

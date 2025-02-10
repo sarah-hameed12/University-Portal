@@ -259,8 +259,8 @@ const styles = {
   },
   right: {
     flex: 1,
-    maxWidth: "400px", // Reduce width
-    minHeight: "400px", // Keep height balanced
+    maxWidth: "400px",
+    minHeight: "400px",
     background: "#1a092b",
     marginRight: "180px",
     marginLeft: "-200px",
@@ -268,7 +268,7 @@ const styles = {
     borderRadius: "90px",
     textAlign: "center",
     display: "flex",
-    flexDirection: "column", // Ensure stacked layout
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -278,16 +278,16 @@ const styles = {
     marginBottom: "20px",
   },
   input: {
-    width: "70%", // Full width within the form
+    width: "70%",
     padding: "10px",
-    marginBottom: "15px", // Space between input and button
+    marginBottom: "15px",
     borderRadius: "30px",
     border: "1px solid #667eea",
     background: "rgba(255, 255, 255, 0.2)",
     color: "#fff",
   },
   button: {
-    width: "30%", // Match input width
+    width: "30%",
     background: "#667eea",
     color: "#fff",
     padding: "9px 2px",
