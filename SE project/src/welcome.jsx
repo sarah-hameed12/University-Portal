@@ -25,7 +25,10 @@ const WelcomePage = () => {
           LOGIN
         </button>
         <p style={styles.newUserText}>New to Super Lums?</p>
-        <button style={styles.signupButton} onClick={() => navigate("/signup")}>
+        <button
+          style={styles.signupButton}
+          onClick={() => navigate("/signup2")}
+        >
           REGISTER
         </button>
       </div>
