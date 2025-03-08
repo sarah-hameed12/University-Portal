@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion"; // For animations
+import { motion } from "framer-motion";
 import { FaSearch } from "react-icons/fa";
 
 const societies = [
@@ -72,7 +72,6 @@ const SocietyScreen = () => {
     const lowerCaseName = society.name.toLowerCase();
     const lowerCaseSearch = search.toLowerCase().trim();
 
-    // Use regex to match only whole words
     const regex = new RegExp(`\\b${lowerCaseSearch}\\b`, "i");
 
     return regex.test(lowerCaseName);
@@ -90,10 +89,10 @@ const SocietyScreen = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           whileFocus={{
-            scale: 1.02, // Small scaling effect
+            scale: 1.02,
             // boxShadow: "0px 0px 12px rgba(0, 18, 81, 0.5)",
           }}
-          transition={{ duration: 0.15 }} // Faster animation
+          transition={{ duration: 0.15 }}
         />
       </div>
 
@@ -113,8 +112,8 @@ const SocietyScreen = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: 0, // Remove or reduce delay to 0 for faster popup
-                duration: 0.2, // Duration for smooth transition
+                delay: 0,
+                duration: 0.2,
                 ease: "easeOut",
               }}
               whileHover={{
@@ -188,7 +187,7 @@ const styles = {
     outline: "none",
     background: "transparent",
     color: "white",
-    padding: "10px 15px 10px 40px", // Adjust for icon
+    padding: "10px 15px 10px 40px",
   },
   scrollable: {
     display: "flex",
@@ -210,7 +209,7 @@ const styles = {
     paddingLeft: "60px",
     width: "100%",
     justifyContent: "center",
-    marginTop: "20px", // Moves the cards slightly lower
+    marginTop: "20px",
   },
   card: {
     maxWidth: "320px",
@@ -220,10 +219,10 @@ const styles = {
     textAlign: "center",
     cursor: "pointer",
     transition: "transform 0.3s ease, box-shadow 0.3s ease",
-    background: "rgba(255, 255, 255, 0.1)", // Glassy Effect
-    backdropFilter: "blur(10px)", // Frosted Glass Effect
-    border: "1px solid rgba(255, 255, 255, 0.3)", // Subtle Border
-    boxShadow: "0px 5px 20px rgba(255, 255, 255, 0.1)", // Soft Glow
+    background: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    boxShadow: "0px 5px 20px rgba(255, 255, 255, 0.1)",
   },
   logoContainer: {
     width: "90px",
