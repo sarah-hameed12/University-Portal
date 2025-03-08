@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaArrowRight } from "react-icons/fa";
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 
 const societies = [
   {
@@ -35,21 +36,39 @@ const societies = [
   },
   {
     id: "5",
-    name: "LCS",
+    name: "Literature Society",
     logo: "https://i.imgur.com/8yfu3eT.png",
     description: "For writers, poets, and literature enthusiasts.",
   },
   {
     id: "5",
-    name: "LAS Society",
+    name: "Literature Society",
     logo: "https://i.imgur.com/8yfu3eT.png",
     description: "For writers, poets, and literature enthusiasts.",
   },
 ];
 
+const events = [
+  { name: "Tech Talk", date: "March 10, 2025" },
+  { name: "Music Fest", date: "March 12, 2025" },
+  { name: "Drama Performance", date: "March 14, 2025" },
+  { name: "Sports Tournament", date: "March 16, 2025" },
+  { name: "Literature Reading", date: "March 18, 2025" },
+  { name: "Art Exhibition", date: "March 20, 2025" },
+];
+
 const SocietyScreen = () => {
   const [search, setSearch] = useState("");
-
+  const [eventIndex, setEventIndex] = useState(0);
+  const [hoveredEvent, setHoveredEvent] = useState(null);
+  const showNextEvents = () => {
+    setEventIndex((prevIndex) => {
+      if (prevIndex + 3 >= events.length) {
+        return 0;
+      }
+      return prevIndex + 3;
+    });
+  };
   useEffect(() => {
     const customScrollbar = `
       .scrollable-container::-webkit-scrollbar { width: 8px; background: transparent; }
@@ -90,10 +109,65 @@ const SocietyScreen = () => {
           onChange={(e) => setSearch(e.target.value)}
           whileFocus={{
             scale: 1.02,
-            // boxShadow: "0px 0px 12px rgba(0, 18, 81, 0.5)",
           }}
           transition={{ duration: 0.15 }}
         />
+      </div>
+
+      {/* <div style={styles.eventsContainer}>
+        <div style={styles.eventsHeader}>Upcoming Events</div>
+
+        <motion.div
+          style={styles.eventsList}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {events.slice(eventIndex, eventIndex + 3).map((event, index) => (
+            <div key={index} style={styles.eventItem}>
+              <div style={styles.eventName}>{event.name}</div>
+              <div style={styles.eventDate}>{event.date}</div>
+            </div>
+          ))}
+          <FaArrowRight onClick={showNextEvents} style={styles.arrowIcon} />
+        </motion.div>
+      </div> */}
+      <div style={styles.eventsContainer}>
+        <div style={styles.eventsHeader}>Upcoming Events</div>
+
+        <motion.div
+          style={styles.eventsList}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {events.slice(eventIndex, eventIndex + 3).map((event, index) => (
+            <div
+              key={index}
+              style={{
+                ...styles.eventItem,
+                background:
+                  hoveredEvent === index
+                    ? "rgba(0, 0, 0, 0.7)"
+                    : "rgba(255, 255, 255, 0.15)",
+              }}
+              onMouseEnter={() => setHoveredEvent(index)}
+              onMouseLeave={() => setHoveredEvent(null)}
+            >
+              <div style={styles.eventName}>
+                {hoveredEvent === index ? "View Details" : event.name}
+              </div>
+              <div style={styles.eventDate}>
+                {hoveredEvent === index ? "" : event.date}
+              </div>
+            </div>
+          ))}
+          <ArrowCircleRightIcon
+            onClick={showNextEvents}
+            // style={styles.arrowIcon}
+            style={{ ...styles.arrowIcon, fontSize: "40px" }}
+          />
+        </motion.div>
       </div>
 
       {/* Scrollable Cards Section */}
@@ -146,7 +220,6 @@ const SocietyScreen = () => {
 
 export default SocietyScreen;
 
-// Updated Styles
 const styles = {
   container: {
     display: "flex",
@@ -161,15 +234,16 @@ const styles = {
   searchContainer: {
     position: "relative",
     width: "100%",
-    maxWidth: "400px",
+    maxWidth: "300px",
     display: "flex",
     alignItems: "center",
     background: "rgba(255, 255, 255, 0.15)",
-    borderRadius: "30px",
-    padding: "12px",
+    borderRadius: "50px",
+    padding: "2px",
     backdropFilter: "blur(8px)",
     transition: "0.15s ease",
     border: "1px solid rgba(255, 255, 255, 0.3)",
+    marginTop: "30px", // Adjust this value to push the search bar down
   },
   searchIcon: {
     position: "absolute",
@@ -182,13 +256,66 @@ const styles = {
     flex: 1,
     width: "100%",
     fontSize: "16px",
-    borderRadius: "30px",
+    borderRadius: "50px",
     border: "none",
     outline: "none",
     background: "transparent",
     color: "white",
     padding: "10px 15px 10px 40px",
   },
+  eventsContainer: {
+    marginTop: "40px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: "-30px",
+  },
+  eventsHeader: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "25px",
+  },
+  eventsList: {
+    display: "flex",
+    gap: "15px",
+    justifyContent: "center",
+    width: "100%",
+    alignItems: "center",
+  },
+  eventItem: {
+    background: "rgba(255, 255, 255, 0.15)",
+    borderRadius: "40px",
+    padding: "10px 20px",
+    textAlign: "center",
+    transition: "transform 0.5s ease, background 0.3s ease",
+    cursor: "pointer",
+  },
+  eventName: {
+    fontSize: "16px",
+    fontWeight: "bold",
+    transition: "opacity 0.5s ease",
+  },
+  eventDate: {
+    fontSize: "14px",
+    opacity: 0.7,
+    transition: "opacity 0.5s ease",
+  },
+  eventItemHovered: {
+    background: "rgba(0, 0, 0, 0.7)",
+    transform: "scale(1.05)",
+  },
+  arrowIcon: {
+    fontSize: "24px",
+    color: "white",
+    cursor: "pointer",
+    opacity: 0.7,
+    transition: "0.7s ease",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+
   scrollable: {
     display: "flex",
     flexDirection: "column",
@@ -244,13 +371,9 @@ const styles = {
     fontSize: "22px",
     fontWeight: "bold",
     margin: "10px 0",
-    letterSpacing: "1px",
-    textTransform: "uppercase",
   },
   description: {
-    fontSize: "16px",
-    color: "#ddd",
-    padding: "5px 15px",
-    lineHeight: "1.4",
+    fontSize: "14px",
+    color: "rgba(255, 255, 255, 0.7)",
   },
 };
