@@ -7,6 +7,7 @@ import {
   FaBalanceScale,
   FaUniversity,
 } from "react-icons/fa";
+import { useEffect } from "react";
 
 const Outlines = () => {
   const [search, setSearch] = useState("");
@@ -16,6 +17,59 @@ const Outlines = () => {
   const [majors, setMajors] = useState([]);
   const [title, setTitle] = useState("Select School");
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [files, setFiles] = useState([]);
+  const [filteredOutlines, setFilteredOutlines] = useState([]);
+
+  useEffect(() => {
+    console.log("Fetching files...");
+    const fetchFiles = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/files/filenames");
+        const data = await response.json();
+        if (data.error) {
+          console.error("Error fetching files:", data.error);
+        } else {
+          console.log("Response received:", data);
+          setFiles(data);
+          console.log("these are files", files);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchFiles();
+  }, []);
+  useEffect(() => {
+    // console.log("Updated files:", files);
+    console.log("First File Object:", files[0]);
+  }, [files]);
+
+  // Function to download a file
+  const downloadFile = (filename) => {
+    fetch(`http://localhost:5000/files/:${filename}`)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => console.error("Download error:", error));
+  };
+
+  // Filter files based on search query
+  const filteredFiles = files.filter((file) =>
+    file.filename.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    // console.log("Updated files:", files);
+    console.log("First File Object:", files[0]);
+  }, [files]);
 
   const handleFilterClick = () => {
     setShowFilter(!showFilter);
@@ -66,16 +120,24 @@ const Outlines = () => {
     }
   };
 
-  const handleNextClick = () => {
-    if (selectedSchool && selectedMajor) {
-      setSelectedOptions({
-        school: selectedSchool,
-        major: selectedMajor,
-      });
-      console.log("Selected Options:", selectedOptions);
-    } else {
+  const handleNextClick = (files) => {
+    if (!selectedSchool || !selectedMajor) {
       alert("Please select both a school and a major.");
+      return;
     }
+
+    // Set the selected options
+    setSelectedOptions({ school: selectedSchool, major: selectedMajor });
+
+    // Use the updated state to filter files
+    // console.log(file.filename)
+    setFilteredOutlines(
+      files.filter((file) => file.filename.startsWith(selectedMajor))
+    );
+    // console.log(filteredOutlines);
+
+    console.log("Selected School:", selectedSchool);
+    console.log("Selected Major:", selectedMajor);
   };
 
   return (
@@ -83,6 +145,7 @@ const Outlines = () => {
       <h1 style={styles.header}>Course Outlines</h1>
 
       {/* Search Bar */}
+
       <div style={styles.searchBarContainer}>
         <input
           type="text"
@@ -91,6 +154,62 @@ const Outlines = () => {
           onChange={(e) => setSearch(e.target.value)}
           style={styles.searchBar}
         />
+      </div>
+
+      {/* Display Searched Files */}
+      {/* {search && (
+        <div style={styles.fileListContainer}>
+          {filteredFiles.length > 0 ? (
+            <div style={styles.scrollableFileList}>
+              {filteredFiles.map((file, index) => (
+                <div
+                  key={index}
+                  style={styles.fileCard}
+                  onClick={() => downloadFile(file.filename)}
+                >
+                  📄 {file.filename}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={styles.noResults}>No matching files found.</p>
+          )}
+        </div>
+      )} */}
+      <div style={styles.fileListContainer}>
+        {filteredOutlines.length > 0 ? (
+          <div style={styles.scrollableFileList}>
+            {filteredOutlines.map((file, index) => (
+              <div
+                key={index}
+                style={styles.fileCard}
+                onClick={() => downloadFile(file.filename)}
+              >
+                📄 {file.filename}
+              </div>
+            ))}
+          </div>
+        ) : search ? (
+          <div style={styles.scrollableFileList}>
+            {filteredFiles.length > 0 ? (
+              filteredFiles.map((file, index) => (
+                <div
+                  key={index}
+                  style={styles.fileCard}
+                  onClick={() => downloadFile(file.filename)}
+                >
+                  📄 {file.filename}
+                </div>
+              ))
+            ) : (
+              <p style={styles.noResults}>No matching files found.</p>
+            )}
+          </div>
+        ) : (
+          <p style={styles.noResults}>
+            No outlines selected. Use search or filters.
+          </p>
+        )}
       </div>
 
       {/* Filter Button */}
@@ -180,7 +299,10 @@ const Outlines = () => {
 
           {/* "Next" Button */}
           {selectedSchool && selectedMajor && (
-            <button onClick={handleNextClick} style={styles.nextButton}>
+            <button
+              onClick={() => handleNextClick(files)}
+              style={styles.nextButton}
+            >
               Next
             </button>
           )}
@@ -210,7 +332,7 @@ const styles = {
     fontWeight: "700",
     marginBottom: "50px",
     textAlign: "center",
-    marginLeft: "200px",
+    marginLeft: "400px",
   },
   searchBarContainer: {
     display: "flex",
@@ -218,7 +340,7 @@ const styles = {
     width: "100%",
     maxWidth: "600px",
     marginBottom: "20px",
-    marginLeft: "300px",
+    marginLeft: "400px",
   },
   searchBar: {
     padding: "10px 20px",
@@ -230,6 +352,66 @@ const styles = {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     color: "white",
   },
+  fileListContainer: {
+    marginLeft: "100px",
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "70vw",
+    maxHeight: "60vh",
+    overflowY: "auto",
+    gap: "20px",
+    padding: "20px",
+    scrollbarWidth: "thin",
+    scrollbarColor: "rgba(255, 255, 255, 0.2) transparent",
+    animation: "fadeIn 0.5s ease-in-out",
+    position: "relative",
+  },
+  fileCard: {
+    background: "rgba(255, 255, 255, 0.1)",
+    padding: "20px",
+    borderRadius: "15px",
+    boxShadow: "0 4px 20px rgba(0, 255, 246, 0.2)",
+    cursor: "pointer",
+    transition: "transform 0.3s ease-in-out, box-shadow 0.3s",
+    fontSize: "1.3rem",
+    fontWeight: "bold",
+    width: "320px",
+    marginBottom: "15px",
+    textAlign: "center",
+    color: "white",
+    wordWrap: "break-word",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  },
+  fileCardHover: {
+    transform: "scale(1.05)",
+    boxShadow: "0 6px 25px rgba(0, 255, 246, 0.5)",
+  },
+  noResults: {
+    color: "#ff4d4d",
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+  },
+  // fileCard: {
+  //   padding: "12px",
+  //   marginBottom: "8px",
+  //   backgroundColor: "#1D1C4F",
+  //   color: "white",
+  //   borderRadius: "8px",
+  //   cursor: "pointer",
+  //   transition: "transform 0.2s",
+  // },
+  fileCardHover: {
+    transform: "scale(1.05)",
+  },
+  noResults: {
+    color: "rgba(255, 255, 255, 0.5)",
+    textAlign: "center",
+    padding: "10px",
+  },
+
   filterButton: {
     position: "fixed",
     top: "50%",
