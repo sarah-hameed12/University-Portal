@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Added useEffect back
+import { motion, AnimatePresence } from "framer-motion"; // Import motion and AnimatePresence
 import {
   FaFilter,
   FaTimes,
@@ -6,8 +7,9 @@ import {
   FaGraduationCap,
   FaBalanceScale,
   FaUniversity,
+  FaFilePdf,
 } from "react-icons/fa";
-import { useEffect } from "react";
+// Removed duplicate useEffect import
 
 const Outlines = () => {
   const [search, setSearch] = useState("");
@@ -31,7 +33,7 @@ const Outlines = () => {
         } else {
           console.log("Response received:", data);
           setFiles(data);
-          console.log("these are files", files);
+          // console.log("these are files", files); // Logging happens in next effect
         }
       } catch (error) {
         console.error("Error:", error);
@@ -39,11 +41,15 @@ const Outlines = () => {
     };
 
     fetchFiles();
-  }, []);
+  }, []); // Empty dependency array - runs once on mount
+
   useEffect(() => {
+    // This effect runs when 'files' state updates
     // console.log("Updated files:", files);
-    console.log("First File Object:", files[0]);
-  }, [files]);
+    if (files.length > 0) {
+      console.log("First File Object:", files[0]);
+    }
+  }, [files]); // Dependency array includes 'files'
 
   // Function to download a file
   const downloadFile = (filename) => {
@@ -61,264 +67,352 @@ const Outlines = () => {
       .catch((error) => console.error("Download error:", error));
   };
 
-  // Filter files based on search query
+  // Filter files based on search query - Memoize potentially? For now it's ok.
   const filteredFiles = files.filter((file) =>
     file.filename.toLowerCase().includes(search.toLowerCase())
   );
 
-  useEffect(() => {
-    // console.log("Updated files:", files);
-    console.log("First File Object:", files[0]);
-  }, [files]);
+  // No need for a separate effect just to log files[0] again here
 
   const handleFilterClick = () => {
     setShowFilter(!showFilter);
   };
 
   const handleSchoolClick = (school) => {
-    setSelectedSchool(school === selectedSchool ? null : school);
+    const newSchool = school === selectedSchool ? null : school;
+    setSelectedSchool(newSchool);
+    setSelectedMajor(null); // Reset major when school changes
+    setFilteredOutlines([]); // Reset outlines when school changes
 
-    switch (school) {
-      case "SSE":
-        setMajors(["CS", "MATH", "PHYS", "CHEM", "BIO", "EE", "CE"]);
-        setTitle("Choose Major");
-        break;
-      case "SDSB":
-        setMajors(["ACF", "MGS"]);
-        setTitle("Choose Major");
-        break;
-      case "HSS":
-        setMajors(["ECON", "ECON-MATH", "PSY", "ANTHRO"]);
-        setTitle("Choose Major");
-        break;
-      case "SAHSOL":
-        setMajors(["LAW"]);
-        setTitle("Choose Major");
-        break;
-      default:
-        setMajors([]);
-        setTitle("Select School");
+    if (newSchool) {
+      setTitle("Choose Major");
+      switch (newSchool) {
+        case "SSE":
+          setMajors(["CS", "MATH", "PHYS", "CHEM", "BIO", "EE", "CE"]);
+          break;
+        case "SDSB":
+          setMajors(["ACF", "MGS"]);
+          break;
+        case "HSS":
+          setMajors(["ECON", "ECON-MATH", "PSY", "ANTHRO"]);
+          break;
+        case "SAHSOL":
+          setMajors(["LAW"]);
+          break;
+        case "SOE":
+          setMajors(["EDU"]);
+          break; // Added placeholder for SOE
+        default:
+          setMajors([]);
+      }
+    } else {
+      setTitle("Select School");
+      setMajors([]);
     }
   };
 
   const handleMajorClick = (major) => {
     setSelectedMajor(major === selectedMajor ? null : major);
+    setFilteredOutlines([]); // Reset outlines when major changes
   };
 
-  const getMajorButtonColor = (school) => {
-    switch (school) {
-      case "SSE":
-        return "#1D1C4F";
-      case "SDSB":
-        return "#1D1C4F";
-      case "HSS":
-        return "#1D1C4F";
-      case "SAHSOL":
-        return "#1D1C4F";
-      default:
-        return "#1D1C4F";
-    }
-  };
+  // This function seems unused now for button color, remove if not needed later
+  // const getMajorButtonColor = (school) => { ... };
 
-  const handleNextClick = (files) => {
+  const handleNextClick = () => {
+    // Don't need files passed in if using state
     if (!selectedSchool || !selectedMajor) {
-      alert("Please select both a school and a major.");
+      // Maybe use a less intrusive notification than alert
+      console.warn("School and Major must be selected.");
       return;
     }
 
-    // Set the selected options
     setSelectedOptions({ school: selectedSchool, major: selectedMajor });
 
-    // Use the updated state to filter files
-    // console.log(file.filename)
-    setFilteredOutlines(
-      files.filter((file) => file.filename.startsWith(selectedMajor))
-    );
-    // console.log(filteredOutlines);
+    // Filter based on the *current* 'files' state
+    const newlyFiltered = files.filter((file) => {
+      // Make filtering more robust (e.g., handles "CS101" vs "CS")
+      // Assuming format "MAJORCODE-NUMBER..." like "CS-100..." or "CS100..."
+      const pattern = new RegExp(`^${selectedMajor}[- ]?\\d+`, "i"); // Starts with major, optional hyphen/space, digits
+      return pattern.test(file.filename);
+      // Original simpler logic: return file.filename.startsWith(selectedMajor);
+    });
+
+    setFilteredOutlines(newlyFiltered);
+    setShowFilter(false); // Close filter card after selection
 
     console.log("Selected School:", selectedSchool);
     console.log("Selected Major:", selectedMajor);
+    console.log("Filtered Outlines:", newlyFiltered);
+  };
+
+  // --- Dynamic Style Calculation ---
+  // Calculate filter card position dynamically
+  const filterCardDynamicStyle = {
+    ...styles.filterCard, // Include base styles
+    left: showFilter ? "20px" : "-400px", // Apply dynamic left position
   };
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>Course Outlines</h1>
-
-      {/* Search Bar */}
+      <motion.h1 // Use motion for potential animations
+        style={styles.header}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        Course Outlines
+      </motion.h1>
 
       <div style={styles.searchBarContainer}>
         <input
+          className="search-input" // Add className for CSS placeholder styling
           type="text"
-          placeholder="Search Course Outlines"
+          placeholder="Search Course Outlines (e.g., CS100, ECON213)"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={styles.searchBar}
         />
       </div>
 
-      {/* Display Searched Files */}
-      {/* {search && (
-        <div style={styles.fileListContainer}>
-          {filteredFiles.length > 0 ? (
-            <div style={styles.scrollableFileList}>
-              {filteredFiles.map((file, index) => (
-                <div
-                  key={index}
-                  style={styles.fileCard}
-                  onClick={() => downloadFile(file.filename)}
-                >
-                  📄 {file.filename}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={styles.noResults}>No matching files found.</p>
-          )}
-        </div>
-      )} */}
-      <div style={styles.fileListContainer}>
-        {filteredOutlines.length > 0 ? (
-          <div style={styles.scrollableFileList}>
-            {filteredOutlines.map((file, index) => (
-              <div
-                key={index}
+      {/* Added motion.div wrapper for list animation */}
+      <motion.div
+        className="file-list-container" // Use className for CSS scrollbar styling
+        style={styles.fileListContainer}
+        layout // Animate layout changes
+      >
+        <AnimatePresence>
+          {" "}
+          {/* Handle enter/exit animations */}
+          {filteredOutlines.length > 0 ? (
+            filteredOutlines.map((file, index) => (
+              <motion.div
+                key={`${file.filename}-${index}-filtered`}
                 style={styles.fileCard}
                 onClick={() => downloadFile(file.filename)}
+                whileHover={styles.fileCardHover}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                initial={{ opacity: 0, y: 10 }} // Enter animation
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }} // Exit animation
+                layout // Animate position changes
               >
-                📄 {file.filename}
-              </div>
-            ))}
-          </div>
-        ) : search ? (
-          <div style={styles.scrollableFileList}>
-            {filteredFiles.length > 0 ? (
+                <FaFilePdf style={styles.fileIcon} />
+                <span style={styles.fileName}>{file.filename}</span>
+              </motion.div>
+            ))
+          ) : search ? (
+            filteredFiles.length > 0 ? (
               filteredFiles.map((file, index) => (
-                <div
-                  key={index}
+                <motion.div
+                  key={`${file.filename}-${index}-search`}
                   style={styles.fileCard}
                   onClick={() => downloadFile(file.filename)}
+                  whileHover={styles.fileCardHover}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  layout
                 >
-                  📄 {file.filename}
-                </div>
+                  <FaFilePdf style={styles.fileIcon} />
+                  <span style={styles.fileName}>{file.filename}</span>
+                </motion.div>
               ))
             ) : (
-              <p style={styles.noResults}>No matching files found.</p>
-            )}
-          </div>
-        ) : (
-          <p style={styles.noResults}>
-            No outlines selected. Use search or filters.
-          </p>
-        )}
-      </div>
+              <motion.p
+                key="no-search-results"
+                style={styles.noResults}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                No matching files found for "{search}".
+              </motion.p>
+            )
+          ) : (
+            <motion.p
+              key="no-selection"
+              style={styles.noResults}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              No outlines selected. Use search or filters.
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
-      {/* Filter Button */}
-      <button onClick={handleFilterClick} style={styles.filterButton}>
+      {/* Filter Button - Made it motion.button */}
+      <motion.button
+        onClick={handleFilterClick}
+        style={styles.filterButton}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
         {showFilter ? (
           <FaTimes style={styles.filterIcon} />
         ) : (
           <FaFilter style={styles.filterIcon} />
         )}
-      </button>
+      </motion.button>
 
-      {/* Main Content */}
-      <div style={styles.content}></div>
+      {/* Main Content Placeholder - remove if not needed */}
+      {/* <div style={styles.content}></div> */}
 
-      {/* Filter Card */}
-      {showFilter && (
-        <div style={styles.filterCard}>
-          <div style={styles.filterContent}>
-            <h3 style={styles.filterHeader}>{title}</h3>
-            <div style={styles.schoolList}>
-              <div style={styles.row}>
-                {["SSE", "SDSB", "SAHSOL"].map((school, index) => (
-                  <button
-                    key={index}
-                    style={{
-                      ...styles.schoolOption,
-                      backgroundColor:
-                        selectedSchool === school ? "#625FFF" : "#1D1C4F",
-                    }}
-                    onClick={() => handleSchoolClick(school)}
-                  >
-                    {school === "SSE" && <FaLaptopCode style={styles.icon} />}
-                    {school === "SDSB" && <FaUniversity style={styles.icon} />}
-                    {school === "SAHSOL" && (
-                      <FaBalanceScale style={styles.icon} />
-                    )}
-                    {school}
-                  </button>
-                ))}
-              </div>
-
-              <div style={styles.row}>
-                {["HSS", "SOE"].map((school, index) => (
-                  <button
-                    key={index}
-                    style={{
-                      ...styles.schoolOption,
-                      backgroundColor:
-                        selectedSchool === school ? "#625FFF" : "#1D1C4F",
-                    }}
-                    onClick={() => handleSchoolClick(school)}
-                  >
-                    {school === "HSS" && (
-                      <FaGraduationCap style={styles.icon} />
-                    )}
-                    {school === "SOE" && <FaUniversity style={styles.icon} />}
-                    {school}
-                  </button>
-                ))}
-              </div>
-
-              {/* Horizontal Line */}
-              {majors.length > 0 && <div style={styles.line}></div>}
-
-              {/* Majors Row */}
-              {majors.length > 0 && (
+      {/* Filter Card - Apply dynamic style here */}
+      <AnimatePresence>
+        {showFilter && (
+          <motion.div
+            className="filter-card" // Add className for CSS scrollbar
+            style={filterCardDynamicStyle} // Use combined style object
+            initial={{ left: "-400px" }} // Start off-screen
+            animate={{ left: "20px" }} // Animate to position
+            exit={{ left: "-400px" }} // Animate out
+            transition={{ type: "spring", stiffness: 100, damping: 20 }} // Spring animation
+          >
+            <div style={styles.filterContent}>
+              <h3 style={styles.filterHeader}>{title}</h3>
+              <div style={styles.schoolList}>
+                {/* Row 1 */}
                 <div style={styles.row}>
-                  {majors.map((major, index) => (
-                    <button
-                      key={index}
-                      style={{
-                        ...styles.majorOption,
-                        backgroundColor:
-                          selectedMajor === major
-                            ? "#625FFF"
-                            : getMajorButtonColor(selectedSchool),
-                      }}
-                      onClick={() => handleMajorClick(major)}
-                    >
-                      {major}
-                    </button>
-                  ))}
+                  {["SSE", "SDSB", "SAHSOL"].map(
+                    (
+                      school // Simplified map
+                    ) => (
+                      <motion.button
+                        key={school}
+                        style={{
+                          // Apply base and conditional selected styles
+                          ...styles.schoolOption,
+                          backgroundColor:
+                            selectedSchool === school
+                              ? "#625FFF"
+                              : styles.schoolOption.background, // Use base background if not selected
+                          borderColor:
+                            selectedSchool === school
+                              ? "#625FFF"
+                              : styles.schoolOption.border.split(" ")[2], // Use base border color if not selected
+                        }}
+                        onClick={() => handleSchoolClick(school)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {school === "SSE" && (
+                          <FaLaptopCode style={styles.icon} />
+                        )}
+                        {school === "SDSB" && (
+                          <FaUniversity style={styles.icon} />
+                        )}
+                        {school === "SAHSOL" && (
+                          <FaBalanceScale style={styles.icon} />
+                        )}
+                        {school}
+                      </motion.button>
+                    )
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+                {/* Row 2 */}
+                <div style={styles.row}>
+                  {["HSS", "SOE"].map(
+                    (
+                      school // Simplified map
+                    ) => (
+                      <motion.button
+                        key={school}
+                        style={{
+                          // Apply base and conditional selected styles
+                          ...styles.schoolOption,
+                          backgroundColor:
+                            selectedSchool === school
+                              ? "#625FFF"
+                              : styles.schoolOption.background,
+                          borderColor:
+                            selectedSchool === school
+                              ? "#625FFF"
+                              : styles.schoolOption.border.split(" ")[2],
+                        }}
+                        onClick={() => handleSchoolClick(school)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {school === "HSS" && (
+                          <FaGraduationCap style={styles.icon} />
+                        )}
+                        {school === "SOE" && (
+                          <FaUniversity style={styles.icon} />
+                        )}
+                        {school}
+                      </motion.button>
+                    )
+                  )}
+                </div>
 
-          {/* "Next" Button */}
-          {selectedSchool && selectedMajor && (
-            <button
-              onClick={() => handleNextClick(files)}
-              style={styles.nextButton}
-            >
-              Next
-            </button>
-          )}
-        </div>
-      )}
+                {/* Horizontal Line */}
+                {majors.length > 0 && <div style={styles.line}></div>}
+
+                {/* Majors Row */}
+                {majors.length > 0 && (
+                  <div style={styles.row}>
+                    {majors.map(
+                      (
+                        major // Simplified map
+                      ) => (
+                        <motion.button
+                          key={major}
+                          style={{
+                            // Apply base and conditional selected styles
+                            ...styles.majorOption,
+                            backgroundColor:
+                              selectedMajor === major
+                                ? "#625FFF"
+                                : styles.majorOption.background,
+                            borderColor:
+                              selectedMajor === major
+                                ? "#625FFF"
+                                : styles.majorOption.border.split(" ")[2],
+                          }}
+                          onClick={() => handleMajorClick(major)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {major}
+                        </motion.button>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* "Next" Button - Use motion.button */}
+            {selectedSchool && selectedMajor && (
+              <motion.button
+                onClick={handleNextClick} // No need to pass files
+                style={styles.nextButton}
+                whileHover={styles.nextButtonHover}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                Show Outlines
+              </motion.button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default Outlines;
 
+// --- Styles Object (CORRECTED: removed dynamic 'left' from filterCard) ---
 const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "flex-start",
     padding: "40px 20px",
     minHeight: "100vh",
@@ -330,92 +424,86 @@ const styles = {
   header: {
     fontSize: "2.8rem",
     fontWeight: "700",
-    marginBottom: "50px",
+    marginBottom: "40px",
     textAlign: "center",
-    marginLeft: "400px",
+    width: "100%",
   },
   searchBarContainer: {
     display: "flex",
-    alignItems: "center",
+    justifyContent: "center",
     width: "100%",
-    maxWidth: "600px",
-    marginBottom: "20px",
-    marginLeft: "400px",
+    maxWidth: "650px",
+    marginBottom: "30px",
   },
   searchBar: {
-    padding: "10px 20px",
+    padding: "12px 25px",
     fontSize: "1rem",
-    borderRadius: "25px",
-    border: "2px solid #ccc",
-    width: "90%",
+    borderRadius: "30px",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    width: "100%",
     outline: "none",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     color: "white",
+    backdropFilter: "blur(5px)",
   },
   fileListContainer: {
-    marginLeft: "100px",
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "center",
-    alignItems: "center",
-    width: "70vw",
-    maxHeight: "60vh",
+    width: "100%",
+    maxWidth: "1100px",
+    maxHeight: "calc(100vh - 250px)",
     overflowY: "auto",
-    gap: "20px",
-    padding: "20px",
-    scrollbarWidth: "thin",
-    scrollbarColor: "rgba(255, 255, 255, 0.2) transparent",
-    animation: "fadeIn 0.5s ease-in-out",
-    position: "relative",
+    gap: "25px",
+    padding: "10px",
+    marginTop: "10px",
   },
   fileCard: {
-    background: "rgba(255, 255, 255, 0.1)",
-    padding: "20px",
-    borderRadius: "15px",
-    boxShadow: "0 4px 20px rgba(0, 255, 246, 0.2)",
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+    background: "rgba(30, 41, 59, 0.6)",
+    color: "#E0E0E0",
+    padding: "18px 22px",
+    borderRadius: "10px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
     cursor: "pointer",
-    transition: "transform 0.3s ease-in-out, box-shadow 0.3s",
-    fontSize: "1.3rem",
-    fontWeight: "bold",
-    width: "320px",
-    marginBottom: "15px",
-    textAlign: "center",
-    color: "white",
-    wordWrap: "break-word",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    textAlign: "left",
+    wordBreak: "break-word",
+    backdropFilter: "blur(8px)",
+    flex: "1 1 320px",
+    maxWidth: "calc(50% - 12.5px)",
+    minWidth: "280px",
   },
   fileCardHover: {
-    transform: "scale(1.05)",
-    boxShadow: "0 6px 25px rgba(0, 255, 246, 0.5)",
+    transform: "translateY(-5px)",
+    boxShadow: "0 8px 18px rgba(0, 0, 0, 0.4)",
+    background: "rgba(51, 65, 85, 0.75)",
+    borderColor: "rgba(0, 251, 246, 0.5)",
+  },
+  fileIcon: {
+    fontSize: "1.7rem",
+    color: "#00FBF6",
+    flexShrink: 0,
+  },
+  fileName: {
+    fontSize: "1rem",
+    fontWeight: "500",
+    lineHeight: "1.4",
+    flexGrow: 1,
   },
   noResults: {
-    color: "#ff4d4d",
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-  },
-  // fileCard: {
-  //   padding: "12px",
-  //   marginBottom: "8px",
-  //   backgroundColor: "#1D1C4F",
-  //   color: "white",
-  //   borderRadius: "8px",
-  //   cursor: "pointer",
-  //   transition: "transform 0.2s",
-  // },
-  fileCardHover: {
-    transform: "scale(1.05)",
-  },
-  noResults: {
-    color: "rgba(255, 255, 255, 0.5)",
+    color: "rgba(255, 255, 255, 0.6)",
+    fontSize: "1.1rem",
     textAlign: "center",
-    padding: "10px",
+    width: "100%",
+    padding: "50px 20px",
   },
-
   filterButton: {
     position: "fixed",
     top: "50%",
-    left: "0",
+    left: "20px",
     transform: "translateY(-50%)",
     backgroundColor: "#334159",
     border: "none",
@@ -425,38 +513,39 @@ const styles = {
     color: "#00FBF6",
     fontSize: "1.5rem",
     zIndex: 999,
-    transition: "transform 0.3s ease-in-out",
+    boxShadow: "0 0 15px rgba(0, 251, 246, 0.3)",
   },
-  filterIcon: {
-    fontSize: "1.5rem",
-  },
+  filterIcon: { display: "block" },
   filterCard: {
+    // BASE styles for filter card (positioning comes from dynamic style)
     position: "fixed",
-    top: "30%",
-    left: "5%",
-    width: "20%",
-    background: "linear-gradient(145deg, #1d1d1d, #0d0d0d)",
-    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.3)",
+    // REMOVED left property here
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: "320px",
+    background: "rgba(17, 24, 39, 0.85)",
+    boxShadow: "5px 0px 25px rgba(0, 0, 0, 0.4)",
     display: "flex",
     flexDirection: "column",
-    padding: "20px",
+    padding: "25px",
     borderRadius: "15px",
     zIndex: 998,
-    transition: "transform 0.3s ease-in-out",
-    transform: "translateX(0)",
+    transition: "left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)", // Keep transition for smoothness
     backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    maxHeight: "80vh",
+    overflowY: "auto",
   },
-  filterContent: {
-    color: "white",
-  },
+  filterContent: { color: "white" },
   filterHeader: {
-    fontSize: "1.5rem",
+    fontSize: "1.4rem",
     fontWeight: "600",
     marginBottom: "20px",
     textAlign: "center",
+    color: "#00FBF6",
   },
   schoolList: {
-    marginBottom: "20px",
+    marginBottom: "15px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -464,65 +553,63 @@ const styles = {
   },
   row: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    gap: "10px",
     marginBottom: "10px",
     width: "100%",
     flexWrap: "wrap",
   },
   schoolOption: {
-    padding: "10px 20px",
-    fontSize: "0.8rem",
+    // Base styles
+    padding: "10px 15px",
+    fontSize: "0.85rem",
     cursor: "pointer",
-    backgroundColor: "#4CAF50",
     color: "white",
-    border: "none",
-    borderRadius: "20px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    borderRadius: "8px",
     textAlign: "center",
-    flex: "1 1 30%",
-    maxWidth: "30%",
-    transition: "background-color 0.3s ease-in-out",
+    transition:
+      "background-color 0.2s ease-in-out, border-color 0.2s ease-in-out",
     display: "flex",
-    alignItems: "center", // Align text and icon horizontally
+    alignItems: "center",
     justifyContent: "center",
+    background: "transparent", // Explicitly define base background
   },
-  icon: {
-    marginRight: "8px",
-    flexShrink: 0,
-  },
+  icon: { marginRight: "8px", flexShrink: 0 },
   majorOption: {
-    padding: "10px 20px",
+    // Base styles
+    padding: "8px 15px",
     fontSize: "0.8rem",
     cursor: "pointer",
-    backgroundColor: "#1D1C4F",
     color: "white",
-    border: "none",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
     borderRadius: "20px",
     textAlign: "center",
-    flex: "1 1 30%",
-    margin: "5px",
-    transition: "background-color 0.3s ease-in-out",
-    // minWidth: "100px",
-    maxWidth: "30%",
+    margin: "3px",
+    transition:
+      "background-color 0.2s ease-in-out, border-color 0.2s ease-in-out",
+    background: "transparent", // Explicitly define base background
   },
   nextButton: {
-    padding: "12px 15px",
-    fontSize: "1.2rem",
-    backgroundColor: "#FB2828",
-    color: "white",
+    padding: "10px 25px",
+    fontSize: "1rem",
+    fontWeight: "600",
+    backgroundColor: "#00FBF6",
+    color: "#02013B",
     border: "none",
-    borderRadius: "40px",
+    borderRadius: "30px",
     cursor: "pointer",
-    marginLeft: "100px",
-    transition: "background-color 0.3s ease-in-out",
-    maxWidth: "100px",
     width: "auto",
-    marginTop: "-10px",
-    textAlign: "center",
+    alignSelf: "center",
+    marginTop: "15px",
+  },
+  nextButtonHover: {
+    backgroundColor: "#00d9d3",
+    scale: 1.05,
   },
   line: {
-    height: "2px",
-    backgroundColor: "white",
-    marginBottom: "5px",
-    opacity: "50%",
+    height: "1px",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    margin: "15px 0",
   },
 };
