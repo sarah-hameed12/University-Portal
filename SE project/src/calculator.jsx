@@ -18,22 +18,20 @@ const gradePoints = {
   U: 0.0,
 };
 
-// --- Helper Component for the CGPA Gauge (Minor style adjustment) ---
 const CgpaGauge = ({ cgpa }) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const validCgpa = Math.max(0, Math.min(4, cgpa || 0));
   const offset = circumference - (validCgpa / 4.0) * circumference;
 
-  let strokeColor = "#EF4444"; // Red-500 (F)
-  if (validCgpa >= 1.0) strokeColor = "#F97316"; // Orange-500 (D)
-  if (validCgpa >= 2.0) strokeColor = "#EAB308"; // Yellow-500 (C)
-  if (validCgpa >= 3.0) strokeColor = "#22C55E"; // Green-500 (B)
-  if (validCgpa >= 3.7) strokeColor = "#3B82F6"; // Blue-500 (A)
+  let strokeColor = "#EF4444";
+  if (validCgpa >= 1.0) strokeColor = "#F97316";
+  if (validCgpa >= 2.0) strokeColor = "#EAB308";
+  if (validCgpa >= 3.0) strokeColor = "#22C55E";
+  if (validCgpa >= 3.7) strokeColor = "#3B82F6";
 
   return (
     <motion.div
-      // Use modified style key: gaugeWrapper
       style={styles.gaugeWrapper}
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -65,7 +63,7 @@ const CgpaGauge = ({ cgpa }) => {
         width="120"
         height="120"
         viewBox="0 0 120 120"
-        style={styles.gaugeSvg} // Use style key
+        style={styles.gaugeSvg}
       >
         <circle
           cx="60"
@@ -94,7 +92,7 @@ const CgpaGauge = ({ cgpa }) => {
       </svg>
       <motion.div
         key={cgpa}
-        style={styles.gaugeText} // Use style key
+        style={styles.gaugeText}
         initial={{ opacity: 0, scale: 0.8, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.1 }}
@@ -107,7 +105,6 @@ const CgpaGauge = ({ cgpa }) => {
   );
 };
 
-// --- Main Calculator Component ---
 const Calculator = () => {
   const [courses, setCourses] = useState([
     { id: Date.now() + 1, courseName: "", grade: "", credits: "" },
@@ -118,8 +115,7 @@ const Calculator = () => {
 
   useEffect(() => {
     calculateCGPA();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courses]); // Added eslint disable comment
+  }, [courses]);
 
   const calculateCGPA = () => {
     let totalPoints = 0;
@@ -218,7 +214,7 @@ const Calculator = () => {
                     ))}
                   </select>
                   <input
-                    className="creditsInput" // Keep class if using CSS for spinners
+                    className="creditsInput"
                     type="number"
                     min="0"
                     step="0.5"
@@ -267,7 +263,6 @@ const Calculator = () => {
           {/* Gauge Component */}
           {/* Apply animation directly if needed, or rely on internal animation */}
           <motion.div
-            // Add animation to the gauge container if desired for initial load
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{
@@ -275,7 +270,7 @@ const Calculator = () => {
               type: "spring",
               stiffness: 120,
               delay: 0.1,
-            }} // Add delay
+            }}
           >
             <CgpaGauge cgpa={parseFloat(cgpa)} />
           </motion.div>
@@ -298,9 +293,7 @@ const Calculator = () => {
 
 export default Calculator;
 
-// --- Enhanced Styles (Key Changes Highlighted) ---
 const styles = {
-  // ... (container, header, contentWrapper, coursesSection styles remain the same)
   container: {
     display: "flex",
     flexDirection: "column",
@@ -335,15 +328,15 @@ const styles = {
     display: "flex",
     flexDirection: "column",
   },
-  // --- Result Section Style Changes ---
+
   resultSection: {
     flex: "1",
     minWidth: "280px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center", // Keep items centered horizontally
-    paddingTop: "0px", // REMOVED padding - use margins instead
-    gap: "20px", // ADDED gap between flex children (Title, Gauge Wrapper, Total Credits)
+    alignItems: "center",
+    paddingTop: "0px",
+    gap: "20px",
   },
   sectionTitle: {
     fontSize: "1.5rem",
@@ -353,64 +346,58 @@ const styles = {
     paddingBottom: "8px",
     width: "100%",
     textAlign: "left",
-    // REMOVED marginBottom here, rely on gap in parent
   },
   resultSectionTitle: {
     textAlign: "center",
-    borderBottom: "none", // Keep borderless
-    width: "auto", // Allow title to size naturally
-    // Ensure it takes space in the flex column:
-    marginTop: "0", // Adjust if needed based on alignment with courses title
-    marginBottom: "0", // Let gap handle spacing below
+    borderBottom: "none",
+    width: "auto",
+
+    marginTop: "0",
+    marginBottom: "0",
   },
-  // --- Gauge Style Changes ---
+
   gaugeWrapper: {
-    // Renamed from gaugeContainer
-    position: "relative", // Keep relative for internal absolute positioning
-    width: "140px", // Slightly larger for breathing room? Adjust as needed
-    height: "140px", // Match width
-    display: "flex", // Use flex to help center SVG if needed
+    position: "relative",
+    width: "140px",
+    height: "140px",
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    // REMOVED margin here, rely on gap in parent (resultSection)
   },
   gaugeSvg: {
     transform: "rotate(-90deg)",
     filter: "url(#shadow)",
-    overflow: "visible", // Ensure shadow isn't clipped
-    // SVG itself shouldn't need position absolute now
+    overflow: "visible",
   },
   gaugeText: {
-    position: "absolute", // Keep absolute to overlay on SVG center
+    position: "absolute",
     top: "35%",
     left: "35%",
     transform: "translate(-50%, -50%)",
     fontSize: "1.8rem",
     fontWeight: "600",
     color: "#FFF",
-    pointerEvents: "none", // Prevent text interfering with hover on wrapper
+    pointerEvents: "none",
   },
   gaugeLabel: {
-    position: "absolute", // Keep absolute
-    bottom: "-20px", // Position relative to bottom of wrapper
+    position: "absolute",
+    bottom: "-20px",
     left: "50%",
     transform: "translateX(-50%)",
-    fontSize: "0.75rem", // Slightly smaller label
+    fontSize: "0.75rem",
     color: "#9CA3AF",
     textTransform: "uppercase",
     letterSpacing: "0.5px",
   },
-  // --- Total Credits Text Style Changes ---
+
   totalCreditsText: {
     fontSize: "1rem",
     color: "#D1D5DB",
     textAlign: "center",
-    // REMOVED marginTop, rely on gap in parent (resultSection)
-    marginBottom: "10px", // Optional small margin at the very bottom
+
+    marginBottom: "10px",
   },
 
-  // ... (coursesList, courseCard, input, select, option, button styles remain mostly the same)
-  // Ensure scrollbar styles are handled via CSS file or library if needed
   coursesList: {
     width: "100%",
     maxHeight: "55vh",
@@ -420,8 +407,6 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "15px",
-    // scrollbarWidth: "thin", // Use CSS file
-    // scrollbarColor: "#6B7280 #374151", // Use CSS file
   },
   courseCard: {
     display: "flex",
@@ -500,5 +485,4 @@ const styles = {
     transition: "background-color 0.3s, transform 0.1s",
     alignSelf: "flex-start",
   },
-  // REMOVED resultDisplay style object as it's no longer used
 };
