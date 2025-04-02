@@ -42,6 +42,9 @@ const DocsTab = () => {
     if (doc.title === "Course Outlines") {
       navigate("/outlines");
     }
+    if (doc.title === "CGPA Calculator") {
+      navigate("/calculator");
+    }
   };
   return (
     <div style={styles.container}>

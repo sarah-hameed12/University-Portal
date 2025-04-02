@@ -6,6 +6,7 @@ import Signup from "./signup2.jsx";
 import SocietyScreen from "./societies.jsx";
 import DocsTab from "./documents.jsx";
 import Outlines from "./outlines.jsx";
+import Calculator from "./calculator.jsx";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/society" element={<SocietyScreen />} />
         <Route path="/documents" element={<DocsTab />} />
         <Route path="/outlines" element={<Outlines />} />
+        <Route path="/calculator" element={<Calculator />} />
       </Routes>
     </Router>
   );
