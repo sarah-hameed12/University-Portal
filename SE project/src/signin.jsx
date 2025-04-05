@@ -1,181 +1,234 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import styles from "./signin.module.css"; // Reuse the Signup styles!
 
+// --- Import Icons ---
+import { FiUser, FiLock } from "react-icons/fi"; // Example icons
+
+// Supabase Client
 const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpdm9ramN1bG5mbHJ5eHp0ZmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5NzExOTAsImV4cCI6MjA1NDU0NzE5MH0.8rBAN4tZP8S0j1wkfj8SwSN1Opdf9LOERb-T47rZRYk";
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Animation Variants
+const splitLayoutVariants = {
+  // Renamed from cardVariants for clarity
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
+const messageVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
+};
+
+const leftPanelVariants = {
+  hidden: { opacity: 0, x: -30 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.6, delay: 0.3 } },
+};
 
 const SignIn = () => {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [borderColor, setBorderColor] = useState("#ccc");
-
+  const [isError, setIsError] = useState(false);
+  const [isIdValid, setIsIdValid] = useState(null);
   const navigate = useNavigate();
 
-  // Handle Sign-In
-  const handleSignIn = async () => {
-    if (userId.length !== 8) {
-      setMessage("❌ User ID must be 8 characters long.");
-      setBorderColor("#FF4500");
+  const validateStudentId = (id) => /^\d{8}$/.test(id);
+  useEffect(() => {
+    setIsIdValid(userId ? validateStudentId(userId) : null);
+  }, [userId]);
+
+  const handleSignIn = async (event) => {
+    event.preventDefault();
+    if (!isIdValid) {
+      setMessage("❌ User ID must be 8 digits.");
+      setIsError(true);
       return;
     }
-
     setLoading(true);
     setMessage("");
-
+    setIsError(false);
     const email = `${userId}@lums.edu.pk`;
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
     setLoading(false);
 
     if (error) {
-      setMessage("❌ Invalid User ID or Password.");
-      setBorderColor("#FF4500");
+      setMessage(`❌ ${error.message || "Invalid credentials."}`);
+      setIsError(true);
     } else {
-      setMessage("✅ Login successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 1500);
+      setMessage("✅ Login successful! Welcome back.");
+      setIsError(false);
+      navigate("/dashboard");
     }
   };
 
+  const getInputClass = (isValid) => {
+    let classes = `${styles.input} ${styles.inputWithIcon}`;
+    if (isValid === false) classes += ` ${styles.inputError}`;
+    return classes;
+  };
+
   return (
-    <div style={styles.container}>
+    // Apply container style for background and centering
+    <div className={styles.container}>
+      {/* Apply split layout and animation */}
       <motion.div
-        style={styles.card}
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        className={styles.splitLayout} // Use the split layout style
+        variants={splitLayoutVariants}
+        initial="hidden"
+        animate="visible"
       >
-        <motion.h1
-          style={styles.heading}
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 0.5 }}
-        >
-          SIGN IN
-        </motion.h1>
+        {/* Left Side: Welcome Message (Consistent with Signup) */}
+        <div className={styles.left}>
+          <motion.div variants={leftPanelVariants}>
+            {" "}
+            {/* Optional animation for left panel content */}
+            <div className={styles.logo}>
+              Super<span className={styles.logoAccent}>LUMS</span>
+            </div>
+            <h2 className={styles.welcomeHeading}>Welcome Back!</h2>
+            <p className={styles.welcomeText}>
+              Sign in to access your personalized dashboard, connect with peers,
+              and explore campus events.
+            </p>
+          </motion.div>
+        </div>
 
-        <motion.input
-          type="text"
-          placeholder="Enter your User ID"
-          value={userId}
-          onChange={(e) => {
-            setUserId(e.target.value);
-            setBorderColor(userId.length >= 7 ? "#32CD32" : "#FF4500");
-          }}
-          style={{ ...styles.input, borderColor }}
-          whileFocus={{ scale: 1.05 }}
-        />
+        {/* Right Side: Sign In Form */}
+        <div className={styles.right}>
+          <div className={styles.formWrapper}>
+            {" "}
+            {/* Wrapper to control form width */}
+            <h1 className={styles.heading}>Sign In</h1>
+            <p className={styles.subheading}>Use your LUMS ID and password.</p>
+            <form className={styles.form} onSubmit={handleSignIn}>
+              {/* Message Display */}
+              <AnimatePresence>
+                {message && (
+                  <motion.p
+                    key="message"
+                    className={`${styles.message} ${
+                      isError ? styles.errorMessage : styles.successMessage
+                    }`}
+                    variants={messageVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    {" "}
+                    {message}{" "}
+                  </motion.p>
+                )}
+              </AnimatePresence>
 
-        <motion.input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-          whileFocus={{ scale: 1.05 }}
-        />
+              {/* Input Fields with Icons */}
+              <div className={styles.formGroup}>
+                <label htmlFor="userId" className={styles.label}>
+                  {" "}
+                  Student ID{" "}
+                </label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    id="userId"
+                    type="text"
+                    pattern="[0-9]*"
+                    inputMode="numeric"
+                    placeholder="Your 8-digit LUMS ID"
+                    value={userId}
+                    onChange={(e) =>
+                      setUserId(e.target.value.replace(/\D/g, "").slice(0, 8))
+                    }
+                    className={getInputClass(isIdValid)}
+                    maxLength={8}
+                    required
+                  />
+                  <FiUser className={styles.inputIcon} />
+                </div>
+              </div>
 
-        <motion.button
-          style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}
-          onClick={handleSignIn}
-          disabled={loading}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {loading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
-              style={styles.spinner}
-            />
-          ) : (
-            "Login"
-          )}
-        </motion.button>
+              <div className={styles.formGroup}>
+                <label htmlFor="password" className={styles.label}>
+                  {" "}
+                  Password{" "}
+                </label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${styles.input} ${styles.inputWithIcon}`}
+                    required
+                  />
+                  <FiLock className={styles.inputIcon} />
+                </div>
+              </div>
 
-        {message && (
-          <motion.p
-            style={styles.message}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {message}
-          </motion.p>
-        )}
+              {/* Forgot Password Link */}
+              <div
+                style={{
+                  width: "100%",
+                  textAlign: "right",
+                  marginBottom: "20px",
+                  marginTop: "-10px",
+                }}
+              >
+                <Link to="/forgot-password" className={styles.helperLink}>
+                  Forgot Password?
+                </Link>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                type="submit"
+                className={`${styles.button} ${styles.buttonPrimary}`}
+                disabled={loading || !isIdValid || !password}
+                whileHover={!loading ? { scale: 1.03 } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {loading ? (
+                  <div className={styles.buttonSpinner}></div>
+                ) : (
+                  "Sign In"
+                )}
+              </motion.button>
+
+              {/* Link to Sign Up */}
+              <div className={styles.switchFormContainer}>
+                {" "}
+                {/* Reuse container style for link */}
+                Don't have an account?
+                <Link to="/signup2" className={styles.switchFormLink}>
+                  Sign Up Now
+                </Link>
+              </div>
+            </form>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
 };
 
 export default SignIn;
-
-// Styles
-const styles = {
-  container: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    margin: 0,
-    padding: 0,
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "linear-gradient(to bottom, #0093E9, #80D0C7)",
-  },
-  card: {
-    background: "white",
-    padding: "30px",
-    borderRadius: "12px",
-    boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-    textAlign: "center",
-    width: "320px",
-  },
-  heading: {
-    fontSize: "1.8rem",
-    color: "#333",
-    marginBottom: "20px",
-  },
-  input: {
-    width: "70%",
-    padding: "12px",
-    marginBottom: "15px",
-    borderRadius: "25px",
-    border: "1px solid #ccc",
-    outline: "none",
-  },
-  button: {
-    backgroundColor: "green",
-    color: "white",
-    border: "none",
-    padding: "12px 24px",
-    fontSize: "1rem",
-    borderRadius: "39px",
-    cursor: "pointer",
-    marginTop: "10px",
-    transition: "0.3s",
-    width: "40%",
-  },
-  message: {
-    marginTop: "10px",
-    fontSize: "14px",
-    color: "red",
-  },
-  spinner: {
-    width: "20px",
-    height: "20px",
-    border: "3px solid white",
-    borderTop: "3px solid transparent",
-    borderRadius: "50%",
-    display: "inline-block",
-  },
-};

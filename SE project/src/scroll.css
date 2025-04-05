@@ -1,0 +1,41 @@
+/* Calculator.css */
+
+/* Scrollbar Styles for Webkit Browsers (Chrome, Safari, Edge) */
+.coursesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.coursesList::-webkit-scrollbar-track {
+  background: #374151; /* Darker track */
+  border-radius: 10px;
+}
+
+.coursesList::-webkit-scrollbar-thumb {
+  background: #6b7280; /* Grey thumb */
+  border-radius: 10px;
+  border: 2px solid #374151; /* Creates padding around thumb */
+}
+
+.coursesList::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Scrollbar Styles for Firefox */
+.coursesList {
+  scrollbar-width: thin; /* Or 'auto' */
+  scrollbar-color: #6b7280 #374151; /* thumb track */
+}
+
+/* Hide Number Input Spinners */
+.creditsInput::-webkit-outer-spin-button,
+.creditsInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+/* .creditsInput[type="number"] {
+  -moz-appearance: textfield;
+} */
+
+/* Add other global or component-specific styles here if needed */
