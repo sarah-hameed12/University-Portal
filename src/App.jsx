@@ -10,7 +10,7 @@ import Calculator from "./calculator.jsx";
 import Scheduler from "./scheduler.jsx";
 import Dashboard from "./dashboard.jsx";
 import FacultyOfficeHours from "./faculty.jsx";
-import ChatApp from "../../firstdeadline/SE project/src/chat_app_features/ChatApp.jsx";
+import ChatApp from "./chat_app_features/ChatApp.jsx";
 
 const App = () => {
   return (
