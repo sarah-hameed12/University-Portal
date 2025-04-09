@@ -9,6 +9,7 @@ import Outlines from "./outlines.jsx";
 import Calculator from "./calculator.jsx";
 import Scheduler from "./scheduler.jsx";
 import Dashboard from "./dashboard.jsx";
+import Chatapp from "./chat_app_features/ChatApp.jsx"
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/calculator" element={<Calculator />} />
         <Route path="/scheduler" element={<Scheduler />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/chat" element={<Chatapp />} />
       </Routes>
     </Router>
   );
