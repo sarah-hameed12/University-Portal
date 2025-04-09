@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { FiHome } from "react-icons/fi";
 import {
   FaCalendarAlt,
   FaFileAlt,
@@ -8,6 +10,34 @@ import {
   FaClock,
   FaCalculator,
 } from "react-icons/fa";
+import styles from "./DocsTab.module.css"; // Import the specific CSS module
+
+// Animation Variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.2, // Start staggering after container fades in
+      staggerChildren: 0.1, // Stagger animation of each card
+    },
+  },
+};
+
+const headerVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 100, damping: 12 },
+  },
+};
 
 const DocsTab = () => {
   const navigate = useNavigate();
@@ -16,117 +46,112 @@ const DocsTab = () => {
       title: "Course Scheduler",
       description: "Plan your courses efficiently.",
       icon: <FaCalendarAlt />,
+      path: "/scheduler",
     },
     {
       title: "Course Outlines",
       description: "Detailed syllabus for each course.",
       icon: <FaFileAlt />,
+      path: "/outlines",
     },
     {
       title: "Course Memo",
       description: "Important notes and updates.",
       icon: <FaStickyNote />,
-    },
+      path: "/memos",
+    }, // Example: Added path
     {
       title: "Faculty Office Hours",
       description: "Meet your professors on time.",
       icon: <FaClock />,
-    },
+      path: "/office-hours",
+    }, // Example: Added path
     {
       title: "CGPA Calculator",
-      description: "Fully optional GPA Calculator and Estimator",
+      description: "Estimate your GPA.",
       icon: <FaCalculator />,
+      path: "/calculator",
     },
   ];
+
+  // Updated navigation handler
   const handleNavigation = (doc) => {
-    if (doc.title === "Course Outlines") {
-      navigate("/outlines");
-    }
-    if (doc.title === "CGPA Calculator") {
-      navigate("/calculator");
-    }
-    if (doc.title === "Course Scheduler") {
-      navigate("/scheduler");
+    if (doc.path) {
+      // Navigate if a path is defined
+      navigate(doc.path);
+    } else {
+      console.warn(`No path defined for card: ${doc.title}`);
+      // Optionally show a message like "Coming soon"
     }
   };
+
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>Documents</h1>
-      <div style={styles.grid}>
-        {docs.map((doc, index) => (
-          <motion.div
-            key={index}
-            style={styles.card}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.15 }}
-            onClick={() => handleNavigation(doc)}
-          >
-            <div style={styles.icon}>{doc.icon}</div>
-            <h2 style={styles.cardTitle}>{doc.title}</h2>
-            <p style={styles.cardText}>{doc.description}</p>
-          </motion.div>
-        ))}
-      </div>
-    </div>
+    <motion.div
+      className={styles.container}
+      // Animate the container itself if needed, though staggering children might be enough
+      // initial="hidden"
+      // animate="visible"
+      // variants={containerVariants} // Example for overall container animation
+    >
+      <Link to="/dashboard" title="Back to Dashboard">
+        {/* {" "} */}
+        {/* Or path="/" if that's your dashboard route */}
+        <motion.div
+          className={styles.backToHomeButton}
+          whileHover={{ scale: 1.1 }} // Framer motion hover
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.3 }} // Slight delay
+        >
+          <FiHome className={styles.backToHomeIcon} />
+        </motion.div>
+      </Link>
+      <motion.h1
+        className={styles.header}
+        variants={headerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        University Utilities
+      </motion.h1>
+
+      {/* Apply variants to the grid for staggering */}
+      <motion.div
+        className={styles.grid}
+        variants={containerVariants} // Use container variants for stagger effect
+        initial="hidden"
+        animate="visible"
+      >
+        {docs.map(
+          (
+            doc // Removed index as key if title is unique
+          ) => (
+            <motion.div
+              key={doc.title} // Use a unique identifier like title if possible
+              className={styles.card}
+              variants={cardVariants} // Apply card animation variant
+              whileHover={{
+                y: -8,
+                scale: 1.03,
+                transition: { duration: 0.15 },
+              }} // Simpler Framer Motion hover
+              // transition={{ duration: 0.15 }} // Handled by variants now
+              onClick={() => handleNavigation(doc)}
+            >
+              <div className={styles.iconWrapper}>
+                {" "}
+                {/* Wrapper for icon background */}
+                <div className={styles.icon}>{doc.icon}</div>
+              </div>
+              <h2 className={styles.cardTitle}>{doc.title}</h2>
+              <p className={styles.cardText}>{doc.description}</p>
+            </motion.div>
+          )
+        )}
+      </motion.div>
+    </motion.div>
   );
 };
 
 export default DocsTab;
-
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    padding: "40px 20px",
-    minHeight: "100vh",
-    background: "radial-gradient(circle, #02013B, black)",
-    color: "white",
-    fontFamily: "'Poppins', sans-serif",
-    overflow: "hidden",
-  },
-  header: {
-    fontSize: "2.8rem",
-    fontWeight: "700",
-    marginBottom: "30px",
-    textAlign: "center",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "20px",
-    width: "85%",
-    maxWidth: "1100px",
-    justifyContent: "center",
-  },
-  card: {
-    background: "rgba(255, 255, 255, 0.12)",
-    borderRadius: "90px",
-    padding: "25px",
-    textAlign: "center",
-    boxShadow: "0 8px 20px rgba(255, 255, 255, 0.15)",
-    backdropFilter: "blur(10px)",
-    transition: "all 0.15s ease",
-    minHeight: "170px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-  },
-  icon: {
-    fontSize: "2.5rem",
-    marginBottom: "12px",
-    color: "white",
-  },
-  cardTitle: {
-    fontSize: "1.5rem",
-    fontWeight: "600",
-    marginBottom: "8px",
-  },
-  cardText: {
-    fontSize: "0.95rem",
-    opacity: "0.9",
-  },
-};

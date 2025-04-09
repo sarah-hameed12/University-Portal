@@ -1,0 +1,238 @@
+/* DocsTab.module.css */
+
+/* Import Font and Define Variables (reuse from Signup.module.css for consistency) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #0d1117;
+  --card-bg: rgba(26, 28, 42, 0.65); /* Slightly less transparent maybe */
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-hover-bg: rgba(37, 40, 60, 0.8);
+  --card-hover-border: rgba(255, 255, 255, 0.15);
+  --primary-accent: #8c78ff;
+  --primary-accent-glow: rgba(140, 120, 255, 0.2);
+  --secondary-accent: #00f5d4;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a3bd;
+  --text-placeholder: #6a6f93;
+  --icon-bg: rgba(140, 120, 255, 0.1);
+  --icon-color: var(--primary-accent);
+  --font-family: 'Inter', sans-serif;
+  --card-border-radius: 16px;
+  --element-border-radius: 10px;
+}
+
+.container {
+  position: relative; /* Ensure positioning context for absolute children */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 80px 20px 80px 20px; /* Increased top padding for button clearance, kept bottom padding */
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+
+  /* Background Layers */
+  background-color: var(--bg-color); /* Fallback solid color */
+  background-image:
+      /* Layer 1: Subtle Top-Left Accent Glow */
+      radial-gradient(
+          circle at 15% 20%,
+          rgba(140, 120, 255, 0.12) 0%,
+          rgba(140, 120, 255, 0) 30%
+      ),
+      /* Layer 2: Vignette Effect */
+      radial-gradient(
+          ellipse at center,
+          rgba(13, 17, 23, 0.6) 0%,
+          rgba(13, 17, 23, 0.9) 70%,
+          var(--bg-color) 100%
+      ),
+      /* Layer 3: Base Background Image */
+      url('./university_background.jpg'); /* Your image path */
+
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
+
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-y: auto; /* Allow vertical scroll */
+}
+
+/* --- Back to Dashboard Button --- */
+.backToHomeButton {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  background-color: rgba(26, 28, 42, 0.6);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  z-index: 10; /* Ensure button is on top */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.backToHomeButton:hover {
+  background-color: rgba(37, 40, 60, 0.8);
+  color: var(--primary-accent);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.backToHomeIcon {
+  font-size: 1.3rem;
+}
+
+
+/* --- Header --- */
+.header {
+  font-size: 2.5rem;
+  font-weight: 700;
+  /* Removed negative margin-top */
+  margin-top: -14px;
+  margin-bottom: 40px; /* Keep space below header */
+  text-align: center;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  position: relative; /* Ensure stacking context (good practice) */
+  z-index: 1; /* Ensure header is above background gradients */
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  justify-content: center;
+  margin-bottom: 40px; /* Add space below grid, alternative to large container padding */
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: var(--card-border-radius);
+  padding: 30px;
+  text-align: center;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px) saturate(100%);
+  -webkit-backdrop-filter: blur(12px) saturate(100%);
+  transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  background-color: var(--card-hover-bg);
+  border-color: var(--card-hover-border);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px var(--primary-accent-glow);
+}
+
+/* Gradient border effect */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-border-radius);
+  padding: 1px;
+  background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.card:hover::before {
+  opacity: 1;
+}
+
+.iconWrapper {
+  background-color: var(--icon-bg);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.card:hover .iconWrapper {
+    background-color: rgba(140, 120, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.icon {
+  font-size: 1.8rem;
+  color: var(--icon-color);
+  transition: color 0.25s ease;
+}
+
+.card:hover .icon {
+    color: var(--secondary-accent);
+}
+
+.cardTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.cardText {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 90%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header { font-size: 2rem; }
+    .grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+    .card { padding: 25px; min-height: 180px; }
+    .iconWrapper { width: 55px; height: 55px; margin-bottom: 15px; }
+    .icon { font-size: 1.6rem; }
+    .cardTitle { font-size: 1.15rem; }
+    .cardText { font-size: 0.85rem; }
+}
+
+@media (max-width: 500px) {
+    .container { padding: 70px 15px 40px 15px; } /* Adjusted top padding */
+    .header {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        /* Removed negative margin-top here too */
+    }
+    .grid { grid-template-columns: 1fr; gap: 20px; }
+    .card { min-height: auto; }
+    .backToHomeButton {
+        top: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+    }
+    .backToHomeIcon { font-size: 1.1rem; }
+}

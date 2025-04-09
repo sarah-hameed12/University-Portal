@@ -688,10 +688,8 @@ const Scheduler = () => {
       {/* End Main Content Wrapper */}
     </div> // End Container
   );
-}; // End Scheduler Component
+};
 
-// --- Styles Object ---
-// --- Styles Object (Timetable Height Adjustments Highlighted) ---
 const styles = {
   // ... (container, header, mainContentWrapper, leftPanel, search*, availableCourses*, listHeader, scrollableList, errorBox, courseItem styles remain the same as the previous corrected version) ...
   container: {
