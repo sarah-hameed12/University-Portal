@@ -1,0 +1,66 @@
+/* Outlines.css */
+
+/* Scrollbar Styles (target the container by class or specific selector) */
+/* If fileListContainer doesn't have a className, add one: <div className="file-list-container" style={styles.fileListContainer}> */
+.file-list-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .file-list-container::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+  }
+  
+  .file-list-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
+  
+  .file-list-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  /* Firefox scrollbar */
+  .file-list-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(0,0,0,0.1);
+  }
+  
+  
+  /* Placeholder Style (Target the specific input if possible, e.g., by adding a className="search-input") */
+  /* <input className="search-input" style={styles.searchBar} ... /> */
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 1; /* Firefox requires this */
+  }
+  
+  .search-input::-webkit-input-placeholder { /* Chrome/Safari/Opera/Edge */
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .search-input::-moz-placeholder { /* Firefox 19+ */
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+  }
+  
+  .search-input:-ms-input-placeholder { /* IE 10+ */
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .search-input::-ms-input-placeholder { /* Microsoft Edge */
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Filter Card Scrollbar (if needed) */
+  .filter-card::-webkit-scrollbar { /* Add className="filter-card" to the filter card div */
+    width: 6px;
+  }
+  .filter-card::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+  }
+  /* Add other filter card scrollbar styles if desired */
+  .filter-card {
+     scrollbar-width: thin;
+     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }

@@ -1,0 +1,286 @@
+/* --- General & Layout --- */
+body {
+    margin: 0;
+    font-family: sans-serif; /* Choose a suitable font */
+    color: #e5e7eb; /* Light gray text default */
+  }
+  
+  .dashboard-container {
+    display: flex;
+    min-height: 100vh; /* Ensure it covers full height */
+    background-color: #111827; /* Dark background - Tailwind gray-950 */
+  }
+  
+  .dashboard-main-content {
+    flex-grow: 1; /* Takes remaining space */
+    margin-left: 256px; /* Fixed offset for sidenav */
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Needed for fixed TopNav */
+  }
+  
+  .dashboard-scrollable-area {
+    flex-grow: 1;
+    overflow-y: auto; /* Make this area scrollable */
+    padding: 24px;
+    padding-top: 80px; /* Space for the fixed TopNav (64px height + 16px padding) */
+  }
+  
+  /* --- SideNav --- */
+  .sidenav {
+    width: 256px;
+    height: 100vh;
+    background-color: #1f2937; /* Darker Gray - Tailwind gray-800 */
+    color: #d1d5db; /* Lighter Gray - Tailwind gray-300 */
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: fixed; /* Fixed position */
+    top: 0;
+    left: 0;
+    box-sizing: border-box; /* Include padding in width */
+    border-right: 1px solid #374151; /* gray-700 */
+  }
+  
+  .sidenav-title {
+    font-size: 1.5rem; /* 2xl */
+    font-weight: bold;
+    margin-bottom: 40px;
+    text-align: center;
+    color: #a78bfa; /* Purple-400 */
+  }
+  
+  .sidenav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidenav li {
+    margin-bottom: 16px; /* mb-4 */
+  }
+  
+  .sidenav a {
+    display: flex;
+    align-items: center;
+    padding: 8px; /* p-2 */
+    border-radius: 6px; /* rounded */
+    text-decoration: none;
+    color: inherit; /* Inherit color from .sidenav */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .sidenav a:hover {
+    background-color: #374151; /* Tailwind gray-700 */
+    color: #c4b5fd; /* Lighter Purple - Tailwind purple-300 */
+  }
+  
+  .sidenav a span {
+    margin-right: 12px; /* mr-3 */
+  }
+  
+  .sidenav-footer {
+    margin-top: auto; /* Pushes footer to bottom */
+    text-align: center;
+    font-size: 0.75rem; /* text-xs */
+    color: #6b7280; /* Tailwind gray-500 */
+  }
+  
+  
+  /* --- TopNav --- */
+  .topnav {
+    background-color: #1f2937; /* Darker Gray - Tailwind gray-800 */
+    color: #e5e7eb; /* Light Gray - Tailwind gray-200 */
+    padding: 16px; /* p-4 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed; /* Fixed position */
+    top: 0;
+    left: 256px; /* Aligned next to sidenav */
+    right: 0;
+    z-index: 10;
+    height: 64px; /* Fixed height */
+    box-sizing: border-box; /* Include padding in height */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    border-bottom: 1px solid #374151; /* gray-700 */
+  
+  }
+  
+  .topnav-profile {
+    display: flex;
+    align-items: center;
+  }
+  
+  .topnav-profile-pic {
+    width: 32px; /* w-8 */
+    height: 32px; /* h-8 */
+    border-radius: 50%; /* rounded-full */
+    margin-right: 12px; /* mr-3 */
+    border: 2px solid #a78bfa; /* border-purple-400 */
+    object-fit: cover;
+  }
+  
+  .topnav-profile-name {
+    font-weight: 500; /* font-medium */
+  }
+  
+  .topnav-search-container {
+    flex-grow: 1;
+    max-width: 42rem; /* max-w-lg */
+    margin: 0 16px; /* mx-4 */
+    position: relative;
+  }
+  
+  .topnav-search-input {
+    width: 100%;
+    padding: 8px 8px 8px 40px; /* p-2 pl-10 */
+    border-radius: 6px; /* rounded */
+    background-color: #374151; /* Tailwind gray-700 */
+    color: white;
+    border: 1px solid #4b5563; /* gray-600 */
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .topnav-search-input:focus {
+    outline: none;
+    border-color: #8b5cf6; /* purple-500 */
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5); /* focus:ring-2 focus:ring-purple-500 */
+  }
+  
+  .topnav-search-icon {
+    position: absolute;
+    left: 12px; /* left-3 */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af; /* gray-400 */
+    pointer-events: none; /* Make icon non-interactive */
+  }
+  
+  .topnav-actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Generic button style */
+  .topnav-button {
+    padding: 4px 16px; /* py-1 px-4 */
+    border: none;
+    border-radius: 6px; /* rounded */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .topnav-button-primary {
+    background-color: #7c3aed; /* purple-600 */
+  }
+  .topnav-button-primary:hover {
+    background-color: #6d28d9; /* purple-700 */
+  }
+  
+  .topnav-button-secondary {
+    background-color: #4b5563; /* gray-600 */
+    margin-right: 8px; /* mr-2 */
+  }
+  .topnav-button-secondary:hover {
+    background-color: #6b7280; /* gray-500 */
+  }
+  
+  /* --- Feed --- */
+  .feed-container {
+    margin-top: 16px; /* Slightly separate from top */
+  }
+  
+  .feed-title {
+    font-size: 1.25rem; /* xl */
+    font-weight: 600; /* semibold */
+    color: #e5e7eb; /* gray-200 */
+    margin-bottom: 16px; /* mb-4 */
+  }
+  
+  .feed-loading, .feed-error, .feed-empty {
+    text-align: center;
+    padding: 20px;
+    color: #9ca3af; /* gray-400/500 */
+    border-radius: 8px;
+  }
+  
+  .feed-error {
+     color: #f87171; /* red-500 */
+     background-color: rgba(239, 68, 68, 0.1); /* red-100 adjusted */
+  }
+  
+  
+  /* --- PostItem --- */
+  .post-item {
+    background-color: #1f2937; /* gray-800 */
+    border-radius: 8px; /* rounded-lg */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow-md */
+    padding: 16px; /* p-4 */
+    margin-bottom: 24px; /* mb-6 */
+    border: 1px solid #374151; /* border border-gray-700 */
+  }
+  
+  .post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px; /* mb-3 */
+  }
+  
+  .post-author-avatar {
+    width: 40px; /* w-10 */
+    height: 40px; /* h-10 */
+    border-radius: 50%; /* rounded-full */
+    margin-right: 12px; /* mr-3 */
+    border: 2px solid #4b5563; /* border-gray-600 */
+    object-fit: cover;
+  }
+  
+  .post-author-name {
+    font-weight: 600; /* semibold */
+    color: #a78bfa; /* purple-400 */
+  }
+  
+  .post-timestamp {
+    font-size: 0.75rem; /* xs */
+    color: #9ca3af; /* gray-400 */
+  }
+  
+  .post-image {
+      border-radius: 8px; /* rounded-lg */
+      margin-bottom: 12px; /* mb-3 */
+      max-height: 384px; /* max-h-96 */
+      width: 100%;
+      object-fit: cover; /* Like Tailwind object-cover */
+  }
+  
+  .post-content {
+    color: #e5e7eb; /* gray-200 */
+    margin-bottom: 16px; /* mb-4 */
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word; /* Break long words */
+  }
+  
+  .post-actions {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .post-actions button {
+    background: none;
+    border: none;
+    color: #9ca3af; /* gray-400 */
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-right: 16px; /* space-x-4 approx */
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+  }
+  
+  .post-actions button:hover {
+    color: #a78bfa; /* purple-400 */
+  }

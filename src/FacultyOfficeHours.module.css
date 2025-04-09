@@ -1,0 +1,235 @@
+/* FacultyOfficeHours.module.css */
+
+/* Import Font and Define Variables (reuse from Signup.module.css for consistency) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #0d1117;
+  --card-bg: rgba(26, 28, 42, 0.7); /* Consistent card bg */
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-hover-bg: rgba(37, 40, 60, 0.85);
+  --card-hover-border: rgba(255, 255, 255, 0.18);
+  --primary-accent: #8c78ff;
+  --primary-accent-glow: rgba(140, 120, 255, 0.2);
+  --secondary-accent: #00f5d4;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a3bd;
+  --text-placeholder: #6a6f93;
+  --input-bg: rgba(18, 19, 38, 0.6); /* Consistent input bg */
+  --input-border: rgba(74, 77, 109, 0.6);
+  --input-focus-border: var(--primary-accent);
+  --error-color: #ff6b6b;
+  --success-color: var(--secondary-accent);
+  --font-family: 'Inter', sans-serif;
+  --card-border-radius: 16px;
+  --element-border-radius: 12px;
+}
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  justify-content: flex-start;
+  padding: 60px 20px 80px 20px; /* Increased bottom padding again just in case */
+  /* min-height: 100vh; */
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+
+  /* --- >>> UPDATED BACKGROUND <<< --- */
+  background-color: var(--bg-color); /* Fallback solid color */
+  background-image:
+      /* Layer 1: Subtle Top-Left Accent Glow */
+      radial-gradient(
+          circle at 15% 20%, /* Position the glow */
+          rgba(140, 120, 255, 0.12) 0%, /* Accent color, low opacity start */
+          rgba(140, 120, 255, 0) 30% /* Fade out quickly */
+      ),
+      /* Layer 2: Vignette Effect (Dark edges, slightly less dark center) */
+      radial-gradient(
+          ellipse at center,
+          rgba(13, 17, 23, 0.6) 0%, /* Less dark overlay in center */
+          rgba(13, 17, 23, 0.9) 70%, /* Darker towards edges */
+          var(--bg-color) 100% /* Blend into solid dark at the very edge */
+      ),
+      /* Layer 3: Base Background Image */
+      url('./university_background.jpg'); /* Your image path */
+
+  /* Ensure background properties apply to all layers */
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat; /* Gradients should not repeat */
+  background-attachment: fixed, fixed, fixed; /* Keep everything fixed */
+  /* Optional: Experiment with blend modes if needed */
+  /* background-blend-mode: overlay, multiply, normal; */
+  /* --- >>> END UPDATED BACKGROUND <<< --- */
+
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.header {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.subHeader {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.searchWrapper {
+    width: 100%;
+    max-width: 500px; /* Control search bar width */
+    margin-bottom: 40px;
+    position: relative; /* For icon */
+}
+
+.searchInput {
+  width: 100%;
+  padding: 14px 20px 14px 50px; /* Padding for icon */
+  border-radius: var(--element-border-radius);
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+  backdrop-filter: blur(5px); /* Subtle blur on input */
+  -webkit-backdrop-filter: blur(5px);
+}
+.searchInput::placeholder { color: var(--text-placeholder); }
+.searchInput:focus {
+  background-color: rgba(18, 19, 38, 0.8);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px var(--primary-accent-glow);
+}
+.searchInput:focus + .searchIcon { /* Change icon color on focus */
+    color: var(--primary-accent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-placeholder);
+  font-size: 1.2rem;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Flexible grid */
+  gap: 25px;
+  width: 100%;
+  max-width: 900px; /* Max width for the results area */
+  margin-bottom: 40px; /* Space below results */
+}
+
+.resultCard {
+  background-color: var(--card-bg);
+  border-radius: var(--card-border-radius);
+  padding: 25px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px) saturate(110%);
+  -webkit-backdrop-filter: blur(10px) saturate(110%);
+  transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  display: flex;
+  flex-direction: column; /* Stack content vertically */
+  align-items: flex-start; /* Align text left */
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.resultCard:hover {
+  transform: translateY(-6px);
+  background-color: var(--card-hover-bg);
+  border-color: var(--card-hover-border);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 15px var(--primary-accent-glow);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.cardIcon {
+  font-size: 1.5rem; /* Icon size */
+  color: var(--primary-accent);
+  margin-right: 15px; /* Space between icon and title */
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0; /* Remove default margins */
+}
+
+.cardHours {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0; /* Remove default margins */
+  padding-left: calc(1.5rem + 15px); /* Indent text to align with title */
+  line-height: 1.5;
+}
+
+.backButton { /* Style like secondary button */
+  display: inline-flex; /* Use inline-flex for icon alignment */
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  background-color: transparent;
+  color: var(--primary-accent);
+  border: 1px solid var(--primary-accent);
+  border-radius: var(--element-border-radius);
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none; /* Remove link underline */
+  margin-top: 20px; /* Space above back button */
+  box-shadow: none;
+}
+
+.backButton:hover {
+  background-color: rgba(140, 120, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header { font-size: 1.8rem; }
+    .subHeader { font-size: 0.9rem; }
+    .resultsGrid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .cardTitle { font-size: 1.1rem; }
+    .cardHours { font-size: 0.9rem; padding-left: calc(1.5rem + 12px); }
+    .cardIcon { margin-right: 12px; }
+}
+
+@media (max-width: 500px) {
+    .pageContainer { padding: 60px 15px 40px 15px; }
+    .header { font-size: 1.6rem; margin-bottom: 10px; }
+    .subHeader { margin-bottom: 30px; }
+    .searchWrapper { max-width: 100%; }
+    .resultsGrid { grid-template-columns: 1fr; } /* Single column */
+    .backButton { width: 100%; justify-content: center; }
+}
