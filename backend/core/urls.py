@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/feed/', include('feed.urls')),
     path('api/profile/', include('profiles.urls')), 
+    path('api/chatbot/', include('chatbot.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

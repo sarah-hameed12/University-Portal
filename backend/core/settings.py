@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'feed',
+    'chatbot',
     'rest_framework',
     'corsheaders',
     'profiles',
@@ -169,3 +170,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #     # Add your production frontend URL here later
 # ]
 CORS_ALLOW_ALL_ORIGINS = True
+
+import os
+from dotenv import load_dotenv
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Load .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# ... other settings ...
+
+# Google AI API Key
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+
+# Check if the key was loaded (optional sanity check)
+if not GOOGLE_API_KEY:
+    print("WARNING: GOOGLE_API_KEY not found in environment variables. Chatbot will not work.")

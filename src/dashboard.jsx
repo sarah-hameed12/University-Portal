@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
+import Chatbot from "./chatbot";
 // --- >>> Import the single Supabase client instance <<< ---
 // import { supabase } from "./supabaseClient"; // Make sure the path is correct
 
@@ -1782,6 +1783,25 @@ const Dashboard = () => {
           />
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <CreatePostModal
+            isOpen={isCreateModalOpen}
+            onClose={handleCloseCreateModal}
+            onPostCreated={handlePostCreated}
+            currentUser={user}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isAuthenticated && profileStatus === "missing" && (
+          <SetupProfileModal onNavigateToProfile={handleNavigateToProfile} />
+        )}
+      </AnimatePresence>
+
+      {/* --- 2. Render the Chatbot Component --- */}
+      {/* Render chatbot if user is authenticated (optional, adjust as needed) */}
+      {isAuthenticated && <Chatbot />}
     </div>
   );
 };
