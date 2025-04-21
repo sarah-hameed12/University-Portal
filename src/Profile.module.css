@@ -1,0 +1,298 @@
+/* src/pages/Profile.module.css */
+
+/* Import Font and Define Variables */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #0d1117;
+  --card-bg: rgba(26, 28, 42, 0.75);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --primary-accent: #8c78ff;
+  --primary-accent-glow: rgba(140, 120, 255, 0.2);
+  --secondary-accent: #00f5d4;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a3bd;
+  --text-placeholder: #6a6f93;
+  --input-bg: rgba(18, 19, 38, 0.6);
+  --input-border: rgba(74, 77, 109, 0.6);
+  --input-focus-border: var(--primary-accent);
+  --error-color: #ff6b6b;
+  --success-color: var(--secondary-accent);
+  --font-family: 'Inter', sans-serif;
+  --card-border-radius: 20px;
+  --element-border-radius: 10px;
+}
+
+.pageContainer {
+  position: relative; /* Ensure positioning context for absolute children */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 80px 20px 80px 20px; /* Increased top/bottom padding */
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: var(--bg-color); /* Fallback solid color */
+  background-image:
+      radial-gradient(circle at 15% 20%, rgba(140, 120, 255, 0.12) 0%, rgba(140, 120, 255, 0) 30%),
+      radial-gradient(ellipse at center, rgba(13, 17, 23, 0.6) 0%, rgba(13, 17, 23, 0.9) 70%, var(--bg-color) 100%),
+      url('./university_background.jpg'); /* Your image path */
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.loadingState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+.profileCard {
+  background-color: var(--card-bg);
+  border-radius: var(--card-border-radius);
+  padding: 35px 40px;
+  width: 100%;
+  max-width: 750px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(15px) saturate(110%);
+  -webkit-backdrop-filter: blur(15px) saturate(110%);
+  margin-top: 20px;
+  margin-bottom: 50px; /* Add margin below card */
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.avatarWrapper {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-right: 25px;
+  border: 3px solid var(--primary-accent);
+  overflow: hidden;
+  position: relative;
+  cursor: default;
+  flex-shrink: 0;
+}
+.avatarWrapper.avatarEditable {
+   cursor: pointer;
+   border-style: dashed;
+}
+
+.avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uploadIcon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 2rem; color: rgba(255, 255, 255, 0.7); background-color: rgba(0,0,0,0.4);
+    padding: 10px; border-radius: 50%; opacity: 0; transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+.avatarWrapper.avatarEditable:hover .uploadIcon { opacity: 1; }
+
+.profileName {
+  font-size: 1.8rem; font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.3;
+  flex-grow: 1; /* Allow name to take space */
+}
+
+.nameInput {
+    font-size: 1.6rem !important; font-weight: 600 !important; padding: 10px 15px !important;
+    background-color: rgba(18, 19, 38, 0.8) !important; border-color: var(--input-focus-border) !important;
+    flex-grow: 1;
+    /* Inherit base input styles */
+    width: auto; /* Override width: 100% from base .input */
+    border-radius: var(--element-border-radius); border: 1px solid;
+    color: var(--text-primary); font-family: var(--font-family); outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+    box-sizing: border-box;
+}
+.nameInput:disabled {
+    background-color: var(--input-bg) !important; color: var(--text-placeholder);
+    cursor: not-allowed; border-color: var(--input-border) !important;
+}
+
+.editButton {
+  position: absolute; top: 0; right: 0; padding: 6px 12px !important;
+  font-size: 0.85rem !important; background-color: rgba(140, 120, 255, 0.15) !important;
+  color: var(--primary-accent) !important; border: 1px solid rgba(140, 120, 255, 0.4) !important;
+  box-shadow: none !important; border-radius: var(--element-border-radius);
+  cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 5px;
+}
+.editButton:hover {
+   background-color: rgba(140, 120, 255, 0.25) !important; border-color: var(--primary-accent) !important;
+   color: var(--white) !important; transform: translateY(-1px);
+}
+
+.separator {
+  border: none; height: 1px; background-color: var(--card-border);
+  margin-bottom: 30px; width: 100%;
+}
+
+.detailsGrid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px 30px; width: 100%;
+}
+
+.detailItem { display: flex; flex-direction: column; gap: 5px; }
+.detailItem.fullWidth { grid-column: 1 / -1; }
+
+.detailLabel {
+  font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.detailValue { font-size: 1rem; font-weight: 400; color: var(--text-primary); word-wrap: break-word; }
+.detailValue.multiLine { white-space: pre-wrap; line-height: 1.5; }
+.readOnlyValue { color: var(--text-secondary); font-style: italic; }
+.notSpecified { color: var(--text-placeholder); font-style: italic; font-size: 0.9rem; }
+
+/* Base Input/Text Area/Select Styles */
+.input, .textArea, .select {
+  width: 100%; padding: 10px 15px; border-radius: var(--element-border-radius);
+  border: 1px solid var(--input-border); background-color: var(--input-bg);
+  color: var(--text-primary); font-size: 0.95rem; font-family: var(--font-family);
+  outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+  box-sizing: border-box;
+}
+.input:focus, .textArea:focus, .select:focus {
+  background-color: rgba(18, 19, 38, 0.8); border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px var(--primary-accent-glow);
+}
+.textArea { min-height: 80px; resize: vertical; line-height: 1.5; }
+
+/* Select Dropdown Styles */
+.select {
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%), linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    padding-right: 40px; cursor: pointer;
+}
+.select:focus {
+    background-image: linear-gradient(45deg, transparent 50%, var(--primary-accent) 50%), linear-gradient(135deg, var(--primary-accent) 50%, transparent 50%);
+}
+
+/* Disabled Field Styles */
+.input:disabled, .textArea:disabled, .select:disabled, .nameInput:disabled {
+    background-color: rgba(18, 19, 38, 0.3) !important; /* Ensure override */
+    color: var(--text-placeholder) !important;
+    cursor: not-allowed; opacity: 0.6;
+    border-color: var(--input-border) !important;
+    box-shadow: none !important;
+}
+.select:disabled {
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-placeholder) 50%), linear-gradient(135deg, var(--text-placeholder) 50%, transparent 50%);
+}
+
+/* Save/Cancel Buttons */
+.editActions {
+  display: flex; justify-content: flex-end; gap: 15px;
+  margin-top: 30px; width: 100%; border-top: 1px solid var(--card-border);
+  padding-top: 25px;
+}
+
+.actionButton {
+  padding: 10px 25px !important; font-size: 0.9rem !important;
+  width: auto !important; margin: 0 !important; border: none;
+  border-radius: var(--element-border-radius); cursor: pointer;
+  transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+  font-weight: 500;
+}
+
+.saveButton {
+  background-color: var(--primary-accent) !important; color: var(--white) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.saveButton:hover:not(:disabled) {
+   background-color: var(--primary-accent-hover) !important;
+   box-shadow: 0 6px 15px rgba(140, 120, 255, 0.3) !important;
+   transform: translateY(-2px) !important;
+}
+.saveButton:disabled {
+  background: #3a3d55 !important; color: #727597 !important;
+  cursor: not-allowed !important; box-shadow: none !important;
+  transform: none !important; opacity: 0.6 !important;
+}
+
+.cancelButton {
+   background-color: var(--input-border) !important; color: var(--text-secondary) !important;
+   box-shadow: none !important; border: none !important;
+}
+.cancelButton:hover:not(:disabled) {
+   background-color: #5a5d8d !important; color: var(--text-primary) !important;
+   transform: translateY(-2px) !important;
+}
+
+.errorMessage {
+  width: 100%; margin-bottom: 20px; padding: 10px 15px;
+  border-radius: var(--element-border-radius); font-size: 0.9rem; font-weight: 500;
+  text-align: center; background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color); border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.buttonSpinner {
+    width: 18px; height: 18px; border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--white); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Back to Home Button */
+.backToHomeLink { position: absolute; top: 25px; left: 25px; z-index: 10; text-decoration: none; }
+.backToHomeButton {
+  background-color: rgba(26, 28, 42, 0.6); color: var(--text-secondary); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: all 0.25s ease; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.backToHomeButton:hover {
+  background-color: rgba(37, 40, 60, 0.8); color: var(--primary-accent);
+  border-color: rgba(255, 255, 255, 0.15); transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+.backToHomeIcon { font-size: 1.3rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profileCard { padding: 25px 30px; max-width: 90%; }
+    .profileHeader { flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px;}
+    .avatarWrapper { width: 120px; height: 120px; margin-right: 0; margin-bottom: 15px; }
+    .profileName { font-size: 1.6rem; }
+    .nameInput { font-size: 1.4rem !important; width: 100% !important; } /* Ensure name input takes full width */
+    .editButton { position: static; margin-top: 15px; width: auto !important; }
+    .detailsGrid { grid-template-columns: 1fr; gap: 15px 0;}
+    .detailItem { flex-direction: column; }
+    .editActions { justify-content: center; }
+}
+@media (max-width: 500px) {
+     .pageContainer { padding: 70px 15px 40px 15px; }
+     .profileCard { padding: 20px 25px; }
+     .avatarWrapper { width: 100px; height: 100px;}
+     .profileName { font-size: 1.4rem; }
+     .nameInput { font-size: 1.3rem !important; }
+     .detailLabel { font-size: 0.75rem;}
+     .detailValue { font-size: 0.9rem;}
+     .input, .textArea, .select { font-size: 0.9rem; padding: 9px 12px;}
+     .actionButton { padding: 8px 20px !important; font-size: 0.85rem !important; }
+     .backToHomeButton { top: 15px; left: 15px; width: 40px; height: 40px; }
+     .backToHomeIcon { font-size: 1.1rem; }
+}
