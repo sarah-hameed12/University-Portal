@@ -34,12 +34,14 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    'rest_framework_simplejwt', 
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'feed',
     'rest_framework',
     'corsheaders',
+    'profiles',
 ]
 
 MIDDLEWARE = [
@@ -52,7 +54,41 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         # Use JWT Authentication provided by simplejwt
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#         # You might keep SessionAuthentication if you use the Django Admin
+#         # 'rest_framework.authentication.SessionAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         # Set a default permission policy (e.g., allow read-only by default)
+#         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+#      )
+# }
 
+# SIMPLE_JWT = {
+#     "AUTH_HEADER_TYPES": ("Bearer",), # Standard JWT header type
+#     "USER_ID_FIELD": "id",           # Field on the User model simplejwt should use (Django's default)
+#     "USER_ID_CLAIM": "sub",          # The claim in the JWT payload containing the user's ID (Supabase typically uses 'sub' for UUID)
+
+#     # --- Supabase Specific Validation ---
+#     # You MUST get these from your Supabase Project Settings > API > JWT Settings
+#     "AUDIENCE": "authenticated",        # Default Supabase audience, VERIFY THIS
+#     "ISSUER": "https://iivokjculnflryxztfgf.supabase.co/auth/v1", # VERIFY THIS matches your project ref
+
+#     # --- The Supabase JWT Secret ---
+#     # DO NOT HARDCODE THIS! Use environment variables in production.
+#     # Get this from Supabase Project Settings > API > JWT Settings > Secret
+#     "SIGNING_KEY": "JcdSKvo3LDwxLqceKfqHnAwSDos5WPoxQCJ9ilkeYUUf48H+65EgHcJ/PxR21v0GNxzA7BRuFywRzhbmGmpQXw==", # <<<--- REPLACE AND SECURE THIS
+
+#     # --- Algorithms ---
+#     "ALGORITHM": "HS256", # Supabase default JWT algorithm
+
+#     # Other settings can often be left as default
+#     # "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60), # Default is 5 minutes
+#     # "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+# }
 ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
@@ -124,8 +160,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",  # Your React development server
 #     "http://127.0.0.1:3000",

@@ -11,6 +11,7 @@ import Scheduler from "./scheduler.jsx";
 import Dashboard from "./dashboard.jsx";
 import FacultyOfficeHours from "./faculty.jsx";
 import ChatApp from "./chat_app_features/ChatApp.jsx";
+import Profile from "./profile.jsx";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/faculty" element={<FacultyOfficeHours />} />
         <Route path="/chat" element={<ChatApp />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );

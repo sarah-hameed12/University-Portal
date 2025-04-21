@@ -7,7 +7,7 @@ body {
   
   .dashboard-container {
     display: flex;
-    min-height: 100vh; /* Ensure it covers full height */
+    height: 100vh; /* Ensure it covers full height */
     background-color: #111827; /* Dark background - Tailwind gray-950 */
   }
   

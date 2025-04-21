@@ -1,8 +1,18 @@
+# feed/urls.py
 from django.urls import path
-from .views import PostListView
+from .views import (
+    PostListView,
+    PostDetailView,         # Import new view
+    PostLikeToggleView,     # Import new view
+    CommentListCreateView   # Import new view
+)
 
 urlpatterns = [
-    # Map the URL 'posts/' to the PostListView
-    path('posts/', PostListView.as_view(), name='post-list'),
-    # Add more URLs later for creating, updating, deleting posts
+    path('posts/', PostListView.as_view(), name='post-list-create'),
+    # Detail view for GET/DELETE specific post
+    path('posts/<uuid:pk>/', PostDetailView.as_view(), name='post-detail-delete'),
+    # Like/Unlike toggle view
+    path('posts/<uuid:pk>/like/', PostLikeToggleView.as_view(), name='post-like-toggle'),
+    # Comments for a specific post (List/Create)
+    path('posts/<uuid:post_pk>/comments/', CommentListCreateView.as_view(), name='comment-list-create'),
 ]
