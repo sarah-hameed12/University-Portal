@@ -5,19 +5,12 @@ import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import Chatbot from "./chatbot";
-// --- >>> Import the single Supabase client instance <<< ---
-// import { supabase } from "./supabaseClient"; // Make sure the path is correct
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
-// --- >>> Import Icons <<< ---
 const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpdm9ramN1bG5mbHJ5eHp0ZmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5NzExOTAsImV4cCI6MjA1NDU0NzE5MH0.8rBAN4tZP8S0j1wkfj8SwSN1Opdf9LOERb-T47rZRYk";
 const supabase = createClient(supabaseUrl, supabaseKey);
-// If not using supabaseClient.js, uncomment and configure below:
-// import { createClient } from "@supabase/supabase-js";
-// const supabaseUrl = "YOUR_SUPABASE_URL";
-// const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
-// const supabase = createClient(supabaseUrl, supabaseKey);
 
 import {
   FiHome,
@@ -50,6 +43,10 @@ const styles = {
     backgroundColor: "#111827",
     color: "#e5e7eb",
     fontFamily: "sans-serif",
+    overflowY: "auto", // <<< Enable vertical scroll for the whole page if content overflows
+    // Custom scrollbar styles for the page container
+    scrollbarWidth: "thin", // Firefox
+    scrollbarColor: "rgba(156, 141, 255, 0.6) transparent",
   },
   dashboardMainContent: {
     flexGrow: 1,
@@ -576,6 +573,24 @@ const styles = {
   },
   // --- Keyframes ---
   "@keyframes spin": { to: { transform: "rotate(360deg)" } },
+  postDeleteButton: {
+    // <<< Ensure this exists
+    background: "none",
+    border: "none",
+    color: "#ff6b6b", // Or your preferred delete color
+    cursor: "pointer",
+    padding: "5px",
+    fontSize: "0.9rem",
+    transition: "color 0.2s ease, transform 0.1s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  postDeleteButtonHover: {
+    // <<< Ensure this exists
+    color: "#f0f0f5", // Or a brighter red? e.g., #f87171
+    transform: "scale(1.05)",
+  },
 };
 
 // --- >>> Define Composite Styles *AFTER* the main 'styles' object <<< ---
@@ -819,6 +834,7 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   const [isLiking, setIsLiking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [hoveredAction, setHoveredAction] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
     setIsLiked(post?.is_liked_by_user || false);
@@ -863,30 +879,34 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
     }
   };
 
-  const handleDeleteClick = async () => {
-    const isAuthorCheck = // Recalculate for safety inside handler if needed
-      currentUser && post?.author_id && currentUser.id === post.author_id;
-    console.log("Calculated isAuthor inside handleDeleteClick:", isAuthorCheck);
+  const handleDeleteClick = () => {
+    if (!isAuthor || isDeleting) return; // Prevent opening if already deleting
+    setIsConfirmModalOpen(true); // <<<--- Open the modal
+  };
 
-    if (!isAuthorCheck || isDeleting) {
-      console.log("Delete check failed or already deleting.");
-      return;
-    }
+  // --- New: Handles the actual deletion after confirmation ---
+  const handleConfirmDelete = async () => {
+    if (!isAuthor) return; // Double check permission
 
-    if (
-      window.confirm(
-        "Are you sure you want to delete this post? This cannot be undone."
-      )
-    ) {
-      setIsDeleting(true);
-      try {
-        await onDeletePost(post.id); // Call prop passed from Dashboard
-      } catch (error) {
-        console.error("Delete failed (caught in PostItem):", error);
-        setIsDeleting(false);
-      }
-      // Don't reset isDeleting on success, component should unmount
+    setIsDeleting(true); // Show spinner IN THE MODAL
+    try {
+      await onDeletePost(post.id); // Call prop passed from Dashboard
+      // No need to close modal here, component will unmount on success
+      // No need to setIsDeleting(false) on success
+    } catch (error) {
+      console.error(
+        "Delete failed (error caught in PostItem on confirm):",
+        error
+      );
+      // Alert is handled in Dashboard's handler
+      setIsDeleting(false); // Stop spinner on failure
+      setIsConfirmModalOpen(false); // Close modal on failure to show alert
     }
+  };
+
+  // --- New: Handles cancellation ---
+  const handleCancelDelete = () => {
+    setIsConfirmModalOpen(false);
   };
 
   const handleCommentClick = () => {
@@ -916,13 +936,21 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
       hover = {}; // Don't apply hover style if liked? Or adjust as needed
     }
     if (actionName === "delete") {
-      specific = styles.postDeleteButton; // Use the correct delete style
+      specific = styles.postDeleteButton;
       hover = styles.postDeleteButtonHover;
     }
 
     return { ...base, ...specific, ...(isButtonHovered && hover) };
   };
-
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+    exit: { opacity: 0, y: -20, scale: 0.9, transition: { duration: 0.3 } },
+  };
   // Define isAuthor once for use in JSX
   const isAuthor =
     currentUser && post?.author_id && currentUser.id === post.author_id;
@@ -932,125 +960,136 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   console.log("Calculated isAuthor (for render):", isAuthor);
 
   return (
-    <motion.div
-      style={styles.postItem}
-      variants={cardVariants}
-      layout
-      exit={{ opacity: 0, y: -20, scale: 0.9 }}
-    >
-      <div style={styles.postHeader}>
-        <img
-          src={authorAvatarSrc}
-          alt={post.author_name || "User"}
-          style={styles.postAuthorAvatar}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${
-              post?.author_name || "anon"
-            }`;
-          }}
-        />
-        <div>
-          <p style={styles.postAuthorName}>{post.author_name || "Anonymous"}</p>
-          <p style={styles.postTimestamp}>
-            {post.timestamp
-              ? new Date(post.timestamp).toLocaleString()
-              : "No date"}
-          </p>
-        </div>
-      </div>
-
-      {post.image_url && (
-        <img src={post.image_url} alt="Post content" style={styles.postImage} /> // Added better alt text
-      )}
-      <p style={styles.postContent}>{post.content || ""}</p>
-
-      {post.latest_comment && (
-        <div style={styles.latestComment}>
-          <span style={styles.commentAuthor}>
-            {post.latest_comment.author_name || "Anon"}:
-          </span>{" "}
-          {post.latest_comment.content}
-        </div>
-      )}
-
-      <div style={styles.postActions}>
-        <div style={styles.postActionButtonGroup}>
-          {/* Like Button */}
-          <button
-            style={getActionStyle("like")}
-            onClick={handleLikeClick}
-            disabled={isLiking || !currentUser}
-            onMouseEnter={() => setHoveredAction("like")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            {isLiking ? (
-              <div style={styles.buttonSpinnerSmall}></div>
-            ) : (
-              <FiThumbsUp />
-            )}
-            <span style={{ marginLeft: isLiking ? "8px" : "0" }}>
-              {likeCount} Like{likeCount !== 1 ? "s" : ""}
-            </span>
-          </button>
-
-          {/* Comment Button */}
-          <button
-            style={getActionStyle("comment")}
-            onClick={handleCommentClick}
-            onMouseEnter={() => setHoveredAction("comment")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            <FiMessageCircle /> Comment
-          </button>
-
-          {/* Share Button */}
-          <button
-            style={getActionStyle("share")}
-            onClick={handleShare}
-            onMouseEnter={() => setHoveredAction("share")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            <FiShare /> Share
-          </button>
+    <>
+      <motion.div
+        style={styles.postItem}
+        variants={cardVariants}
+        layout
+        exit={{ opacity: 0, y: -20, scale: 0.9 }}
+      >
+        <div style={styles.postHeader}>
+          <img
+            src={authorAvatarSrc}
+            alt={post.author_name || "User"}
+            style={styles.postAuthorAvatar}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${
+                post?.author_name || "anon"
+              }`;
+            }}
+          />
+          <div>
+            <p style={styles.postAuthorName}>
+              {post.author_name || "Anonymous"}
+            </p>
+            <p style={styles.postTimestamp}>
+              {post.timestamp
+                ? new Date(post.timestamp).toLocaleString()
+                : "No date"}
+            </p>
+          </div>
         </div>
 
-        {/* --- Single Delete Button --- */}
-        {isAuthor && ( // Use the isAuthor variable
-          <button
-            style={getActionStyle("delete")}
-            onClick={handleDeleteClick}
-            disabled={isDeleting}
-            title="Delete Post"
-            onMouseEnter={() => setHoveredAction("delete")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            {isDeleting ? (
-              <div style={styles.buttonSpinnerSmall}></div>
-            ) : (
-              <FiTrash2 /> // Use the correct icon component
-            )}
-          </button>
+        {post.image_url && (
+          <img
+            src={post.image_url}
+            alt="Post content"
+            style={styles.postImage}
+          /> // Added better alt text
         )}
-        {/* --- End Single Delete Button --- */}
-      </div>
-    </motion.div>
+        <p style={styles.postContent}>{post.content || ""}</p>
+
+        {post.latest_comment && (
+          <div style={styles.latestComment}>
+            <span style={styles.commentAuthor}>
+              {post.latest_comment.author_name || "Anon"}:
+            </span>{" "}
+            {post.latest_comment.content}
+          </div>
+        )}
+
+        <div style={styles.postActions}>
+          <div style={styles.postActionButtonGroup}>
+            {/* Like Button */}
+            <button
+              style={getActionStyle("like")}
+              onClick={handleLikeClick}
+              disabled={isLiking || !currentUser}
+              onMouseEnter={() => setHoveredAction("like")}
+              onMouseLeave={() => setHoveredAction(null)}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "scale(0.95)")
+              }
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              {isLiking ? (
+                <div style={styles.buttonSpinnerSmall}></div>
+              ) : (
+                <FiThumbsUp />
+              )}
+              <span style={{ marginLeft: isLiking ? "8px" : "0" }}>
+                {likeCount} Like{likeCount !== 1 ? "s" : ""}
+              </span>
+            </button>
+
+            {/* Comment Button */}
+            <button
+              style={getActionStyle("comment")}
+              onClick={handleCommentClick}
+              onMouseEnter={() => setHoveredAction("comment")}
+              onMouseLeave={() => setHoveredAction(null)}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "scale(0.95)")
+              }
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <FiMessageCircle /> Comment
+            </button>
+
+            {/* Share Button */}
+            <button
+              style={getActionStyle("share")}
+              onClick={handleShare}
+              onMouseEnter={() => setHoveredAction("share")}
+              onMouseLeave={() => setHoveredAction(null)}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "scale(0.95)")
+              }
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <FiShare /> Share
+            </button>
+          </div>
+
+          {/* --- Single Delete Button --- */}
+          {/* Delete Button - Now only opens the modal */}
+          {isAuthor && (
+            <button
+              style={getActionStyle("delete")}
+              onClick={handleDeleteClick} // <<<--- Calls function to OPEN modal
+              disabled={isDeleting} // Disable if delete process started
+              title="Delete Post"
+              onMouseEnter={() => setHoveredAction("delete")}
+              onMouseLeave={() => setHoveredAction(null)}
+            >
+              <FiTrash2 /> {/* Keep icon simple, modal shows loading */}
+            </button>
+          )}
+        </div>
+      </motion.div>
+      <AnimatePresence>
+        {isConfirmModalOpen && (
+          <ConfirmDeleteModal
+            isOpen={isConfirmModalOpen}
+            onClose={handleCancelDelete} // Close modal on cancel
+            onConfirm={handleConfirmDelete} // Trigger actual delete on confirm
+            isDeleting={isDeleting} // Pass loading state to modal button
+            itemName="post" // Customize item name
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 // --- UPDATED: Feed Component ---
