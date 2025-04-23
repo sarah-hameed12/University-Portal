@@ -31,6 +31,8 @@ import {
   FiX,
   FiImage,
   FiLoader,
+  FiCornerDownRight,
+  FiChevronsRight,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -591,6 +593,63 @@ const styles = {
     color: "#f0f0f5", // Or a brighter red? e.g., #f87171
     transform: "scale(1.05)",
   },
+  latestCommentContainer: {
+    // New container to hold comment and view more button
+    display: "flex",
+    justifyContent: "space-between", // Pushes button to the right
+    alignItems: "flex-start", // Align items at the top
+    marginTop: "10px",
+    paddingTop: "10px",
+    borderTop: "1px solid rgba(74, 77, 109, 0.5)", // Solid border
+    backgroundColor: "rgba(31, 41, 55, 0.3)",
+    padding: "10px 12px",
+    borderRadius: "6px",
+  },
+  latestCommentTextWrapper: {
+    // Wrapper for icon and text
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "8px",
+    flexGrow: 1, // Allow text to take up space
+    marginRight: "10px", // Add space before the button
+  },
+  latestCommentIcon: {
+    flexShrink: 0,
+    color: "#8c78ff",
+    position: "relative",
+    top: "3px", // Align icon nicely with text
+    fontSize: "1rem",
+  },
+  latestCommentContent: {
+    // Styles for the text part (author + comment)
+    flexGrow: 1,
+    fontSize: "0.85rem",
+    color: "#a0a3bd",
+    wordBreak: "break-word",
+  },
+  commentAuthor: { fontWeight: "600", color: "#f0f0f5", marginRight: "5px" },
+  viewMoreCommentsButton: {
+    // Style for the "View More" button
+    background: "none",
+    border: "none",
+    color: "#a0a3bd",
+    cursor: "pointer",
+    padding: "3px 5px", // Small padding
+    fontSize: "0.8rem", // Smaller font size
+    fontWeight: "500",
+    borderRadius: "4px",
+    transition: "color 0.2s ease, background-color 0.2s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    flexShrink: 0, // Prevent button from shrinking
+    marginTop: "2px", // Align slightly better with text top
+    whiteSpace: "nowrap", // Prevent text wrapping
+  },
+  viewMoreCommentsButtonHover: {
+    color: "#f0f0f5",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
 };
 
 // --- >>> Define Composite Styles *AFTER* the main 'styles' object <<< ---
@@ -632,7 +691,7 @@ const messageVariants = {
 // --- Components --- (Assuming SideNav, TopNav, PostItem, Feed, CreatePostModal are defined as previously shown)
 
 // Side Navigation Component
-const SideNav = () => {
+export const SideNav = () => {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState(null);
   const navItems = [
@@ -827,7 +886,13 @@ const TopNav = ({ isAuthenticated, user, onLogout, onOpenCreatePost }) => {
 };
 
 // Post Item Component
-const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
+const PostItem = ({
+  post,
+  currentUser,
+  onDeletePost,
+  onLikePost,
+  onCommentCountUpdate,
+}) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(post?.is_liked_by_user || false);
   const [likeCount, setLikeCount] = useState(post?.like_count || 0);
@@ -835,12 +900,23 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [hoveredAction, setHoveredAction] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
+  const [isViewMoreHovered, setIsViewMoreHovered] = useState(false);
 
   useEffect(() => {
     setIsLiked(post?.is_liked_by_user || false);
     setLikeCount(post?.like_count || 0);
+    setCommentCount(post?.comment_count || 0);
   }, [post]);
-
+  useEffect(() => {
+    // Call the callback only if the count actually changed and the function exists
+    if (post && onCommentCountUpdate && commentCount !== post.comment_count) {
+      console.log(
+        `PostItem ${post.id}: Propagating comment count update to ${commentCount}`
+      );
+      onCommentCountUpdate(post.id, commentCount);
+    }
+  }, [commentCount, post, onCommentCountUpdate]);
   console.log(`PostItem Render - Post ID: ${post?.id}`);
   console.log("currentUser:", currentUser);
   console.log("post:", post);
@@ -954,7 +1030,10 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   // Define isAuthor once for use in JSX
   const isAuthor =
     currentUser && post?.author_id && currentUser.id === post.author_id;
-
+  const viewMoreButtonStyle = {
+    ...styles.viewMoreCommentsButton,
+    ...(isViewMoreHovered && styles.viewMoreCommentsButtonHover),
+  };
   if (!post) return null;
 
   console.log("Calculated isAuthor (for render):", isAuthor);
@@ -1001,11 +1080,26 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
         <p style={styles.postContent}>{post.content || ""}</p>
 
         {post.latest_comment && (
-          <div style={styles.latestComment}>
-            <span style={styles.commentAuthor}>
-              {post.latest_comment.author_name || "Anon"}:
-            </span>{" "}
-            {post.latest_comment.content}
+          <div style={styles.latestCommentContainer}>
+            <div style={styles.latestCommentTextWrapper}>
+              <FiCornerDownRight style={styles.latestCommentIcon} />
+              <div style={styles.latestCommentContent}>
+                <span style={styles.commentAuthor}>
+                  {post.latest_comment.author_name || "Anon"}:
+                </span>
+                {post.latest_comment.content}
+              </div>
+            </div>
+            {/* View More Button */}
+            <button
+              style={viewMoreButtonStyle}
+              onClick={handleCommentClick} // Re-use the navigation handler
+              onMouseEnter={() => setIsViewMoreHovered(true)}
+              onMouseLeave={() => setIsViewMoreHovered(false)}
+              aria-label="View all comments"
+            >
+              View More <FiChevronsRight size="0.9em" />
+            </button>
           </div>
         )}
 
@@ -1044,7 +1138,10 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
               }
               onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              <FiMessageCircle /> Comment
+              <FiMessageCircle />
+              {/* Display comment_count from post prop, fallback to 0 */}
+              {post.comment_count ?? 0} Comment
+              {(post.comment_count ?? 0) !== 1 ? "s" : ""}
             </button>
 
             {/* Share Button */}
@@ -1094,7 +1191,15 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
 };
 // --- UPDATED: Feed Component ---
 // Passes handlers down to PostItem
-const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
+const Feed = ({
+  posts,
+  loading,
+  error,
+  user,
+  onDeletePost,
+  onLikePost,
+  onCommentCountUpdate,
+}) => {
   // Added onDeletePost, onLikePost
   const errorCombinedStyle = {
     ...styles.feedStatusMessage,
@@ -1127,7 +1232,8 @@ const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
                 post={post}
                 currentUser={user}
                 onDeletePost={onDeletePost} // <<< Check props passed
-                onLikePost={onLikePost} // <<< Check props passed
+                onLikePost={onLikePost}
+                onCommentCountUpdate={onCommentCountUpdate} // <<< Check props passed
               />
             </motion.div>
           ))}
@@ -1736,6 +1842,18 @@ const Dashboard = () => {
     },
     [user]
   );
+  const handleCommentCountUpdate = useCallback((postId, newCount) => {
+    console.log(
+      `Dashboard: Updating comment count for post ${postId} to ${newCount}`
+    );
+    setPosts((currentPosts) =>
+      currentPosts.map((p) =>
+        p.id === postId
+          ? { ...p, comment_count: newCount } // Update only the specific post's count
+          : p
+      )
+    );
+  }, []);
   const handleOpenCreateModal = () => {
     if (!isAuthenticated) {
       navigate("/signin");
@@ -1746,7 +1864,11 @@ const Dashboard = () => {
   };
   const handleCloseCreateModal = () => setIsCreateModalOpen(false);
   const handlePostCreated = (newPost) => {
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
+    const postWithCount = {
+      ...newPost,
+      comment_count: newPost.comment_count ?? 0,
+    };
+    setPosts((prevPosts) => [postWithCount, ...prevPosts]);
   };
 
   // Logout Handler
@@ -1797,6 +1919,7 @@ const Dashboard = () => {
               // --- >>> Pass handlers down <<< ---
               onDeletePost={handleDeletePost}
               onLikePost={handleLikePost}
+              onCommentCountUpdate={handleCommentCountUpdate}
               // --- >>> End Pass <<< ---
             />
           ) : isAuthenticated && profileStatus === "error" ? (

@@ -170,41 +170,77 @@ class PostLikeToggleView(APIView):
 # CommentListCreateView (Example allows anonymous comments, less secure)
 class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    # --- Allow Anyone --- (User Requirement, less secure)
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    # --- End Allow Anyone ---
 
     def get_queryset(self):
-        # Get comments for the specific post mentioned in the URL
         post_pk = self.kwargs.get('post_pk')
-        return Comment.objects.filter(post_id=post_pk)
+        return Comment.objects.filter(post_id=post_pk).order_by('timestamp')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
-        # Could pass user_id from query params here too if needed by serializer
         return context
 
     def perform_create(self, serializer):
         post_pk = self.kwargs.get('post_pk')
         post = get_object_or_404(Post, pk=post_pk)
 
-        # Get author info from request body (less secure than auth token)
-        author_id_str = self.request.data.get('user_id') # Expect frontend to send this
-        author_name = self.request.data.get('author_name', 'Anonymous Commenter')
+        # Get Author Info
+        author_id_str = self.request.data.get('user_id')
+        author_name = self.request.data.get('author_name')
+        author_email = self.request.data.get('author_email') # <<< GET EMAIL
 
-        author_id_uuid = None
+        print(f"--- Comment Create [View]: Received user_id='{author_id_str}', name='{author_name}', email='{author_email}'")
+
+        resolved_author_id = None
+        resolved_author_name = author_name or "Anonymous" # Default name
+
+        # Resolve Author ID
         if author_id_str:
-            try:
-                author_id_uuid = uuid.UUID(author_id_str)
-            except ValueError:
-                 print(f"Warning: Invalid user_id format received during comment creation: {author_id_str}")
-                 author_id_uuid = None
+            try: resolved_author_id = uuid.UUID(author_id_str)
+            except (ValueError, TypeError): resolved_author_id = None
 
-        # Save the comment linked to the post, with potentially null author_id
-        serializer.save(post=post, author_id=author_id_uuid, author_name=author_name)
-        print(f"Saved comment by Name: {author_name}, ID: {author_id_uuid or 'None'} on Post: {post_pk}")
+        # Resolve Name (optional fallback)
+        if not author_name and resolved_author_id:
+            try:
+                profile = Profile.objects.get(user_id=resolved_author_id)
+                resolved_author_name = profile.name or "Anonymous"
+            except Profile.DoesNotExist: pass # Keep default name
+        if resolved_author_name == "Anonymous" and author_email: resolved_author_name = author_email
+
+        # --- >>> DETAILED LOGGING BEFORE SAVE <<< ---
+        print(f"--- Comment Create [View]: Data to be passed to serializer.save:")
+        print(f"---                            post: {post.pk}")
+        print(f"---                            author_id: {resolved_author_id}")
+        print(f"---                            author_name: {resolved_author_name}")
+        print(f"---                            author_email: {author_email}") # <<< Value extracted from request
+        print(f"---                            content (from validated_data): {serializer.validated_data.get('content')}")
+        # --- >>> END LOGGING <<< ---
+
+        try:
+            # Save the comment - include author_email
+            instance = serializer.save( # Capture the saved instance
+                post=post,
+                author_id=resolved_author_id,
+                author_name=resolved_author_name,
+                author_email=author_email # <<< Passing email to save
+            )
+            # --- >>> LOGGING AFTER SAVE <<< ---
+            print(f"--- Comment Create [View]: Comment instance AFTER save:")
+            print(f"---                            ID: {instance.pk}")
+            print(f"---                            Author ID (in DB): {instance.author_id}")
+            print(f"---                            Author Name (in DB): {instance.author_name}")
+            print(f"---                            Author Email (in DB): {instance.author_email}") # <<< Check this!
+            print(f"---                            Content (in DB): {instance.content}")
+            # --- >>> END LOGGING <<< ---
+
+        except Exception as e:
+             print(f"--- Comment Create [View]: ERROR during save: {e}")
+             # It's helpful to see the serializer errors if validation fails
+             if hasattr(serializer, 'errors'):
+                 print(f"---                            Serializer Errors: {serializer.errors}")
+             raise e 
 class PostDetailView(generics.RetrieveDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -256,5 +292,65 @@ class PostDetailView(generics.RetrieveDestroyAPIView):
             print(f"User {user_id_from_request} FORBIDDEN from deleting post {instance.pk} owned by {instance.author_id}.")
             return Response(
                 {"detail": "You do not have permission to delete this post."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+class CommentDetailView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer # Still technically required by DestroyAPIView
+    lookup_field = 'pk' # comment ID
+
+    # --- Keep AllowAny for this insecure method ---
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    # --- End AllowAny ---
+
+    # --- Override destroy for manual user_id check ---
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object() # Get the Comment instance (handles 404)
+
+        # --- Expect user_id in the request BODY ---
+        user_id_from_request_str = request.data.get('user_id')
+
+        if not user_id_from_request_str:
+            return Response(
+                {"detail": "user_id not provided in request body for comment delete verification."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user_id_from_request = uuid.UUID(user_id_from_request_str)
+        except (ValueError, TypeError):
+            return Response(
+                {"detail": "Invalid user_id format provided for comment delete verification."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # --- Ensure author_id exists on the comment ---
+        if not hasattr(instance, 'author_id') or instance.author_id is None:
+             print(f"Error: Comment {instance.pk} has no author_id to compare for deletion.")
+             # Use 403 Forbidden here maybe? Or 500 if it's unexpected data inconsistency.
+             return Response({"detail": "Cannot verify comment ownership (missing author)."}, status=status.HTTP_403_FORBIDDEN)
+
+        # --- Ensure post author_id exists (needed for the check) ---
+        if not hasattr(instance.post, 'author_id') or instance.post.author_id is None:
+            print(f"Error: Post {instance.post.pk} linked to comment {instance.pk} has no author_id.")
+            return Response({"detail": "Cannot verify post ownership for comment deletion."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        print(f"Comment Delete Check: Request User ID = {user_id_from_request}, Comment Author ID = {instance.author_id}, Post Author ID = {instance.post.author_id}")
+
+        # --- Perform the ownership check ---
+        is_comment_author = instance.author_id == user_id_from_request
+        is_post_author = instance.post.author_id == user_id_from_request
+
+        if is_comment_author or is_post_author:
+            print(f"User {user_id_from_request} authorized to delete comment {instance.pk}. Deleting...")
+            self.perform_destroy(instance) # Call the standard DRF deletion logic
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            print(f"User {user_id_from_request} FORBIDDEN from deleting comment {instance.pk}.")
+            return Response(
+                {"detail": "You do not have permission to delete this comment."},
                 status=status.HTTP_403_FORBIDDEN
             )

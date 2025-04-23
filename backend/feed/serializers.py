@@ -4,35 +4,77 @@ from .models import Post, Comment, Like # Import new models
 from profiles.models import Profile # Still needed for PFP lookup
 
 # --- Add Comment Serializer ---
-class BasicProfileSerializer(serializers.ModelSerializer):
-    """Serializer for embedding basic profile info."""
-    profile_pic_url = serializers.ImageField(source='profile_pic', read_only=True)
+import uuid
+class BasicProfilePicSerializer(serializers.ModelSerializer):
+    # Use SerializerMethodField to construct the full URL if needed
+    profile_pic_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Profile
-        fields = ['user_id', 'name', 'profile_pic_url'] # Only basic needed info
+        fields = ['profile_pic_url'] # Only need the URL
+
+    def get_profile_pic_url(self, obj):
+        request = self.context.get('request')
+        if obj.profile_pic and hasattr(obj.profile_pic, 'url'):
+            if request:
+                return request.build_absolute_uri(obj.profile_pic.url)
+            return obj.profile_pic.url # Fallback to relative URL if no request context
+        return None # Only basic needed info
 
 class CommentSerializer(serializers.ModelSerializer):
-    # Optionally fetch related profile info for the author
-    author_profile = serializers.SerializerMethodField()
+    author_profile_pic_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = [
-            'id', 'post', 'author_id', 'author_name', # Keep name stored at comment time
-            'content', 'timestamp', 'author_profile' # Include profile
+            'id',
+            'post',
+            'author_id',
+            'author_name',
+            'author_email', # <<<--- ADD author_email TO FIELDS
+            'content',
+            'timestamp',
+            'author_profile_pic_url',
         ]
-        read_only_fields = ['post', 'author_id', 'timestamp', 'author_profile']
+        # Make sure author_email is NOT read_only if set in perform_create
+        read_only_fields = ['id', 'post', 'author_id', 'author_name', 'timestamp', 'author_profile_pic_url']
 
-    def get_author_profile(self, obj):
-        # Fetch basic profile info for the comment author
+
+    # --- Use author_email from the comment object (obj) ---
+    def get_author_profile_pic_url(self, obj):
+        # obj is the Comment instance
+        print(f"[CommentSerializer] Getting profile pic for comment {obj.id}. Author Email on comment: {obj.author_email}")
+
+        # Check if author_email exists on the comment object itself
+        if not obj.author_email:
+            print(f"[CommentSerializer] Comment {obj.id} has no author_email stored.")
+            # Optional fallback: try looking up profile via obj.author_id if email is missing
+            # if obj.author_id: ... (add ID lookup logic here if desired) ...
+            return None # Return None if no email
+
+        # Proceed with email lookup if email exists
         try:
-            profile = Profile.objects.filter(user_id=obj.author_id).first()
-            if profile:
-                # Use a simpler serializer to avoid nesting loops if CommentSerializer used elsewhere
-                return BasicProfileSerializer(profile).data
+            profile = Profile.objects.filter(email=obj.author_email).first()
+            print(f"[CommentSerializer] Profile lookup by email '{obj.author_email}' result: {'Found' if profile else 'Not Found'}")
+
+            if profile and profile.profile_pic and hasattr(profile.profile_pic, 'url'):
+                print(f"[CommentSerializer] Profile Pic found: {profile.profile_pic.url}")
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(profile.profile_pic.url)
+                return profile.profile_pic.url # Fallback
+
+            elif profile:
+                 print(f"[CommentSerializer] Profile found for email {obj.author_email}, but no profile_pic file or URL.")
+                 return None
+            else:
+                # Profile not found for the email stored on the comment
+                 print(f"[CommentSerializer] Profile not found in DB for email: {obj.author_email}")
+                 return None
+
         except Exception as e:
-            print(f"Error fetching profile for comment author {obj.author_id}: {e}")
-        return None # Return null if profile not found
+            print(f"[CommentSerializer] ERROR getting profile pic URL for email {obj.author_email} (Comment {obj.id}): {e}")
+            return None
 
 # --- Modified Post Serializer ---
 # feed/serializers.py
@@ -123,4 +165,7 @@ class PostSerializer(serializers.ModelSerializer):
             # Pass context down to CommentSerializer if it needs the request
             return CommentSerializer(latest, context=self.context).data
         return None
+    def get_comment_count(self, obj):
+        # Efficiently count related comments
+        return obj.comments.count()
  

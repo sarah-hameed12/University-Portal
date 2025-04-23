@@ -30,6 +30,7 @@ class Comment(models.Model):
     author_name = models.CharField(max_length=100, blank=True)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    author_email = models.EmailField(max_length=254, null=True, blank=True, db_index=True) 
 
     class Meta:
         ordering = ['timestamp']

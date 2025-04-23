@@ -13,6 +13,7 @@ import ChatApp from "./chat_app_features/ChatApp.jsx";
 import Profile from "./profile.jsx";
 import SocietiesPage from "./socities.jsx";
 import SocietyDetailPage from "./SocietyDetailPage.jsx";
+import PostDetailPage from "./PostDetailPage.jsx";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/chat" element={<ChatApp />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/society/:societyId" element={<SocietyDetailPage />} />
+        <Route path="/post/:postId/comments" element={<PostDetailPage />} />
       </Routes>
     </Router>
   );
