@@ -5,7 +5,8 @@ from .views import (
     PostDetailView,         # Import new view
     PostLikeToggleView,     # Import new view
     CommentListCreateView , 
-    CommentDetailView # Import new view
+    CommentDetailView,
+    CommentMarkDeletedView  # Import new view
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     # Comments for a specific post (List/Create)
     path('posts/<uuid:post_pk>/comments/', CommentListCreateView.as_view(), name='comment-list-create'),
     path('comments/<uuid:pk>/', CommentDetailView.as_view(), name='comment-detail-delete'),
+    path('comments/<uuid:pk>/mark-deleted/', CommentMarkDeletedView.as_view(), name='comment-mark-deleted'),
 ]

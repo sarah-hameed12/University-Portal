@@ -1037,36 +1037,35 @@ const PostItem = ({
   if (!post) return null;
 
   console.log("Calculated isAuthor (for render):", isAuthor);
-
+  const profileLinkTarget = post?.author_email
+    ? `/profile/email/${encodeURIComponent(post.author_email)}`
+    : "#";
   return (
     <>
-      <motion.div
-        style={styles.postItem}
-        variants={cardVariants}
-        layout
-        exit={{ opacity: 0, y: -20, scale: 0.9 }}
-      >
+      <motion.div style={styles.postItem} /* ... */>
         <div style={styles.postHeader}>
-          <img
-            src={authorAvatarSrc}
-            alt={post.author_name || "User"}
-            style={styles.postAuthorAvatar}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${
-                post?.author_name || "anon"
-              }`;
-            }}
-          />
+          <Link
+            to={profileLinkTarget}
+            title={`View ${post.author_name || "User"}'s profile`}
+          >
+            <img
+              src={authorAvatarSrc}
+              alt={post.author_name || "User"}
+              style={styles.postAuthorAvatar} /* ... */
+            />
+          </Link>
           <div>
-            <p style={styles.postAuthorName}>
-              {post.author_name || "Anonymous"}
-            </p>
-            <p style={styles.postTimestamp}>
-              {post.timestamp
-                ? new Date(post.timestamp).toLocaleString()
-                : "No date"}
-            </p>
+            <Link to={profileLinkTarget} style={{ textDecoration: "none" }}>
+              <p style={styles.postAuthorName}>
+                {post.author_name || "Anonymous"}
+              </p>
+              <p style={styles.postTimestamp}>
+                {post.timestamp
+                  ? new Date(post.timestamp).toLocaleString()
+                  : "No date"}
+              </p>
+            </Link>
+            <p style={styles.postTimestamp}>{/* ... */}</p>
           </div>
         </div>
 

@@ -8,7 +8,7 @@ from .serializers import PostSerializer, CommentSerializer
 # from profiles.models import Profile # Needed if serializers fetch profile info
 import uuid # <<<--- Add import
 from profiles.models import Profile
-
+from django.utils import timezone 
 # IsOwnerOrReadOnly (Only works if you re-enable proper authentication)
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -295,6 +295,48 @@ class PostDetailView(generics.RetrieveDestroyAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
+class CommentMarkDeletedView(APIView):
+    """
+    Handles marking a comment as deleted instead of actually deleting it.
+    Expects a POST request. Requires authentication.
+    """
+    # --- Apply Authentication ---
+    # authentication_classes = [authentication.TokenAuthentication] # Choose your auth method
+    authentication_classes = [] # Keep empty for testing ONLY
+    permission_classes = [] # Ensure user is logged in AND authorized
+
+    def post(self, request, pk, *args, **kwargs): # Use POST for the action
+        comment = get_object_or_404(Comment, pk=pk)
+
+        # --- Double-check permission (though decorator should handle it) ---
+        # This check now relies on request.user being populated by authentication
+        if not request.user or not request.user.is_authenticated:
+             return Response({"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        is_comment_author = comment.author_id == request.user.id
+        is_post_author = comment.post.author_id == request.user.id
+
+        if not (is_comment_author or is_post_author):
+            return Response({"detail": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)
+
+        # --- Mark as deleted ---
+        if not comment.is_deleted: # Only mark if not already deleted
+            comment.is_deleted = True
+            comment.deleted_at = timezone.now()
+            comment.deleted_by = 'AUTHOR' if is_comment_author else 'POSTER'
+            # Optionally clear content or keep it for moderation?
+            # comment.content = "[Comment deleted]" # Option 1: Replace content
+            comment.save(update_fields=['is_deleted', 'deleted_at', 'deleted_by']) # Option 2: Keep content, just flag
+
+            print(f"Comment {comment.pk} marked as deleted by {'AUTHOR' if is_comment_author else 'POSTER'} (User: {request.user.id})")
+
+            # Return the updated comment data (or just success status)
+            serializer = CommentSerializer(comment, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            # Already deleted, just return current state
+             serializer = CommentSerializer(comment, context={'request': request})
+             return Response(serializer.data, status=status.HTTP_200_OK)
 class CommentDetailView(generics.DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer # Still technically required by DestroyAPIView

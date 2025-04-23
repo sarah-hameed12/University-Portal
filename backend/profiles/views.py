@@ -7,6 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Profile
 from .serializers import ProfileSerializer
 import uuid
+from rest_framework import generics, status, permissions 
 
 # View to Retrieve and Update Profile BY EMAIL (INSECURE)
 class UserProfileViewByEmail(generics.RetrieveUpdateAPIView):
@@ -112,3 +113,25 @@ class UserProfileViewByEmail(generics.RetrieveUpdateAPIView):
         if getattr(instance, '_prefetched_objects_cache', None): instance._prefetched_objects_cache = {}
         read_serializer = self.get_serializer(instance)
         return Response(read_serializer.data)
+class PublicProfileDetailView(generics.RetrieveAPIView):
+    """
+    Provides read-only access to a user profile based on their user_id (UUID pk).
+    """
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = 'pk' # DRF defaults to 'pk', which matches our user_id primary key
+    authentication_classes = [] # Allow anyone to view public profiles
+    permission_classes = [permissions.AllowAny] # Allow anyone to view public profiles
+
+    # Override retrieve to handle not found gracefully if needed,
+    # but RetrieveAPIView handles 404 by default.
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        except NotFound:
+            return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(f"Error retrieving profile {kwargs.get('pk')}: {e}") # Log unexpected errors
+            return Response({"detail": "Error retrieving profile."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

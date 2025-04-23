@@ -31,12 +31,17 @@ class Comment(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     author_email = models.EmailField(max_length=254, null=True, blank=True, db_index=True) 
+    is_deleted = models.BooleanField(default=False, db_index=True) # Track if deleted
+    deleted_by = models.CharField(max_length=10, choices=[('AUTHOR', 'Author'), ('POSTER', 'Poster')], null=True, blank=True) # Who deleted it
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['timestamp']
 
     def __str__(self):
-        return f'Comment by {self.author_name or self.author_id} on {self.post.id}'
+        author_display = self.author_name or self.author_email or str(self.author_id)
+        status = "[DELETED]" if self.is_deleted else ""
+        return f'Comment by {author_display} on Post {self.post.id} {status}'
 
 class Like(models.Model):
  

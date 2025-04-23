@@ -35,6 +35,9 @@ class CommentSerializer(serializers.ModelSerializer):
             'content',
             'timestamp',
             'author_profile_pic_url',
+            'is_deleted',    # <<< ADD
+            'deleted_by',    # <<< ADD
+            'deleted_at', 
         ]
         # Make sure author_email is NOT read_only if set in perform_create
         read_only_fields = ['id', 'post', 'author_id', 'author_name', 'timestamp', 'author_profile_pic_url']

@@ -1,0 +1,400 @@
+/* src/pages/UserProfileView.module.css */
+
+/* --- Base & Font --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-bg: #111827;
+  --secondary-bg: #1f2937;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a3bd;
+  --text-tertiary: #6a6f93;
+  --accent-primary: #8c78ff;
+  --accent-secondary: #a78bfa;
+  --error-color: #f87171;
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --success-color: #4ade80;
+  --font-family: 'Inter', sans-serif;
+  --scrollbar-thumb-color: rgba(140, 120, 255, 0.5); /* Accent color with transparency */
+  --scrollbar-thumb-hover-color: rgba(140, 120, 255, 0.8); /* Darker on hover */
+  --scrollbar-track-color: rgba(31, 41, 55, 0.3); /* Subtle track color */
+}
+
+/* --- General Page Layout --- */
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh; /* Use min-height to allow content growth */
+  height: 100%; /* Ensure it tries to take full height */
+  padding: 90px 20px 50px;
+  background: linear-gradient(145deg, var(--primary-bg) 0%, #161b2e 100%);
+  font-family: var(--font-family);
+  box-sizing: border-box;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto; /* Enable vertical scroll *if* content overflows */
+
+  /* --- Custom Scrollbar Styles --- */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+}
+
+.pageContainer::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.pageContainer::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-color);
+  border-radius: 10px;
+}
+
+.pageContainer::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track-color);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.pageContainer::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover-color);
+}
+
+.pageContainer::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* --- Back to Home Link --- */
+.backToHomeLink {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  z-index: 20;
+}
+
+.backToHomeButton {
+  background-color: rgba(31, 41, 55, 0.5);
+  color: var(--text-secondary);
+  padding: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+}
+
+.backToHomeButton:hover {
+  background-color: rgba(55, 65, 81, 0.7);
+  color: var(--text-primary);
+  transform: scale(1.05);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+}
+
+.backToHomeIcon {
+  font-size: 1.5rem;
+}
+
+/* --- Profile Card --- */
+.profileCard {
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border-radius: 20px;
+  padding: 35px 45px;
+  width: 100%;
+  max-width: 750px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--card-border);
+  border: none;
+  margin-top: 30px;
+  margin-bottom: 30px; /* Add margin bottom to ensure space for scroll */
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+/* --- Profile Header --- */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid rgba(74, 77, 109, 0.3);
+}
+
+.avatarWrapper {
+  margin-right: 30px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--accent-primary);
+  background-color: #4b5563;
+  box-shadow: 0 5px 15px rgba(140, 120, 255, 0.25);
+  transition: transform 0.3s ease;
+}
+.avatarWrapper:hover .avatar {
+    transform: scale(1.05);
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profileName {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: var(--text-primary);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.profileSubheading {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 400;
+}
+
+.separator {
+  display: none;
+}
+
+/* --- Details Grid/List --- */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px 30px; /* Reduced row gap slightly */
+  margin-top: 30px; /* Space after header */
+}
+
+.detailItem {
+  display: flex;
+  align-items: center; /* Vertical center align icon and text block */
+  padding: 12px 5px; /* Adjust padding */
+  border-bottom: 1px solid rgba(74, 77, 109, 0.2);
+  transition: border-color 0.2s ease-in-out;
+  min-height: 50px; /* Consistent height */
+}
+.detailItem:hover {
+    border-bottom-color: rgba(140, 120, 255, 0.4);
+}
+
+/* No border for the last item in the grid */
+.detailItem:last-child {
+   border-bottom: none;
+}
+
+.detailIcon {
+  font-size: 1.3rem; /* Icon size */
+  color: var(--accent-secondary);
+  margin-right: 15px; /* Space between icon and text */
+  flex-shrink: 0;
+  opacity: 0.9;
+  line-height: 1; /* Prevent icon line height from affecting alignment */
+}
+
+/* Container for Label and Value */
+.detailTextContent {
+    display: flex;
+    flex-direction: column; /* Stack label and value vertically */
+    flex-grow: 1; /* Take remaining space */
+    line-height: 1.4; /* Base line-height for the text block */
+    justify-content: center; /* Center label/value vertically if needed */
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: var(--text-secondary);
+  /* margin-right: 8px; */ /* Not needed when stacked */
+  white-space: nowrap;
+  font-size: 0.85rem; /* Smaller label */
+  display: block; /* Ensure it takes its own line */
+  margin-bottom: 2px; /* Space below label */
+}
+
+.detailValue {
+  font-size: 0.95rem; /* Value text size */
+  color: var(--text-primary);
+  word-break: break-word;
+  font-weight: 400;
+}
+
+.emailValue {
+    font-style: normal;
+    color: var(--accent-secondary);
+    font-weight: 500;
+}
+
+.multiLine {
+  line-height: 1.5;
+  white-space: normal;
+}
+
+/* --- Adjustments for Full Width Items --- */
+.fullWidth {
+  grid-column: 1 / -1;
+  flex-direction: column; /* Stack LabelContainer and Value */
+  align-items: flex-start; /* Align items to the start */
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+/* Container for the icon and label in full-width items */
+.fullWidthLabelContainer {
+    display: flex;
+    align-items: center; /* Vertically center icon and label text */
+    margin-bottom: 10px; /* Space below the label/icon group */
+}
+
+.fullWidth .fullWidthLabelContainer .detailIcon {
+    /* Styles for icon within the full-width label container */
+    font-size: 1.4rem;
+    color: var(--accent-primary);
+    margin-right: 12px; /* Space between icon and label */
+    opacity: 1;
+    line-height: 1; /* Consistency */
+}
+
+.fullWidth .fullWidthLabelContainer .detailLabel {
+    /* Styles for label within the full-width label container */
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0; /* Reset margin */
+    display: inline; /* Sit next to icon */
+    white-space: normal; /* Allow wrapping */
+    line-height: 1.3; /* Adjust line height if label wraps */
+}
+
+.fullWidth .detailValue {
+    /* Styles for the value in full-width items */
+    text-align: left;
+    width: 100%;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    padding-left: 0; /* Ensure no indent */
+    line-height: 1.6;
+}
+
+.notSpecified {
+  font-style: normal;
+  color: var(--text-tertiary);
+  font-size: 0.9em;
+}
+
+/* --- Loading and Error States --- */
+
+/* Spinner Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-left-color: var(--accent-primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* Common structure for Loading/Error */
+.statusContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 150px);
+  text-align: center;
+  padding: 40px;
+}
+
+.loadingState .statusContainer {
+  color: var(--text-secondary);
+}
+.loadingState .statusText {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Use a card for Error state */
+.errorCard {
+    background-color: var(--secondary-bg);
+    color: var(--text-primary);
+    border-radius: 16px;
+    padding: 40px 50px;
+    width: 100%;
+    max-width: 550px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    text-align: center;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.errorIcon {
+    font-size: 3.5rem;
+    color: var(--error-color);
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.errorTitle {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 12px 0;
+}
+
+.errorMessage {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.backButton {
+  padding: 12px 30px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(140, 120, 255, 0.3);
+}
+
+.backButton:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(140, 120, 255, 0.4);
+}
+.backButton:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 8px rgba(140, 120, 255, 0.3);
+}
+
+/* Refined loading state using status container */
+.loadingState {
+  /* Inherits centering from statusContainer usage */
+}

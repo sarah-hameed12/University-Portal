@@ -14,6 +14,7 @@ import Profile from "./profile.jsx";
 import SocietiesPage from "./socities.jsx";
 import SocietyDetailPage from "./SocietyDetailPage.jsx";
 import PostDetailPage from "./PostDetailPage.jsx";
+import UserProfileView from "./UserProfileView.jsx";
 
 const App = () => {
   return (
@@ -34,6 +35,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/society/:societyId" element={<SocietyDetailPage />} />
         <Route path="/post/:postId/comments" element={<PostDetailPage />} />
+        <Route path="/profile/email/:email" element={<UserProfileView />} />
       </Routes>
     </Router>
   );
