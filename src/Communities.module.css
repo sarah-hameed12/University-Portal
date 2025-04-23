@@ -1,0 +1,404 @@
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  color: var(--text-primary);
+  min-height: calc(100vh - 70px); /* Adjust if you have a fixed header */
+  max-height: 100vh;
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: rgba(156, 141, 255, 0.6) transparent; /* For Firefox */
+  position: relative; /* Ensure proper stacking context */
+}
+
+/* Add these styles for webkit browsers (Chrome, Safari) */
+.pageContainer::-webkit-scrollbar {
+  width: 8px;
+  position: absolute;
+  right: 0;
+}
+
+.pageContainer::-webkit-scrollbar-track {
+  background: #161827; /* Match dashboard dark background */
+  border-radius: 4px;
+}
+
+.pageContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 141, 255, 0.6); /* Purple accent color */
+  border-radius: 4px;
+  border: 2px solid #161827;
+}
+
+.pageContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 141, 255, 0.9);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--accent-primary);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.createButton:hover {
+  background-color: var(--accent-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+/* Search */
+.searchSection {
+  margin-bottom: 36px;
+}
+
+.searchBarContainer {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none; /* Make icon non-interactive */
+}
+
+.searchInput {
+  width: 100%;
+  padding: 14px 14px 14px 46px;
+  font-size: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+/* Tabs */
+.tabsSection {
+  margin-bottom: 36px;
+}
+
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-color);
+  gap: 4px;
+}
+
+.tab {
+  padding: 14px 24px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px; /* Overlap border */
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.activeTab {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+/* Loader */
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px 0;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.loaderDots {
+  display: flex;
+  gap: 8px;
+}
+
+.loaderDot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both; /* Use global animation */
+}
+.loaderDot:nth-child(1) { animation-delay: -0.32s; }
+.loaderDot:nth-child(2) { animation-delay: -0.16s; }
+.loaderDot:nth-child(3) { animation-delay: 0s; }
+
+.loaderText {
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
+/* Grid */
+.communityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 10px 0;
+}
+
+/* Card */
+.communityCard {
+  background-color: var(--background-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  cursor: pointer;
+}
+
+.communityCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  border-color: #5a677a; /* Slightly lighter border on hover */
+}
+
+.communityBanner {
+  height: 140px;
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: var(--background-tertiary); /* Fallback color */
+}
+
+.communityIconWrapper {
+  margin-top: -30px; /* Pull icon up */
+  margin-left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background-color: var(--background-secondary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid var(--background-secondary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: relative; /* Needed for margin-top */
+  z-index: 1;
+}
+
+.communityIcon {
+  width: 100%;
+  height: 100%;
+  border-radius: 9px;
+  object-fit: cover;
+  color: var(--text-secondary); /* Color for placeholder icon */
+}
+
+.communityInfo {
+  padding: 20px 20px 20px; /* Adjusted top padding */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.communityName {
+  font-size: 1.15rem; /* Slightly smaller */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.communityDescription {
+  font-size: 0.9rem; /* Slightly smaller */
+  color: var(--text-secondary);
+  margin-bottom: 16px; /* Reduced margin */
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(1.5em * 3); /* Ensure space for 3 lines */
+  flex-grow: 1;
+}
+
+.communityMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px; /* Reduced padding */
+  margin-top: auto; /* Push meta to bottom */
+  gap: 10px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Empty State */
+.noCommunitiesContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: var(--background-secondary);
+  border-radius: 12px;
+  border: 1px dashed var(--border-color);
+  text-align: center;
+}
+
+.noCommunitiesIcon {
+  color: var(--border-color); /* Darker icon */
+  margin-bottom: 20px;
+}
+
+.noCommunitiesTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.noCommunitiesText {
+  color: var(--text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.noCommunitiesButton {
+  display: inline-flex; /* Use inline-flex */
+  align-items: center;
+  gap: 8px;
+  background-color: var(--accent-primary);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.noCommunitiesButton:hover {
+  background-color: var(--accent-secondary);
+}
+
+/* Modal Styles (Keep similar to inline for now, or move to global/modal component) */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background-color: var(--background-secondary);
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+.modalCloseButton:hover {
+  color: var(--text-primary);
+}
+
+.modalTitle {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+.modalError {
+  color: var(--error-color);
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  background-color: rgba(248, 113, 113, 0.1);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.modalFormInput,
+.modalFormTextArea {
+  width: 100%;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+.modalFormTextArea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modalSubmitButton {
+  background-color: var(--accent-primary);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  width: 100%;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.modalSubmitButton:hover:not(:disabled) {
+  background-color: var(--accent-secondary);
+}
+.modalSubmitButton:disabled {
+  background-color: var(--background-tertiary);
+  cursor: not-allowed;
+  opacity: 0.7;
+}

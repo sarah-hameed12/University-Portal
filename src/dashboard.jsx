@@ -33,6 +33,7 @@ import {
   FiLoader,
   FiCornerDownRight,
   FiChevronsRight,
+  FiUsers  // Add this import
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -700,6 +701,7 @@ export const SideNav = () => {
     { name: "Chat", icon: <FiMessageSquare />, path: "/chat" },
     { name: "Utilities", icon: <FiGrid />, path: "/documents" }, // Changed path back
     { name: "Profile", icon: <FiUser />, path: "/profile" },
+    { name: "Communities", icon: <FiUsers />, path: "/communities" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
   return (

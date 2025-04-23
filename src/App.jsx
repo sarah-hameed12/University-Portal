@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 import WelcomePage from "./welcome.jsx";
 import SignIn from "./signin.jsx";
 import Signup from "./signup2.jsx";
@@ -15,12 +16,57 @@ import SocietiesPage from "./socities.jsx";
 import SocietyDetailPage from "./SocietyDetailPage.jsx";
 import PostDetailPage from "./PostDetailPage.jsx";
 import UserProfileView from "./UserProfileView.jsx";
+import Communities from "./Communities";
+import CommunityDetail from "./CommunityDetail";
+
+// Initialize Supabase - same as in dashboard.jsx
+const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpdm9ramN1bG5mbHJ5eHp0ZmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5NzExOTAsImV4cCI6MjA1NDU0NzE5MH0.8rBAN4tZP8S0j1wkfj8SwSN1Opdf9LOERb-T47rZRYk";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const App = () => {
+  // User authentication state management (similar to dashboard.jsx)
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const session = data?.session;
+      
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.email // Default name to email
+        });
+      }
+    };
+    
+    getInitialSession();
+    
+    // Set up auth listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.email
+          });
+        } else {
+          setUser(null);
+        }
+      }
+    );
+    
+    // Cleanup on unmount
+    return () => subscription?.unsubscribe();
+  }, []);
+
   return (
     <Router>
       <Routes>
-        {/* <Route path="/" element={<Dashboard />} /> */}
         <Route index element={<Dashboard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup2" element={<Signup />} />
@@ -36,6 +82,8 @@ const App = () => {
         <Route path="/society/:societyId" element={<SocietyDetailPage />} />
         <Route path="/post/:postId/comments" element={<PostDetailPage />} />
         <Route path="/profile/email/:email" element={<UserProfileView />} />
+        <Route path="/communities" element={<Communities user={user} />} />
+        <Route path="/communities/:communityId" element={<CommunityDetail currentUser={user} />} />
       </Routes>
     </Router>
   );

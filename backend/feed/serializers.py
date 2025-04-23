@@ -1,6 +1,6 @@
 # feed/serializers.py
 from rest_framework import serializers
-from .models import Post, Comment, Like # Import new models
+from .models import Post, Comment, Like, Community, CommunityMember, JoinRequest  # Add missing models
 from profiles.models import Profile # Still needed for PFP lookup
 
 # --- Add Comment Serializer ---
@@ -104,7 +104,8 @@ class PostSerializer(serializers.ModelSerializer):
             'author_email', # Keep in fields
             'content', 'image_url',
             'timestamp', 'author_profile_pic_url',
-            'like_count', 'is_liked_by_user', 'latest_comment'
+            'like_count', 'is_liked_by_user', 'latest_comment',
+            'title'  # Add title to fields
         ]
         # --- CORRECTED read_only_fields ---
         # author_id might be set manually, so keep it read_only here if desired
@@ -171,4 +172,23 @@ class PostSerializer(serializers.ModelSerializer):
     def get_comment_count(self, obj):
         # Efficiently count related comments
         return obj.comments.count()
- 
+    
+#Communitites
+class CommunityMemberSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = CommunityMember
+        fields = '__all__'
+
+class CommunitySerializer(serializers.ModelSerializer):
+    # Remove the redundant source parameter
+    members = CommunityMemberSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Community
+        fields = ['id', 'name', 'description', 'creator_id', 'creator_name', 
+                 'banner_image', 'icon_image', 'created_at', 'member_count', 'members']
+        
+class JoinRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JoinRequest
+        fields = '__all__'

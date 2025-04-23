@@ -17,7 +17,7 @@ import {
 } from "react-icons/fi"; // Add necessary icons
 
 // Import shared components (if they exist and are suitable)
-import { SideNav } from "./Dashboard"; // Assuming SideNav is exportable from Dashboard or separate file
+import { SideNav } from "./dashboard"; // Assuming SideNav is exportable from Dashboard or separate file
 import ConfirmDeleteModal from "./ConfirmDeleteModal"; // Import delete modal
 const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
 const supabaseKey =

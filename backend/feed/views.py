@@ -1,7 +1,8 @@
 # feed/views.py
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
@@ -9,6 +10,9 @@ from .serializers import PostSerializer, CommentSerializer
 import uuid # <<<--- Add import
 from profiles.models import Profile
 from django.utils import timezone 
+
+from .models import Post, Comment, Like, Community, CommunityMember, JoinRequest, JoinRequestStatus, NIL_UUID
+from .serializers import PostSerializer, CommentSerializer, CommunitySerializer, JoinRequestSerializer
 # IsOwnerOrReadOnly (Only works if you re-enable proper authentication)
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -21,10 +25,13 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 # PostListView (Example allows anonymous posts, less secure)
 class PostListView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        # Only return posts that don't belong to any community
+        return Post.objects.filter(community__isnull=True).order_by('-timestamp')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -353,6 +360,7 @@ class CommentDetailView(generics.DestroyAPIView):
 
         # --- Expect user_id in the request BODY ---
         user_id_from_request_str = request.data.get('user_id')
+        user_email_from_request = request.data.get('author_email')  # Get email too if available
 
         if not user_id_from_request_str:
             return Response(
@@ -368,31 +376,349 @@ class CommentDetailView(generics.DestroyAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # --- Ensure author_id exists on the comment ---
-        if not hasattr(instance, 'author_id') or instance.author_id is None:
-             print(f"Error: Comment {instance.pk} has no author_id to compare for deletion.")
-             # Use 403 Forbidden here maybe? Or 500 if it's unexpected data inconsistency.
-             return Response({"detail": "Cannot verify comment ownership (missing author)."}, status=status.HTTP_403_FORBIDDEN)
-
-        # --- Ensure post author_id exists (needed for the check) ---
-        if not hasattr(instance.post, 'author_id') or instance.post.author_id is None:
-            print(f"Error: Post {instance.post.pk} linked to comment {instance.pk} has no author_id.")
-            return Response({"detail": "Cannot verify post ownership for comment deletion."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-        print(f"Comment Delete Check: Request User ID = {user_id_from_request}, Comment Author ID = {instance.author_id}, Post Author ID = {instance.post.author_id}")
-
-        # --- Perform the ownership check ---
-        is_comment_author = instance.author_id == user_id_from_request
-        is_post_author = instance.post.author_id == user_id_from_request
-
-        if is_comment_author or is_post_author:
-            print(f"User {user_id_from_request} authorized to delete comment {instance.pk}. Deleting...")
-            self.perform_destroy(instance) # Call the standard DRF deletion logic
+        # --- First, check using post author and community admin permissions ---
+        if hasattr(instance.post, 'author_id') and instance.post.author_id and instance.post.author_id == user_id_from_request:
+            print(f"User {user_id_from_request} authorized to delete comment as post author")
+            self.perform_destroy(instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            print(f"User {user_id_from_request} FORBIDDEN from deleting comment {instance.pk}.")
+        
+        # --- Check if post belongs to community and user is community admin ---
+        if (hasattr(instance.post, 'community') and 
+            instance.post.community and 
+            instance.post.community.creator_id == user_id_from_request_str):
+            print(f"User {user_id_from_request} authorized to delete comment as community admin")
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # --- If author_id is available on the comment, use that ---
+        if hasattr(instance, 'author_id') and instance.author_id:
+            is_comment_author = instance.author_id == user_id_from_request
+            if is_comment_author:
+                print(f"User {user_id_from_request} authorized to delete own comment")
+                self.perform_destroy(instance)
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        # --- As fallback, use author_email if available ---
+        if hasattr(instance, 'author_email') and instance.author_email and user_email_from_request:
+            is_same_email = instance.author_email.lower() == user_email_from_request.lower()
+            if is_same_email:
+                print(f"User authorized to delete comment using matching email")
+                self.perform_destroy(instance)
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # No permission match found
+        print(f"User {user_id_from_request} FORBIDDEN from deleting comment {instance.pk}")
+        return Response(
+            {"detail": "You do not have permission to delete this comment."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+            
+            
+#communitites
+class CommunityListCreateView(generics.ListCreateAPIView):
+    queryset = Community.objects.all()
+    serializer_class = CommunitySerializer
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            print(f"Error listing communities: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            print(f"Received request data: {request.data}")
+            serializer = self.get_serializer(data=request.data)
+            
+            if serializer.is_valid():
+                print("Serializer is valid, saving...")
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            else:
+                print(f"Serializer validation errors: {serializer.errors}")
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            import traceback
+            print(f"Error creating community: {str(e)}")
+            print(traceback.format_exc())
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def perform_create(self, serializer):
+        try:
+            community = serializer.save()
+            # Auto-add creator as a member and admin
+            CommunityMember.objects.create(
+                community=community,
+                user_id=community.creator_id,
+                display_name=community.creator_name,
+                member_type='admin'
+            )
+        except Exception as e:
+            print(f"Community creation error: {str(e)}")
+            raise
+
+class CommunityDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Community.objects.all()
+    serializer_class = CommunitySerializer
+
+class CommunityPostsView(generics.ListCreateAPIView):
+    serializer_class = PostSerializer
+    
+    def get_queryset(self):
+        community_id = self.kwargs.get('pk')
+        return Post.objects.filter(community_id=community_id).order_by('-timestamp')
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            print(f"Received community post create request data: {request.data}")
+            
+            # Make a mutable copy of the request data
+            data = request.data.copy()
+            
+            # If content is blank but title exists, use title as content
+            if (not data.get('content') or data.get('content') == '') and data.get('title'):
+                data['content'] = data.get('title')
+                print(f"Using title as content: {data['content']}")
+            
+            serializer = self.get_serializer(data=data)
+            
+            if serializer.is_valid():
+                print("Serializer is valid, saving...")
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            else:
+                print(f"Serializer validation errors: {serializer.errors}")
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            import traceback
+            print(f"Error creating community post: {str(e)}")
+            print(traceback.format_exc())
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            print(f"Error in CommunityPostsView.list: {str(e)}")
             return Response(
-                {"detail": "You do not have permission to delete this comment."},
+                {"error": "An error occurred while retrieving community posts"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def perform_create(self, serializer):
+        community_id = self.kwargs.get('pk')
+        try:
+            community = Community.objects.get(id=community_id)
+            data = self.request.data
+            print(f"Creating post for community {community_id}, data: {data}")
+            
+            # Get user details from request
+            author_id_str = data.get('author_id')
+            author_name = data.get('author_name', 'Anonymous')
+            author_email = data.get('author_email')
+            content = data.get('content', '')
+            title = data.get('title', '')  # Get the title from the request
+            
+            # Convert author_id to UUID if provided
+            author_id = NIL_UUID  # Default to NIL_UUID instead of None
+            if author_id_str:
+                try:
+                    author_id = uuid.UUID(author_id_str)
+                    print(f"Valid author_id: {author_id}")
+                except (ValueError, TypeError):
+                    print(f"Invalid author_id format, using default: {author_id}")
+        
+            # Save with all necessary fields including title
+            serializer.save(
+                community=community,
+                author_id=author_id,
+                author_name=author_name,
+                author_email=author_email,
+                content=content,
+                title=title  # Add title to the save method
+            )
+            print(f"Post created successfully for community {community_id} with title: {title}")
+        except Community.DoesNotExist:
+            print(f"Community {community_id} does not exist")
+            raise
+        except Exception as e:
+            print(f"Error creating community post: {str(e)}")
+            raise
+
+class CommunityMembershipView(APIView):
+    def get(self, request, pk):
+        community_id = pk
+        user_id = request.query_params.get('user_id')
+        
+        if not user_id:
+            return Response(
+                {"error": "user_id parameter is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            # Check if user is a member of the community
+            member = CommunityMember.objects.filter(
+                community_id=community_id,
+                user_id=user_id
+            ).first()
+            
+            if member:
+                return Response({
+                    "is_member": True,
+                    "member_type": member.member_type,
+                    "joined_at": member.joined_at
+                })
+            else:
+                return Response({"is_member": False})
+                
+        except Exception as e:
+            print(f"Error checking membership: {str(e)}")
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def post(self, request, pk):
+        """Join or leave a community"""
+        try:
+            community = Community.objects.get(pk=pk)
+        except Community.DoesNotExist:
+            return Response({"error": "Community not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        user_id = request.data.get('user_id')
+        user_name = request.data.get('user_name')
+        action = request.data.get('action', 'join')  # 'join' or 'leave'
+        
+        if not user_id or not user_name:
+            return Response({"error": "user_id and user_name are required"}, 
+                           status=status.HTTP_400_BAD_REQUEST)
+        
+        # Handle join/leave logic
+        if action == 'join':
+            # Check if already a member
+            if not CommunityMember.objects.filter(community=community, user_id=user_id).exists():
+                CommunityMember.objects.create(
+                    community=community,
+                    user_id=user_id,
+                    display_name=user_name  # Changed from user_name to display_name
+                )
+                community.member_count += 1
+                community.save()
+            return Response({"status": "joined", "member_count": community.member_count})
+        elif action == 'leave':
+            # Cannot leave if you're the creator
+            if user_id == community.creator_id:
+                return Response({"error": "Community creator cannot leave"}, 
+                               status=status.HTTP_400_BAD_REQUEST)
+                               
+            membership = CommunityMember.objects.filter(community=community, user_id=user_id)
+            if membership.exists():
+                membership.delete()
+                community.member_count = max(1, community.member_count - 1)  # Never below 1
+                community.save()
+            return Response({"status": "left", "member_count": community.member_count})
+        else:
+            return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+
+class IsAuthorOrCommunityAdmin(permissions.BasePermission):
+    """
+    Custom permission to only allow authors or community admins to delete posts
+    """
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request
+        if request.method in permissions.SAFE_METHODS:
+            return True
+            
+        # Only allow delete if user is post author or community admin
+        if request.method == 'DELETE':
+            # Check if user is post author
+            if obj.author_id == request.user.id:
+                return True
+                
+            # Check if user is community admin
+            if obj.community and obj.community.creator_id == request.user.id:
+                return True
+                
+        return False
+    
+class JoinRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = JoinRequestSerializer
+    
+    def get_queryset(self):
+        # Filter requests by community if specified
+        community_id = self.request.query_params.get('community', None)
+        if (community_id):
+            return JoinRequest.objects.filter(community_id=community_id)
+        return JoinRequest.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        # Check if user already has a pending request
+        existing = JoinRequest.objects.filter(
+            community_id=request.data.get('community'),
+            user_id=request.data.get('user_id'),
+            status=JoinRequestStatus.PENDING
+        )
+        
+        if existing:
+            return Response(
+                {"message": "You already have a pending join request"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        return super().create(request, *args, **kwargs)
+    
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        join_request = self.get_object()
+        
+        # Check if user is community admin
+        community = join_request.community
+        if community.creator_id != request.data.get('admin_id'):
+            return Response(
+                {"message": "Only community administrators can approve requests"}, 
                 status=status.HTTP_403_FORBIDDEN
             )
+            
+        # Update request status
+        join_request.status = JoinRequestStatus.APPROVED
+        join_request.save()
+        
+        # Create community membership
+        CommunityMember.objects.create(
+            community=community,
+            user_id=join_request.user_id,
+            display_name=join_request.user_name
+        )
+        
+        # Update community member count
+        join_request.community.member_count += 1
+        join_request.community.save()
+        
+        return Response({"message": "Join request approved", "status": "approved"})
+    
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        join_request = self.get_object()
+        
+        # Check if user is community admin
+        community = join_request.community
+        if community.creator_id != request.data.get('admin_id'):
+            return Response(
+                {"message": "Only community administrators can reject requests"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Update request status
+        join_request.status = JoinRequestStatus.REJECTED
+        join_request.save()
+        
+        return Response({"message": "Join request rejected", "status": "rejected"})
