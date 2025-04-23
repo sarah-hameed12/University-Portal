@@ -16,7 +16,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             # We DO NOT list 'profile_pic' here for GET requests
         ]
         # user_id and email are likely read-only from the model definition
-        read_only_fields = ['user_id', 'email', 'updated_at', 'profile_pic_url']
+        read_only_fields = ['user_id', 'email', 'updated_at']
 
         # Keep extra_kwargs if UserProfileViewByEmail uses this for updates
         # This allows sending 'profile_pic' data in PUT/PATCH requests
