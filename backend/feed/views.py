@@ -35,7 +35,16 @@ class PostListView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context.update({"request": self.request})
+        request = self.request
+        context['request'] = request
+        requesting_user_name = request.query_params.get('requesting_user_name', None)
+        if requesting_user_name:
+             context['requesting_user_name'] = requesting_user_name
+             print(f"[PostListView Context] Passing requesting_user_name: {requesting_user_name}") # Debug log
+        else:
+             print("[PostListView Context] No requesting_user_name found in query params.")
+        # --- End Get User Identifier ---
+
         return context
 
     def perform_create(self, serializer):

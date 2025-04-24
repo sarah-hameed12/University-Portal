@@ -153,17 +153,21 @@ class PostSerializer(serializers.ModelSerializer):
     def get_is_liked_by_user(self, obj):
         # This still requires context about the *requesting* user
         # You might need to adjust how this works based on how you identify the liker
-        request = self.context.get('request')
-        user_identifier = None # Placeholder - determine how to get the current user's ID or name
+        requesting_user_name = self.context.get('requesting_user_name', None)
+        # --- End Get User Name ---
 
-        # Example if using the user_name sent for liking:
-        # Get user_name from request if available (e.g., for detail view?)
-        # Or if session auth was used: user_identifier = request.user.profile.name? request.user.profile.user_id?
-        # This part is tricky without full authentication context.
+        # print(f"[Serializer get_is_liked_by_user] Checking like for Post {obj.id} by Requesting User: {requesting_user_name}") # Debug log
 
-        if user_identifier: # If you can determine the current user
-             return obj.likes.filter(user_name=user_identifier).exists() # Or filter by user_id if you store that on Like
-        return False # Default if user can't be determined
+        if requesting_user_name:
+            # Check if a Like exists matching the post and the provided user name
+            # SECURITY RISK: Trusts the name sent by the client!
+            has_liked = obj.likes.filter(user_name=requesting_user_name).exists()
+            # print(f"[Serializer get_is_liked_by_user] User '{requesting_user_name}' liked Post {obj.id}: {has_liked}") # Debug log
+            return has_liked
+        else:
+            # If no user name was provided in the request, assume not liked
+            # print(f"[Serializer get_is_liked_by_user] No requesting_user_name in context for Post {obj.id}. Returning False.") # Debug log
+            return False # Default if user can't be determined
 
     def get_latest_comment(self, obj):
         latest = obj.comments.order_by('-timestamp').first()

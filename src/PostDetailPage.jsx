@@ -292,6 +292,7 @@ const styles = {
     borderRadius: "50%",
     animation: "spin 0.8s linear infinite",
   },
+  postActionButtonLiked: { color: "#8c78ff", fontWeight: "600" },
 };
 
 // --- Helper Component for Individual Comments ---
@@ -426,7 +427,9 @@ const PostDetailPage = () => {
   const [currentUser, setCurrentUser] = useState(null); // Need current user for actions/commenting
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isDeletingPost, setIsDeletingPost] = useState(false);
-  const [isLikingPost, setIsLikingPost] = useState(false); // State for liking
+  const [isLikingPost, setIsLikingPost] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0); // State for liking
   //   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // For POST deletion
   //     const [isDeletingPost, setIsDeletingPost] = useState(false);
 
@@ -487,8 +490,16 @@ const PostDetailPage = () => {
         axios.get(`/api/feed/posts/${postId}/`),
         axios.get(`/api/feed/posts/${postId}/comments/`),
       ]);
-      setPost(postResponse.data);
-      setComments(commentsResponse.data.results || commentsResponse.data || []); // Handle pagination/direct list
+      const fetchedPost = postResponse.data;
+      setPost(fetchedPost);
+      const initialLikeStatus = fetchedPost?.is_liked_by_user || false;
+      const initialLikeCount = fetchedPost?.like_count || 0;
+      console.log(
+        `[PostDetailPage fetch] Initializing local like state: isLiked=${initialLikeStatus}, likeCount=${initialLikeCount}`
+      );
+      setComments(commentsResponse.data.results || commentsResponse.data || []);
+      setIsLiked(fetchedPost?.is_liked_by_user || false);
+      setLikeCount(fetchedPost?.like_count || 0); // Handle pagination/direct list
     } catch (err) {
       console.error("Error fetching post or comments:", err);
       setError(
@@ -518,12 +529,18 @@ const PostDetailPage = () => {
         alert("Please complete your profile before liking.");
         throw new Error("User name missing");
       }
-      setIsLikingPost(true); // Set loading state for like
+      setIsLikingPost(true);
+      const originalIsLiked = isLiked;
+      const originalLikeCount = likeCount; // Set loading state for like
       try {
         const response = await axios.post(
           `/api/feed/posts/${postIdToLike}/like/`,
           { user_name: currentUser.name }
         );
+        const backendStatus = response.data?.status === "liked";
+        const backendCount = response.data?.like_count;
+        setIsLiked(backendStatus);
+        setLikeCount(backendCount ?? originalLikeCount);
         // Update the post state directly on this page
         setPost((prevPost) => ({
           ...prevPost,
@@ -543,7 +560,7 @@ const PostDetailPage = () => {
         setIsLikingPost(false);
       }
     },
-    [currentUser]
+    [currentUser, likeCount]
   );
 
   // Delete Handler (Adapted from Dashboard)
@@ -723,6 +740,10 @@ const PostDetailPage = () => {
     ...styles.commentTextarea,
     // ...(isCommentAreaFocused && styles.commentTextareaFocus) // Add focus state if needed
   };
+  const likeButtonStyle = {
+    ...styles.postActionButton,
+    ...(isLiked && styles.postActionButtonLiked), // Apply liked style based on local 'isLiked' state
+  };
 
   return (
     <div style={styles.pageContainer}>
@@ -776,10 +797,7 @@ const PostDetailPage = () => {
             <div style={styles.postActions}>
               <div style={styles.postActionButtonGroup}>
                 <button
-                  style={{
-                    ...styles.postActionButton,
-                    ...(post.is_liked_by_user && styles.postActionButtonLiked),
-                  }}
+                  style={likeButtonStyle} // Apply dynamic style
                   onClick={() => handleLikePost(post.id)}
                   disabled={isLikingPost || !currentUser}
                 >
@@ -789,8 +807,8 @@ const PostDetailPage = () => {
                     <FiThumbsUp />
                   )}
                   <span style={{ marginLeft: isLikingPost ? "8px" : "0" }}>
-                    {post.like_count ?? 0} Like
-                    {post.like_count !== 1 ? "s" : ""}
+                    {likeCount} Like{likeCount !== 1 ? "s" : ""}{" "}
+                    {/* Use local likeCount */}
                   </span>
                 </button>
                 <button

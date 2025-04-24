@@ -1,6 +1,6 @@
 // src/Dashboard.jsx
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useReducer } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
@@ -1726,7 +1726,14 @@ const Dashboard = () => {
       setErrorFeed(null);
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/feed/posts/"
+          "http://127.0.0.1:8000/api/feed/posts/",
+          {
+            params: {
+              // Send the user's name to the backend so it knows who is asking
+              // The backend MUST NOT trust this implicitly in production!
+              requesting_user_name: user.name,
+            },
+          }
         );
         const postsData = response.data.results || response.data;
 
@@ -1751,7 +1758,7 @@ const Dashboard = () => {
         setLoadingFeed(false);
       }
     },
-    [profileStatus]
+    [profileStatus, user]
   );
 
   // Fetch posts when profileStatus changes to 'exists'
