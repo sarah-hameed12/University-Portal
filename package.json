@@ -43,6 +43,7 @@
     "react-native-reanimated": "^3.17.1",
     "react-router-dom": "^7.1.5",
     "react-scrollbars-custom": "^4.1.1",
+    "simple-peer": "^9.11.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "supabase": "^2.9.6"

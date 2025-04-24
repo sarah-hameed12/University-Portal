@@ -656,3 +656,180 @@
 .commentsList::-webkit-scrollbar-thumb:hover {
   background-color: rgba(156, 141, 255, 0.6);
 }
+
+.voiceChannelsSection {
+  margin-top: 30px; /* Add more space above */
+  margin-bottom: 30px; /* Add space below */
+  padding: 20px; /* Add padding inside the section */
+  background-color: var(--background-secondary); /* Slightly different background */
+  border-radius: 8px; /* Consistent rounding */
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+/* Style the section title */
+.voiceChannelsSection h3 {
+  font-size: 1.1rem; /* Slightly smaller than main headings */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px 0; /* Space below title */
+  padding-bottom: 10px; /* Space before border */
+  border-bottom: 1px solid var(--border-color); /* Separator line */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* You can add an icon to the h3 if you like */
+/* Example: .voiceChannelsSection h3::before { content: '🔊'; margin-right: 8px; } */
+
+
+.voiceChannelList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Space between channel items */
+}
+
+.voiceChannelItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--background-tertiary); /* Slightly darker item background */
+  padding: 12px 16px;
+  border-radius: 6px; /* Slightly smaller radius */
+  border: 1px solid transparent; /* Placeholder for hover */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.voiceChannelItem:hover {
+  background-color: #3a3a4a; /* Slightly lighter on hover */
+  border-color: var(--accent-primary-faded); /* Accent border on hover */
+}
+
+.channelInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Adjust gap */
+  flex-grow: 1; /* Allow info to take available space */
+  margin-right: 16px; /* Space before actions */
+  overflow: hidden; /* Prevent long names pushing actions */
+}
+
+/* Style the headphone icon */
+.channelInfo svg {
+  color: var(--text-secondary);
+  flex-shrink: 0; /* Prevent icon shrinking */
+}
+
+/* Style the channel name */
+.channelInfo span:first-of-type {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap; /* Prevent wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ... if too long */
+}
+
+.userCount {
+  font-size: 0.8rem; /* Smaller text */
+  color: var(--text-secondary);
+  background-color: var(--background-secondary); /* Subtle bg */
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto; /* Push to the right within channelInfo if needed */
+  flex-shrink: 0; /* Prevent shrinking */
+  white-space: nowrap;
+}
+
+.channelActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0; /* Prevent actions shrinking */
+}
+
+/* --- Action Button Styling --- */
+
+/* General style for voice channel action buttons */
+.channelActions button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  display: inline-flex; /* Align icon and text */
+  align-items: center;
+  justify-content: center;
+  gap: 4px; /* Space between icon and text if any */
+}
+.channelActions button:active {
+    transform: scale(0.98); /* Slight press effect */
+}
+
+
+/* Specific Join Button Style (inside a channel item) */
+/* Re-using .joinButton might be fine if styling is consistent */
+.voiceChannelItem .joinButton { /* More specific selector */
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+}
+
+.voiceChannelItem .joinButton:hover {
+  background-color: var(--accent-secondary);
+  box-shadow: 0 2px 5px rgba(140, 120, 255, 0.3); /* Subtle glow */
+}
+
+/* Delete Button Style */
+.deleteButton {
+  background-color: transparent; /* No background */
+  color: var(--text-secondary); /* Muted color normally */
+  border: none;
+  padding: 6px; /* Make it square-ish for icon */
+  border-radius: 50%; /* Circular button */
+}
+
+.deleteButton svg { /* Ensure icon fits */
+    width: 16px;
+    height: 16px;
+}
+
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.1); /* Reddish subtle background */
+  color: var(--error-color); /* Bright red on hover */
+}
+
+/* --- Create Channel Button --- */
+.createChannelButton {
+  display: inline-flex; /* Better alignment */
+  align-items: center;
+  gap: 8px;
+  background-color: transparent; /* Outline style */
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary-faded); /* Slightly muted border */
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-top: 20px; /* Space above button */
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.createChannelButton:hover {
+  background-color: var(--accent-primary-faded); /* Subtle fill */
+  color: var(--accent-primary); /* Ensure color stays */
+  border-color: var(--accent-primary); /* Stronger border */
+}
+
+/* --- Empty State --- */
+.voiceChannelsSection > p { /* Target the 'No voice channels yet' paragraph */
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 30px 20px; /* More padding */
+  margin-top: 16px;
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  background-color: var(--background-tertiary);
+}

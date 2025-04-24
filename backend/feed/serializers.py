@@ -1,6 +1,6 @@
 # feed/serializers.py
 from rest_framework import serializers
-from .models import Post, Comment, Like, Community, CommunityMember, JoinRequest  # Add missing models
+from .models import Post, Comment, Like, Community, CommunityMember, JoinRequest, VoiceChannel, VoiceChannelParticipant  # Add missing models
 from profiles.models import Profile # Still needed for PFP lookup
 
 # --- Add Comment Serializer ---
@@ -200,3 +200,26 @@ class JoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinRequest
         fields = '__all__'
+
+class VoiceChannelSerializer(serializers.ModelSerializer):
+    participant_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = VoiceChannel
+        fields = ['id', 'name', 'community', 'created_at', 'is_active', 'participant_count']
+        read_only_fields = ['id', 'created_at', 'community', 'participant_count']
+
+    def get_participant_count(self, obj):
+        return obj.participants.count()
+
+class VoiceChannelParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoiceChannelParticipant
+        fields = ['id', 'user_id', 'display_name', 'joined_at', 'is_muted']
+
+class VoiceChannelDetailSerializer(serializers.ModelSerializer):
+    participants = VoiceChannelParticipantSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = VoiceChannel
+        fields = ['id', 'name', 'community', 'created_at', 'is_active', 'participants']

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'profiles',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -189,3 +190,12 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 # Check if the key was loaded (optional sanity check)
 if not GOOGLE_API_KEY:
     print("WARNING: GOOGLE_API_KEY not found in environment variables. Chatbot will not work.")
+
+ASGI_APPLICATION = 'core.asgi.application'
+
+# Define channel layers for WebSockets
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}

@@ -18,6 +18,7 @@ import PostDetailPage from "./PostDetailPage.jsx";
 import UserProfileView from "./UserProfileView.jsx";
 import Communities from "./Communities";
 import CommunityDetail from "./CommunityDetail";
+import VoiceChannel from "./VoiceChannel.jsx"; // Add this
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
@@ -84,6 +85,7 @@ const App = () => {
         <Route path="/profile/email/:email" element={<UserProfileView />} />
         <Route path="/communities" element={<Communities user={user} />} />
         <Route path="/communities/:communityId" element={<CommunityDetail currentUser={user} />} />
+        <Route path="/communities/:communityId/voice/:channelId" element={<VoiceChannel currentUser={user} />} />
       </Routes>
     </Router>
   );
