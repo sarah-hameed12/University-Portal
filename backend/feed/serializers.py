@@ -95,6 +95,7 @@ class PostSerializer(serializers.ModelSerializer):
     like_count = serializers.SerializerMethodField()
     is_liked_by_user = serializers.SerializerMethodField()
     latest_comment = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField() 
     # author_email = serializers.EmailField(read_only=True) # Can remove this explicit definition now
 
     class Meta:
@@ -105,7 +106,8 @@ class PostSerializer(serializers.ModelSerializer):
             'content', 'image_url',
             'timestamp', 'author_profile_pic_url',
             'like_count', 'is_liked_by_user', 'latest_comment',
-            'title'  # Add title to fields
+            'title',
+            'comment_count'  # Add title to fields
         ]
         # --- CORRECTED read_only_fields ---
         # author_id might be set manually, so keep it read_only here if desired
@@ -170,8 +172,10 @@ class PostSerializer(serializers.ModelSerializer):
             return CommentSerializer(latest, context=self.context).data
         return None
     def get_comment_count(self, obj):
-        # Efficiently count related comments
-        return obj.comments.count()
+        # Count only non-deleted comments
+        count = obj.comments.filter(is_deleted=False).count()
+        print(f"[PostSerializer] Calculated comment_count for Post {obj.id}: {count}") # Keep log
+        return count
     
 #Communitites
 class CommunityMemberSerializer(serializers.ModelSerializer):

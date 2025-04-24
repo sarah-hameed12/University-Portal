@@ -33,7 +33,7 @@ import {
   FiLoader,
   FiCornerDownRight,
   FiChevronsRight,
-  FiUsers  // Add this import
+  FiUsers, // Add this import
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -888,13 +888,7 @@ const TopNav = ({ isAuthenticated, user, onLogout, onOpenCreatePost }) => {
 };
 
 // Post Item Component
-const PostItem = ({
-  post,
-  currentUser,
-  onDeletePost,
-  onLikePost,
-  onCommentCountUpdate,
-}) => {
+const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(post?.is_liked_by_user || false);
   const [likeCount, setLikeCount] = useState(post?.like_count || 0);
@@ -902,23 +896,28 @@ const PostItem = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [hoveredAction, setHoveredAction] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
+  // const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false);
 
   useEffect(() => {
     setIsLiked(post?.is_liked_by_user || false);
     setLikeCount(post?.like_count || 0);
-    setCommentCount(post?.comment_count || 0);
+    // setCommentCount(post?.comment_count || 0);
   }, [post]);
   useEffect(() => {
-    // Call the callback only if the count actually changed and the function exists
-    if (post && onCommentCountUpdate && commentCount !== post.comment_count) {
-      console.log(
-        `PostItem ${post.id}: Propagating comment count update to ${commentCount}`
-      );
-      onCommentCountUpdate(post.id, commentCount);
-    }
-  }, [commentCount, post, onCommentCountUpdate]);
+    console.log(
+      `[PostItem Render/Prop Update] Post ID: ${post?.id}, Received comment_count prop: ${post?.comment_count}`
+    );
+  }, [post]);
+  // useEffect(() => {
+  //   // Call the callback only if the count actually changed and the function exists
+  //   if (post && onCommentCountUpdate && commentCount !== post.comment_count) {
+  //     console.log(
+  //       `PostItem ${post.id}: Propagating comment count update to ${commentCount}`
+  //     );
+  //     onCommentCountUpdate(post.id, commentCount);
+  //   }
+  // }, [commentCount, post, onCommentCountUpdate]);
   console.log(`PostItem Render - Post ID: ${post?.id}`);
   console.log("currentUser:", currentUser);
   console.log("post:", post);
@@ -1199,7 +1198,7 @@ const Feed = ({
   user,
   onDeletePost,
   onLikePost,
-  onCommentCountUpdate,
+  // onCommentCountUpdate,
 }) => {
   // Added onDeletePost, onLikePost
   const errorCombinedStyle = {
@@ -1234,7 +1233,7 @@ const Feed = ({
                 currentUser={user}
                 onDeletePost={onDeletePost} // <<< Check props passed
                 onLikePost={onLikePost}
-                onCommentCountUpdate={onCommentCountUpdate} // <<< Check props passed
+                // onCommentCountUpdate={onCommentCountUpdate} // <<< Check props passed
               />
             </motion.div>
           ))}
@@ -1700,41 +1699,60 @@ const Dashboard = () => {
   }, []); // Removed fetchUserProfile from dependency array
 
   // Fetching Logic for Feed Posts (Depends on profileStatus)
-  const fetchPosts = useCallback(async () => {
-    if (profileStatus !== "exists") {
-      console.log("Skipping feed fetch: Profile status is", profileStatus);
-      setLoadingFeed(false);
-      setPosts([]);
-      return;
-    }
-    console.log("Fetching feed posts...");
-    setLoadingFeed(true);
-    setErrorFeed(null);
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/api/feed/posts/");
-      const postsData = response.data.results || response.data;
-
-      // --- >>> ADD THIS LOG <<< ---
-      console.log(
-        "RAW FEED DATA FROM BACKEND:",
-        JSON.stringify(postsData, null, 2)
-      );
-      // --- >>> END LOG <<< ---
-
-      if (Array.isArray(postsData)) {
-        setPosts(postsData);
-      } else {
-        console.error("Feed API response is not an array:", postsData);
-        setErrorFeed("Unexpected feed data format.");
-        setPosts([]);
+  const fetchPosts = useCallback(
+    async (showLoading = true) => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user || profileStatus !== "exists") {
+        // Check profile status too
+        console.log(
+          "Skipping feed fetch: Not authenticated or profile doesn't exist."
+        );
+        setLoadingFeed(false); // Ensure loading stops
+        // setPosts([]); // Optionally clear posts, or keep stale data
+        return;
       }
-    } catch (err) {
-      console.error("Error fetching posts:", err);
-      setErrorFeed("Failed to load feed.");
-    } finally {
-      setLoadingFeed(false);
-    }
-  }, [profileStatus]);
+      if (showLoading) setLoadingFeed(true);
+      setErrorFeed(null);
+      if (profileStatus !== "exists") {
+        console.log("Skipping feed fetch: Profile status is", profileStatus);
+        setLoadingFeed(false);
+        setPosts([]);
+        return;
+      }
+      console.log("Fetching feed posts...");
+      setLoadingFeed(true);
+      setErrorFeed(null);
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/feed/posts/"
+        );
+        const postsData = response.data.results || response.data;
+
+        // --- >>> ADD THIS LOG <<< ---
+        console.log(
+          "RAW FEED DATA FROM BACKEND:",
+          JSON.stringify(postsData, null, 2)
+        );
+        // --- >>> END LOG <<< ---
+
+        if (Array.isArray(postsData)) {
+          setPosts(postsData);
+        } else {
+          console.error("Feed API response is not an array:", postsData);
+          setErrorFeed("Unexpected feed data format.");
+          setPosts([]);
+        }
+      } catch (err) {
+        console.error("Error fetching posts:", err);
+        setErrorFeed("Failed to load feed.");
+      } finally {
+        setLoadingFeed(false);
+      }
+    },
+    [profileStatus]
+  );
 
   // Fetch posts when profileStatus changes to 'exists'
   useEffect(() => {
@@ -1745,7 +1763,23 @@ const Dashboard = () => {
       setLoadingFeed(false);
     }
   }, [profileStatus, fetchPosts]);
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log("Dashboard focused, refetching posts...");
+      // Refetch without showing the main loading spinner for a smoother UX
+      fetchPosts(false);
+    };
 
+    window.addEventListener("focus", handleFocus);
+    // Optional: Also fetch immediately when component mounts after initial auth/profile check
+    // This helps if user navigates directly to dashboard after login elsewhere
+    // fetchPosts(false); // Fetch silently on mount too if needed
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchPosts]);
   // Modal Handlers
   const handleLikePost = useCallback(
     async (postId) => {
@@ -1920,7 +1954,7 @@ const Dashboard = () => {
               // --- >>> Pass handlers down <<< ---
               onDeletePost={handleDeletePost}
               onLikePost={handleLikePost}
-              onCommentCountUpdate={handleCommentCountUpdate}
+              // onCommentCountUpdate={handleCommentCountUpdate}
               // --- >>> End Pass <<< ---
             />
           ) : isAuthenticated && profileStatus === "error" ? (
