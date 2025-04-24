@@ -1,38 +1,44 @@
-.pageContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 30px 20px;
-  color: var(--text-primary);
-  min-height: calc(100vh - 70px); /* Adjust if you have a fixed header */
-  max-height: 100vh;
-  overflow-y: auto; /* Enable vertical scrolling */
+/* NEW: Style for the full-width scrollable wrapper */
+.scrollWrapper {
+  height: 100vh; /* Adjust if you have a fixed header: calc(100vh - HeaderHeight) */
+  overflow-y: auto; /* Enable vertical scrolling ON THE WRAPPER */
   scrollbar-width: thin; /* For Firefox */
-  scrollbar-color: rgba(156, 141, 255, 0.6) transparent; /* For Firefox */
-  position: relative; /* Ensure proper stacking context */
+  scrollbar-color: rgba(156, 141, 255, 0.6) rgba(22, 24, 39, 0.8); /* Thumb and track */
 }
 
-/* Add these styles for webkit browsers (Chrome, Safari) */
-.pageContainer::-webkit-scrollbar {
+/* Styles for webkit browsers (Chrome, Safari) applied to the wrapper */
+.scrollWrapper::-webkit-scrollbar {
   width: 8px;
-  position: absolute;
-  right: 0;
 }
 
-.pageContainer::-webkit-scrollbar-track {
-  background: #161827; /* Match dashboard dark background */
+.scrollWrapper::-webkit-scrollbar-track {
+  background: #161827; /* Match dark theme */
   border-radius: 4px;
 }
 
-.pageContainer::-webkit-scrollbar-thumb {
+.scrollWrapper::-webkit-scrollbar-thumb {
   background-color: rgba(156, 141, 255, 0.6); /* Purple accent color */
   border-radius: 4px;
-  border: 2px solid #161827;
+  border: 2px solid #161827; /* Match track */
 }
 
-.pageContainer::-webkit-scrollbar-thumb:hover {
+.scrollWrapper::-webkit-scrollbar-thumb:hover {
   background-color: rgba(156, 141, 255, 0.9);
 }
 
+
+/* MODIFIED: .pageContainer now only handles content layout */
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto; /* Center the content */
+  padding: 30px 20px 50px 20px; /* Keep padding, add bottom padding */
+  color: var(--text-primary);
+  min-height: 100%; /* Ensure it takes at least the wrapper height if content is short */
+  /* REMOVED height, overflow-y, scrollbar styles, min-height, max-height */
+}
+
+
+/* Keep all other styles below as they were, with minor refinements */
 .header {
   display: flex;
   justify-content: space-between;
@@ -40,28 +46,32 @@
   margin-bottom: 32px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  gap: 15px; /* Add gap for wrapping */
 }
 
 .pageTitle {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 5vw, 2rem); /* Responsive font size */
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
 }
 
 .createButton {
-  display: flex;
+  display: inline-flex; /* Use inline-flex */
   align-items: center;
   justify-content: center;
   gap: 8px;
   background-color: var(--accent-primary);
   color: white;
-  padding: 12px 20px;
+  padding: 10px 18px; /* Adjusted padding */
+  border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 0.95rem; /* Adjusted font size */
   font-weight: 500;
   transition: all 0.2s ease;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .createButton:hover {
@@ -87,51 +97,77 @@
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-secondary);
-  pointer-events: none; /* Make icon non-interactive */
+  pointer-events: none;
+  z-index: 1; /* Ensure icon is above input background */
 }
 
 .searchInput {
   width: 100%;
-  padding: 14px 14px 14px 46px;
-  font-size: 16px;
+  padding: 14px 16px 14px 48px; /* Increased left padding for icon */
+  font-size: 1rem;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  box-sizing: border-box; /* Include padding and border in width */
+  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.searchInput::placeholder {
+  color: var(--text-secondary);
+}
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(156, 141, 255, 0.3); /* Focus ring */
 }
 
 /* Tabs */
 .tabsSection {
   margin-bottom: 36px;
+  overflow-x: auto; /* Allow horizontal scroll on small screens */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
 }
+.tabsSection::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for WebKit */
+}
+
 
 .tabsContainer {
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */ /* Remove center to allow scroll */
+  white-space: nowrap; /* Prevent wrapping */
   border-bottom: 1px solid var(--border-color);
   gap: 4px;
+  padding-bottom: 1px; /* Prevent border overlap issue */
 }
 
 .tab {
-  padding: 14px 24px;
+  padding: 14px 20px; /* Adjusted padding */
   cursor: pointer;
   color: var(--text-secondary);
-  display: flex;
+  display: inline-flex; /* Changed to inline-flex */
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: 0.95rem; /* Adjusted font size */
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border-bottom: 3px solid transparent;
-  margin-bottom: -1px; /* Overlap border */
+  margin-bottom: -2px; /* Overlap container border */
+  flex-shrink: 0; /* Prevent tabs from shrinking */
 }
 
 .tab:hover {
   color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle hover background */
 }
 
 .activeTab {
   color: var(--text-primary);
   border-bottom-color: var(--accent-primary);
+}
+.activeTab:hover {
+    background-color: transparent; /* No background on active hover */
 }
 
 /* Loader */
@@ -139,9 +175,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 100px 0;
+  padding: 80px 0; /* Adjusted padding */
   flex-direction: column;
   gap: 15px;
+  min-height: 300px; /* Give loader some space */
 }
 
 .loaderDots {
@@ -150,12 +187,11 @@
 }
 
 .loaderDot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 10px; /* Slightly smaller dots */
+  height: 10px;
   background-color: var(--accent-primary);
   border-radius: 50%;
-  animation: bounce 1.4s infinite ease-in-out both; /* Use global animation */
+  animation: bounce 1.4s infinite ease-in-out both;
 }
 .loaderDot:nth-child(1) { animation-delay: -0.32s; }
 .loaderDot:nth-child(2) { animation-delay: -0.16s; }
@@ -163,13 +199,21 @@
 
 .loaderText {
   color: var(--text-secondary);
-  margin-top: 10px;
+  margin-top: 15px; /* Increased margin */
+  font-size: 0.9rem;
 }
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
 
 /* Grid */
 .communityGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Slightly smaller min width */
   gap: 24px;
   padding: 10px 0;
 }
@@ -180,80 +224,94 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100%; /* Ensure cards in a row have same height */
   cursor: pointer;
 }
 
-.communityCard:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-  border-color: #5a677a; /* Slightly lighter border on hover */
+.communityCard:hover,
+.communityCard:focus-within { /* Add focus style */
+  transform: translateY(-6px); /* Slightly less lift */
+  box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.15), 0 8px 8px -5px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-primary);
+  outline: none; /* Remove default outline if needed */
 }
 
 .communityBanner {
-  height: 140px;
+  height: 120px; /* Reduced height */
   width: 100%;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: var(--background-tertiary); /* Fallback color */
+  background-color: var(--background-tertiary); /* Fallback */
+  border-bottom: 1px solid var(--border-color); /* Separator */
 }
 
 .communityIconWrapper {
-  margin-top: -30px; /* Pull icon up */
+  margin-top: -35px; /* Adjust pull up */
   margin-left: 20px;
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
+  width: 70px; /* Slightly larger */
+  height: 70px;
+  border-radius: 16px; /* More rounded */
   background-color: var(--background-secondary);
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 3px solid var(--background-secondary);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  position: relative; /* Needed for margin-top */
+  border: 4px solid var(--background-secondary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
   z-index: 1;
+  overflow: hidden; /* Clip icon image */
 }
 
 .communityIcon {
   width: 100%;
   height: 100%;
-  border-radius: 9px;
   object-fit: cover;
-  color: var(--text-secondary); /* Color for placeholder icon */
+}
+.communityIconFallback { /* Style for the placeholder icon */
+    color: var(--text-secondary);
+    width: 60%; /* Adjust size within wrapper */
+    height: 60%;
 }
 
 .communityInfo {
-  padding: 20px 20px 20px; /* Adjusted top padding */
+  padding: 15px 20px 20px; /* Adjusted padding */
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; /* Allow info section to grow */
 }
 
 .communityName {
-  font-size: 1.15rem; /* Slightly smaller */
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin: 10px 0 8px 0; /* Added top margin */
   line-height: 1.3;
-}
-
-.communityDescription {
-  font-size: 0.9rem; /* Slightly smaller */
-  color: var(--text-secondary);
-  margin-bottom: 16px; /* Reduced margin */
-  line-height: 1.5;
+  /* Clamp text to 2 lines */
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: calc(1.5em * 3); /* Ensure space for 3 lines */
-  flex-grow: 1;
+  min-height: calc(1.3em * 2); /* Reserve space for 2 lines */
+}
+
+.communityDescription {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+  flex-grow: 1; /* Take available space */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Clamp to 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(1.5em * 3); /* Reserve space */
 }
 
 .communityMeta {
@@ -261,12 +319,12 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 15px; /* Increased gap */
   color: var(--text-secondary);
   font-size: 0.85rem;
   border-top: 1px solid var(--border-color);
-  padding-top: 12px; /* Reduced padding */
+  padding-top: 12px;
   margin-top: auto; /* Push meta to bottom */
-  gap: 10px;
 }
 
 .metaItem {
@@ -281,103 +339,149 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 60px 30px; /* Adjusted padding */
   background-color: var(--background-secondary);
   border-radius: 12px;
   border: 1px dashed var(--border-color);
   text-align: center;
+  margin-top: 20px; /* Add margin */
 }
 
 .noCommunitiesIcon {
-  color: var(--border-color); /* Darker icon */
-  margin-bottom: 20px;
+  color: var(--accent-primary); /* Use accent color */
+  opacity: 0.6;
+  margin-bottom: 25px; /* Increased margin */
 }
 
 .noCommunitiesTitle {
-  font-size: 1.25rem;
+  font-size: 1.3rem; /* Slightly larger */
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  margin-bottom: 12px; /* Adjusted margin */
 }
 
 .noCommunitiesText {
   color: var(--text-secondary);
-  max-width: 400px;
+  max-width: 450px; /* Wider text */
   line-height: 1.6;
-  margin-bottom: 25px;
+  margin-bottom: 30px; /* Increased margin */
 }
 
 .noCommunitiesButton {
-  display: inline-flex; /* Use inline-flex */
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   background-color: var(--accent-primary);
   color: white;
   padding: 10px 16px;
+  border: none;
   border-radius: 6px;
   font-weight: 500;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 .noCommunitiesButton:hover {
   background-color: var(--accent-secondary);
 }
 
-/* Modal Styles (Keep similar to inline for now, or move to global/modal component) */
+/* Modal Styles */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   padding: 20px;
+  overflow-y: auto; /* Allow modal itself to scroll if content is too long */
 }
 
 .modalContent {
   background-color: var(--background-secondary);
-  padding: 24px;
-  border-radius: 8px;
-  max-width: 500px;
+  padding: 30px; /* Increased padding */
+  border-radius: 12px; /* More rounded */
+  max-width: 550px; /* Slightly wider */
   width: 100%;
   position: relative;
   border: 1px solid var(--border-color);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  margin: auto; /* Center vertically if scrolling */
 }
 
 .modalCloseButton {
   position: absolute;
-  top: 10px;
+  top: 15px; /* Adjust position */
   right: 15px;
-  font-size: 24px;
+  font-size: 26px; /* Larger close button */
   color: var(--text-secondary);
+  background: none;
+  border: none;
+  padding: 5px;
+  line-height: 1;
+  cursor: pointer;
   transition: color 0.2s ease;
 }
 .modalCloseButton:hover {
   color: var(--text-primary);
 }
+.modalCloseButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 
 .modalTitle {
   color: var(--text-primary);
-  font-size: 1.25rem;
+  font-size: 1.4rem; /* Larger title */
   font-weight: 600;
-  margin: 0 0 20px 0;
+  margin: 0 0 25px 0; /* Increased margin */
+  text-align: center;
 }
 
 .modalError {
-  color: var(--error-color);
-  margin-bottom: 15px;
-  padding: 8px 12px;
-  background-color: rgba(248, 113, 113, 0.1);
-  border-radius: 4px;
+  color: #f87171; /* Brighter error red */
+  margin: -10px 0 15px 0; /* Adjust position */
+  padding: 10px 15px;
+  background-color: rgba(239, 68, 68, 0.15); /* Slightly stronger background */
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
   font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Modal Form Specific Styles */
+.formLabel {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .modalFormInput,
 .modalFormTextArea {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 18px; /* Increased margin */
+  padding: 12px 14px; /* Adjusted padding */
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-tertiary); /* Slightly different background */
+  color: var(--text-primary);
+  font-size: 1rem;
   box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.modalFormInput::placeholder,
+.modalFormTextArea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+.modalFormInput:focus,
+.modalFormTextArea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(156, 141, 255, 0.3);
 }
 
 .modalFormTextArea {
@@ -385,20 +489,80 @@
   resize: vertical;
 }
 
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.radioGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Space between radio options */
+    margin-top: 10px;
+}
+
+.radioOption {
+    display: flex;
+    align-items: flex-start; /* Align items to top */
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.radioOption:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.radioInput {
+    margin-top: 3px; /* Align radio button better */
+    margin-right: 10px;
+    flex-shrink: 0;
+    accent-color: var(--accent-primary); /* Style the radio button */
+    cursor: pointer;
+}
+
+.radioLabel {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    display: flex; /* Use flex for icon alignment */
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+.radioDescription {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: block; /* Make description appear below */
+    margin-left: 22px; /* Indent description */
+    margin-top: 2px;
+}
+.radioInput:checked + .radioLabel {
+    /* font-weight: 600; Optional: bold checked label */
+}
+.radioInput:checked ~ .radioOption { /* Style parent */
+    border-color: var(--accent-primary);
+    background-color: rgba(156, 141, 255, 0.05);
+}
+
+
 .modalSubmitButton {
   background-color: var(--accent-primary);
   color: white;
-  padding: 10px 16px;
-  border-radius: 6px;
+  padding: 12px 20px; /* Increased padding */
+  border: none;
+  border-radius: 8px; /* Match create button */
   width: 100%;
+  font-size: 1rem; /* Match inputs */
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+  margin-top: 10px; /* Add margin above button */
 }
 .modalSubmitButton:hover:not(:disabled) {
   background-color: var(--accent-secondary);
 }
 .modalSubmitButton:disabled {
-  background-color: var(--background-tertiary);
+  background-color: var(--accent-secondary); /* Keep color consistent */
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.6; /* Use opacity to show disabled state */
 }
