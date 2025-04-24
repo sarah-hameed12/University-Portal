@@ -11,8 +11,30 @@ import uuid # <<<--- Add import
 from profiles.models import Profile
 from django.utils import timezone 
 
-from .models import Post, Comment, Like, Community, CommunityMember, JoinRequest, JoinRequestStatus, NIL_UUID
-from .serializers import PostSerializer, CommentSerializer, CommunitySerializer, JoinRequestSerializer
+from .models import Post, Comment, Like, Community, CommunityMember, JoinRequest, JoinRequestStatus, NIL_UUID, VoiceChannel, VoiceChannelParticipant
+from .serializers import PostSerializer, CommentSerializer, CommunitySerializer, JoinRequestSerializer, VoiceChannelSerializer, VoiceChannelParticipantSerializer
+from rest_framework.permissions import BasePermission
+
+class IsChannelAdminOrReadOnly(BasePermission):
+    """
+    Custom permission to allow only community admins to delete/edit voice channels.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Allow GET, HEAD or OPTIONS requests
+        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return True
+            
+        # Check if user is community admin
+        user_id = request.query_params.get('user_id')
+        if not user_id:
+            return False
+            
+        return CommunityMember.objects.filter(
+            community=obj.community,
+            user_id=user_id,
+            member_type='admin'
+        ).exists()
+
 # IsOwnerOrReadOnly (Only works if you re-enable proper authentication)
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -731,3 +753,53 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
         join_request.save()
         
         return Response({"message": "Join request rejected", "status": "rejected"})
+
+class VoiceChannelListView(generics.ListCreateAPIView):
+    serializer_class = VoiceChannelSerializer
+    
+    def get_queryset(self):
+        community_id = self.kwargs.get('community_pk')
+        return VoiceChannel.objects.filter(community_id=community_id)
+    
+    def perform_create(self, serializer):
+        community_id = self.kwargs.get('community_pk')
+        community = get_object_or_404(Community, id=community_id)
+        serializer.save(community=community)
+
+class VoiceChannelDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = VoiceChannel.objects.all()
+    serializer_class = VoiceChannelSerializer
+    permission_classes = [IsChannelAdminOrReadOnly]
+    
+    def perform_destroy(self, instance):
+        # Optional: Add any cleanup logic before deletion
+        # For example, notify participants that the channel is being deleted
+        instance.delete()
+
+class VoiceChannelParticipantView(generics.ListCreateAPIView):
+    serializer_class = VoiceChannelParticipantSerializer
+    
+    def get_queryset(self):
+        channel_pk = self.kwargs.get('channel_pk')
+        return VoiceChannelParticipant.objects.filter(channel_id=channel_pk)
+    
+    def perform_create(self, serializer):
+        channel_pk = self.kwargs.get('channel_pk')
+        channel = get_object_or_404(VoiceChannel, id=channel_pk)
+        
+        # Check if the user is already a participant
+        user_id = self.request.data.get('user_id')
+        existing = VoiceChannelParticipant.objects.filter(channel=channel, user_id=user_id).first()
+        
+        if existing:
+            return existing  # User is already a participant
+        
+        serializer.save(channel=channel)
+
+class VoiceChannelParticipantDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = VoiceChannelParticipantSerializer
+    lookup_field = 'user_id'
+    
+    def get_queryset(self):
+        channel_pk = self.kwargs.get('channel_pk')
+        return VoiceChannelParticipant.objects.filter(channel_id=channel_pk)

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom"; // Removed Link if not used
+import { useParams, Link } from "react-router-dom"; // Removed Link if not used
 import axios from "axios";
-import { FiUsers, FiMessageSquare, FiThumbsUp, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiUsers, FiMessageSquare, FiThumbsUp, FiPlus, FiTrash2, FiHeadphones } from "react-icons/fi";
 import styles from './CommunityDetail.module.css'; // Import the CSS module
 import modalStyles from './Communities.module.css'; // Import shared modal styles
 
@@ -34,6 +34,7 @@ const CommunityDetail = ({ currentUser }) => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [showPendingRequests, setShowPendingRequests] = useState(false);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [voiceChannels, setVoiceChannels] = useState([]);
 
   // Fetch community and its posts
   useEffect(() => {
@@ -69,6 +70,7 @@ const CommunityDetail = ({ currentUser }) => {
     if (communityId) {
       console.log("Fetching data for community:", communityId);
       fetchCommunityDetails();
+      fetchVoiceChannels(); // Add this line
     }
   }, [communityId]);
 
@@ -282,6 +284,59 @@ const CommunityDetail = ({ currentUser }) => {
       alert("Failed to create post. Please try again.");
     } finally {
       setIsCreatingPost(false);
+    }
+  };
+
+  // Add function to fetch voice channels
+  const fetchVoiceChannels = async () => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/feed/communities/${communityId}/voice-channels/`
+      );
+      setVoiceChannels(response.data);
+    } catch (error) {
+      console.error("Error fetching voice channels:", error);
+    }
+  };
+
+  // Add function to create voice channel
+  const createVoiceChannel = async (name) => {
+    try {
+      if (!name || name.trim() === '') {
+        alert("Please enter a valid channel name");
+        return;
+      }
+      
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/feed/communities/${communityId}/voice-channels/`,
+        { name: name.trim() }
+      );
+      
+      console.log("Voice channel created:", response.data);
+      setVoiceChannels([...voiceChannels, response.data]);
+    } catch (error) {
+      console.error("Error creating voice channel:", error);
+      alert("Failed to create voice channel. Please try again.");
+    }
+  };
+
+  // Add this function to your CommunityDetail component
+  const deleteVoiceChannel = async (channelId) => {
+    if (!window.confirm("Are you sure you want to delete this voice channel?")) {
+      return;
+    }
+    
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/feed/voice-channels/${channelId}/?user_id=${currentUser.id}`);
+      
+      // Update local state to remove the deleted channel
+      setVoiceChannels(prevChannels => 
+        prevChannels.filter(channel => channel.id !== channelId)
+      );
+      
+    } catch (error) {
+      console.error("Error deleting voice channel:", error);
+      alert("Failed to delete voice channel. Please try again.");
     }
   };
 
@@ -502,6 +557,58 @@ const CommunityDetail = ({ currentUser }) => {
             >
               <FiPlus size={16} />
               Create Post
+            </button>
+          )}
+        </div>
+
+        {/* Voice Channels Section */}
+        <div className={styles.voiceChannelsSection}>
+          <h3>Voice Channels</h3>
+          
+          {voiceChannels.length > 0 ? (
+            <div className={styles.voiceChannelList}>
+              {voiceChannels.map(channel => (
+                <div key={channel.id} className={styles.voiceChannelItem}>
+                  <div className={styles.channelInfo}>
+                    <FiHeadphones size={16} />
+                    <span>{channel.name}</span>
+                    <span className={styles.userCount}>
+                      {channel.participant_count} users
+                    </span>
+                  </div>
+                  
+                  <div className={styles.channelActions}>
+                    <Link to={`/communities/${communityId}/voice/${channel.id}`}>
+                      <button className={styles.joinButton}>Join</button>
+                    </Link>
+                    
+                    {/* Only show delete button for admins */}
+                    {isAdmin && (
+                      <button 
+                        className={styles.deleteButton}
+                        onClick={() => deleteVoiceChannel(channel.id)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No voice channels yet.</p>
+          )}
+          
+          {(membership || isAdmin) && (
+            <button 
+              className={styles.createChannelButton}
+              onClick={() => {
+                const name = prompt("Enter voice channel name:");
+                if (name) createVoiceChannel(name);
+              }}
+            >
+              <FiPlus size={16} />
+              Create Voice Channel
             </button>
           )}
         </div>

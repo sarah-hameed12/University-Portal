@@ -129,5 +129,29 @@ class JoinRequest(models.Model):
     class Meta:
         unique_together = ('community', 'user_id', 'status')
 
+class VoiceChannel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+    community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='voice_channels')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.community.name})"
+
+class VoiceChannelParticipant(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    channel = models.ForeignKey(VoiceChannel, on_delete=models.CASCADE, related_name='participants')
+    user_id = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=255)
+    joined_at = models.DateTimeField(auto_now_add=True)
+    is_muted = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ['channel', 'user_id']
+        
+    def __str__(self):
+        return f"{self.display_name} in {self.channel.name}"
+
 
 

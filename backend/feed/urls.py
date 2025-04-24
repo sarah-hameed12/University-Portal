@@ -12,7 +12,11 @@ from .views import (
     CommunityDetailView, 
     CommunityPostsView, 
     CommunityMembershipView, 
-    JoinRequestViewSet
+    JoinRequestViewSet,
+    VoiceChannelListView,    # Import new view
+    VoiceChannelDetailView,  # Import new view
+    VoiceChannelParticipantView,  # Import new view
+    VoiceChannelParticipantDetailView  # Import new view
 )
 
 # Create a router and register the viewset
@@ -33,6 +37,11 @@ urlpatterns = [
     path('communities/<uuid:pk>/', CommunityDetailView.as_view(), name='community-detail'),
     path('communities/<uuid:pk>/posts/', CommunityPostsView.as_view(), name='community-posts'),
     path('communities/<uuid:pk>/membership/', CommunityMembershipView.as_view(), name='community-membership'),
+    # Add these to urlpatterns
+    path('communities/<uuid:community_pk>/voice-channels/', VoiceChannelListView.as_view(), name='voice-channel-list'),
+    path('voice-channels/<uuid:pk>/', VoiceChannelDetailView.as_view(), name='voice-channel-detail'),
+    path('voice-channels/<uuid:channel_pk>/participants/', VoiceChannelParticipantView.as_view(), name='voice-channel-participants'),
+    path('voice-channels/<uuid:channel_pk>/participants/<str:user_id>/', VoiceChannelParticipantDetailView.as_view(), name='voice-channel-participant-detail'),
     # Add this to include the router URLs
     path('', include(router.urls)),
 ]
