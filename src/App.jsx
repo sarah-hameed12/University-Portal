@@ -28,6 +28,7 @@ import RequireAuth from "./Auth/RequireAuth";
 import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
 import MemosPage from "./Features/MemoPages.jsx";
 import SubjectEditor from "./Features/SubjectEditor.jsx";
+import SettingsPage from "./settings/SettingsPage";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -56,7 +57,7 @@ const App = () => {
             setUser({
               id: session.user.id,
               email: session.user.email,
-              name: session.user.email, // You might want to fetch profile name here later
+              name: session.user.email,
             });
           } else {
             setUser(null);
@@ -69,14 +70,13 @@ const App = () => {
         }
       } finally {
         if (isMounted) {
-          setLoadingAuth(false); // <<<--- Stop loading ONLY IF mounted
+          setLoadingAuth(false);
         }
       }
     };
 
     getInitialSession();
 
-    // Set up auth listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -91,9 +91,6 @@ const App = () => {
         } else {
           setUser(null);
         }
-        // Optionally set loading to false here too if needed,
-        // but usually the initial check is the main one.
-        // setLoadingAuth(false);
       }
     });
 
@@ -130,16 +127,10 @@ const App = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup2" element={<Signup />} />
         <Route path="/update-password" element={<UpdatePasswordPage />} />
-        {/* Optional: Add a public welcome page if needed */}
-        {/* <Route path="/welcome" element={<WelcomePage />} /> */}
 
-        {/* --- Protected Routes --- */}
-        {/* All routes nested inside here require authentication */}
         <Route element={<RequireAuth user={user} />}>
           <Route index element={<Dashboard />} />{" "}
-          {/* Default route when logged in */}
           <Route path="/dashboard" element={<Dashboard />} />{" "}
-          {/* Explicit route */}
           <Route path="/documents" element={<DocsTab />} />
           <Route path="/outlines" element={<Outlines />} />
           <Route path="/calculator" element={<Calculator />} />
@@ -147,14 +138,12 @@ const App = () => {
           <Route path="/faculty" element={<FacultyOfficeHours />} />
           <Route path="/chat" element={<ChatApp />} />
           <Route path="/profile" element={<Profile />} />{" "}
-          {/* Assumes Profile fetches its own data */}
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/society" element={<SocietiesPage />} />
           <Route path="memos" element={<MemosPage />} />
           <Route path="/society/:societyId" element={<SocietyDetailPage />} />
           <Route path="/post/:postId/comments" element={<PostDetailPage />} />
-          {/* UserProfileView might need the current user passed if it behaves differently for self vs others */}
           <Route path="/profile/email/:email" element={<UserProfileView />} />
-          {/* Pass user prop specifically if the component needs it directly */}
           <Route path="/communities" element={<Communities user={user} />} />
           <Route
             path="/communities/:communityId"
@@ -166,9 +155,6 @@ const App = () => {
           />
         </Route>
 
-        {/* --- Fallback Route --- */}
-        {/* Redirects any unmatched path. If logged in, goes to dashboard, otherwise to signin. */}
-        {/* Adjust the 'to' path as needed */}
         <Route
           path="*"
           element={<Navigate to={user ? "/dashboard" : "/signin"} replace />}
