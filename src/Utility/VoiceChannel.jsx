@@ -30,7 +30,7 @@ const VoiceChannel = ({ currentUser }) => {
   const [localStream, setLocalStream] = useState(null);
   const [activeSpeakers, setActiveSpeakers] = useState({});
 
-  // Refs
+  
   const socketRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -38,7 +38,7 @@ const VoiceChannel = ({ currentUser }) => {
   const audioElementsRef = useRef({});
   const speechDetectionIntervalRef = useRef(null);
 
-  // Debug state (remove in production)
+  
   const [debug, setDebug] = useState([]);
   const logEvent = (event) => {
     setDebug((prev) => [
@@ -48,7 +48,7 @@ const VoiceChannel = ({ currentUser }) => {
     console.log(`Voice Event: ${event}`);
   };
 
-  // Fetch channel details
+ 
   useEffect(() => {
     const fetchChannelDetails = async () => {
       try {
@@ -57,7 +57,7 @@ const VoiceChannel = ({ currentUser }) => {
         );
         setChannel(response.data);
 
-        // Get existing participants
+        
         const participantsResponse = await axios.get(
           `http://127.0.0.1:8001/api/feed/voice-channels/${channelId}/participants/`
         );
@@ -73,14 +73,14 @@ const VoiceChannel = ({ currentUser }) => {
     }
   }, [channelId, communityId, navigate, currentUser]);
 
-  // Initialize media stream and WebSocket
+  
   useEffect(() => {
     if (!channelId || !currentUser?.id || !channel) return;
 
-    // Initialize user media
+    
     const initUserMedia = async () => {
       try {
-        // Get microphone access
+        
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: false,
@@ -88,7 +88,7 @@ const VoiceChannel = ({ currentUser }) => {
 
         setLocalStream(stream);
 
-        // Set up audio analysis for speech detection
+        
         const audioContext = new AudioContext();
         const analyser = audioContext.createAnalyser();
         const microphone = audioContext.createMediaStreamSource(stream);
@@ -99,29 +99,29 @@ const VoiceChannel = ({ currentUser }) => {
         audioContextRef.current = audioContext;
         analyserRef.current = analyser;
 
-        // Set up speech detection
+        
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
         const checkIfSpeaking = () => {
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
 
-          // If average frequency is above threshold, user is speaking
-          const isSpeaking = average > 15; // Adjust threshold as needed
+          
+          const isSpeaking = average > 15; 
 
-          // Update UI for self if speaking
+          
           setActiveSpeakers((prev) => ({
             ...prev,
             [currentUser.id]: isSpeaking,
           }));
 
-          // If speaking and not muted, notify other users (optional)
+          
         };
 
-        // Check for speech every 100ms
+       
         speechDetectionIntervalRef.current = setInterval(checkIfSpeaking, 100);
 
-        // Initialize WebSocket after stream is ready
+       
         initWebSocket(stream);
       } catch (err) {
         console.error("Error accessing microphone:", err);
@@ -132,7 +132,7 @@ const VoiceChannel = ({ currentUser }) => {
       }
     };
 
-    // Initialize WebSocket connection
+    
     const initWebSocket = (stream) => {
       const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
       const wsUrl = `${wsScheme}://127.0.0.1:8001/ws/voice/${channelId}/?user_id=${
@@ -146,7 +146,7 @@ const VoiceChannel = ({ currentUser }) => {
       socket.onopen = () => {
         logEvent("WebSocket connection established");
 
-        // Join channel as participant via REST API
+       
         axios
           .post(
             `http://127.0.0.1:8001/api/feed/voice-channels/${channelId}/participants/`,
@@ -176,7 +176,7 @@ const VoiceChannel = ({ currentUser }) => {
       socketRef.current = socket;
     };
 
-    // Handler for socket messages
+   
     const handleSocketMessage = (data, stream) => {
       switch (data.type) {
         case "user_joined":
@@ -216,37 +216,37 @@ const VoiceChannel = ({ currentUser }) => {
       }
     };
 
-    // Start the process
+    
     initUserMedia();
 
-    // Cleanup function
+    
     return () => {
-      // Clean up media stream
+     
       if (localStream) {
         localStream.getTracks().forEach((track) => track.stop());
       }
 
-      // Close WebSocket
+      
       if (socketRef.current) {
         socketRef.current.close();
       }
 
-      // Close all peer connections
+      
       Object.values(peerConnectionsRef.current).forEach((pc) => {
         if (pc) pc.close();
       });
 
-      // Clear audio analysis interval
+      
       if (speechDetectionIntervalRef.current) {
         clearInterval(speechDetectionIntervalRef.current);
       }
 
-      // Close audio context
+      
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
 
-      // Leave channel via REST API
+      
       if (channelId && currentUser?.id) {
         axios
           .delete(
@@ -262,12 +262,12 @@ const VoiceChannel = ({ currentUser }) => {
     };
   }, [channelId, currentUser, channel, communityId, navigate]);
 
-  // WebRTC handlers
+  
   const handleUserJoined = (userId, displayName, stream) => {
-    // Don't create connection to self
+    
     if (userId === currentUser.id) return;
 
-    // Update participants list
+   
     setParticipants((prev) => {
       const exists = prev.some((p) => p.user_id === userId);
       if (!exists) {
@@ -276,21 +276,21 @@ const VoiceChannel = ({ currentUser }) => {
       return prev;
     });
 
-    // Create new peer connection
+   
     const peerConnection = new RTCPeerConnection(iceConfig);
     peerConnectionsRef.current[userId] = peerConnection;
 
-    // Add local stream tracks to the connection
+   
     stream.getTracks().forEach((track) => {
       peerConnection.addTrack(track, stream);
     });
 
-    // Handle incoming tracks
+    
     peerConnection.ontrack = (event) => {
       logEvent(`Received tracks from ${userId}`);
       const remoteStream = event.streams[0];
 
-      // Create audio element for this user if it doesn't exist
+      
       if (!audioElementsRef.current[userId]) {
         const audio = new Audio();
         audio.srcObject = remoteStream;
@@ -301,7 +301,7 @@ const VoiceChannel = ({ currentUser }) => {
       }
     };
 
-    // Set up ICE candidate handling
+    
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.send(
@@ -314,7 +314,7 @@ const VoiceChannel = ({ currentUser }) => {
       }
     };
 
-    // Monitor connection state
+    
     peerConnection.onconnectionstatechange = () => {
       logEvent(
         `Connection state with ${userId}: ${peerConnection.connectionState}`
@@ -326,7 +326,7 @@ const VoiceChannel = ({ currentUser }) => {
         `ICE connection state with ${userId}: ${peerConnection.iceConnectionState}`
       );
 
-      // If disconnected, clean up
+      
       if (
         peerConnection.iceConnectionState === "disconnected" ||
         peerConnection.iceConnectionState === "failed" ||
@@ -336,34 +336,33 @@ const VoiceChannel = ({ currentUser }) => {
       }
     };
 
-    // Create and send an offer if we are the newer peer
-    // Use a simple rule: the peer with the lexicographically smaller ID creates the offer
+    
     if (currentUser.id < userId) {
       createAndSendOffer(userId, peerConnection);
     }
   };
 
   const handleUserLeft = (userId) => {
-    // Close and clean up the peer connection
+    
     if (peerConnectionsRef.current[userId]) {
       peerConnectionsRef.current[userId].close();
       delete peerConnectionsRef.current[userId];
     }
 
-    // Clean up audio element
+    
     if (audioElementsRef.current[userId]) {
       audioElementsRef.current[userId].srcObject = null;
       delete audioElementsRef.current[userId];
     }
 
-    // Remove from active speakers
+    
     setActiveSpeakers((prev) => {
       const newState = { ...prev };
       delete newState[userId];
       return newState;
     });
 
-    // Update participants list
+    
     setParticipants((prev) => prev.filter((p) => p.user_id !== userId));
   };
 
@@ -389,17 +388,17 @@ const VoiceChannel = ({ currentUser }) => {
 
   const handleOffer = async (fromUserId, offer, stream) => {
     try {
-      // Create peer connection if it doesn't exist
+      
       if (!peerConnectionsRef.current[fromUserId]) {
         const peerConnection = new RTCPeerConnection(iceConfig);
         peerConnectionsRef.current[fromUserId] = peerConnection;
 
-        // Add local stream tracks to the connection
+        
         stream.getTracks().forEach((track) => {
           peerConnection.addTrack(track, stream);
         });
 
-        // Handle incoming tracks
+       
         peerConnection.ontrack = (event) => {
           logEvent(`Received tracks from ${fromUserId}`);
           const remoteStream = event.streams[0];
@@ -414,7 +413,7 @@ const VoiceChannel = ({ currentUser }) => {
           }
         };
 
-        // Set up ICE candidate handling
+        
         peerConnection.onicecandidate = (event) => {
           if (event.candidate) {
             socketRef.current.send(
@@ -427,7 +426,7 @@ const VoiceChannel = ({ currentUser }) => {
           }
         };
 
-        // Monitor connection state
+        
         peerConnection.onconnectionstatechange = () => {
           logEvent(
             `Connection state with ${fromUserId}: ${peerConnection.connectionState}`
@@ -443,12 +442,12 @@ const VoiceChannel = ({ currentUser }) => {
 
       const peerConnection = peerConnectionsRef.current[fromUserId];
 
-      // Set the remote description from the offer
+    
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(offer)
       );
 
-      // Create and send answer
+     
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
@@ -489,24 +488,24 @@ const VoiceChannel = ({ currentUser }) => {
   };
 
   const handleMuteChange = (userId, isMuted) => {
-    // Update participants state to reflect mute status
+    
     setParticipants((prev) =>
       prev.map((p) => (p.user_id === userId ? { ...p, is_muted: isMuted } : p))
     );
   };
 
-  // Toggle mute function
+  
   const toggleMute = () => {
     if (localStream) {
-      // Toggle mute state of all audio tracks
+      
       localStream.getAudioTracks().forEach((track) => {
-        track.enabled = isMuted; // If currently muted, unmute and vice versa
+        track.enabled = isMuted; 
       });
 
-      // Update state
+     
       setIsMuted(!isMuted);
 
-      // Send mute status to server
+      
       if (socketRef.current) {
         socketRef.current.send(
           JSON.stringify({
@@ -518,7 +517,7 @@ const VoiceChannel = ({ currentUser }) => {
     }
   };
 
-  // Leave channel function
+  
   const leaveChannel = () => {
     navigate(`/communities/${communityId}`);
   };

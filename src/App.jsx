@@ -26,6 +26,7 @@ import CommunityDetail from "./Utility/CommunityDetail";
 import VoiceChannel from "./Utility/VoiceChannel.jsx";
 import RequireAuth from "./Auth/RequireAuth";
 import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
+import AboutUs from "./AboutUs.jsx";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -162,7 +163,7 @@ const App = () => {
             element={<VoiceChannel currentUser={user} />}
           />
         </Route>
-
+        <Route path="/about" element={<AboutUs />} />
         {/* --- Fallback Route --- */}
         {/* Redirects any unmatched path. If logged in, goes to dashboard, otherwise to signin. */}
         {/* Adjust the 'to' path as needed */}

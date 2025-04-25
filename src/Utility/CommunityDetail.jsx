@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom"; // Removed Link if not used
+import { useParams, Link } from "react-router-dom"; 
 import axios from "axios";
 import {
   FiUsers,
@@ -9,10 +9,10 @@ import {
   FiTrash2,
   FiHeadphones,
 } from "react-icons/fi";
-import styles from "../Styles/CommunityDetail.module.css"; // Import the CSS module
-import modalStyles from "../Styles/Communities.module.css"; // Import shared modal styles
+import styles from "../Styles/CommunityDetail.module.css"; 
+import modalStyles from "../Styles/Communities.module.css"; 
 
-// Add this utility function
+
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -23,10 +23,10 @@ const formatDate = (dateString) => {
   });
 };
 
-// Add at top of file
+
 const CommunityContext = React.createContext(null);
 
-// Main component
+
 const CommunityDetail = ({ currentUser }) => {
   const { communityId } = useParams();
   const [community, setCommunity] = useState(null);
@@ -43,27 +43,27 @@ const CommunityDetail = ({ currentUser }) => {
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [voiceChannels, setVoiceChannels] = useState([]);
 
-  // Fetch community and its posts
+  
   useEffect(() => {
     const fetchCommunityDetails = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
-        // Fetch community details
+        
         const communityResponse = await axios.get(
           `http://127.0.0.1:8000/api/feed/communities/${communityId}/`
         );
         setCommunity(communityResponse.data);
         console.log("Community data:", communityResponse.data);
 
-        // Fetch posts specific to this community
+        
         const postsResponse = await axios.get(
           `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`
         );
         console.log("Community posts raw data:", postsResponse.data);
 
-        // Check if we're getting an array or if we need to parse it
+        
         const postsData = Array.isArray(postsResponse.data)
           ? postsResponse.data
           : postsResponse.data.results || [];
@@ -81,20 +81,20 @@ const CommunityDetail = ({ currentUser }) => {
     if (communityId) {
       console.log("Fetching data for community:", communityId);
       fetchCommunityDetails();
-      fetchVoiceChannels(); // Add this line
+      fetchVoiceChannels(); 
     }
   }, [communityId]);
 
-  // Check if user is admin
+  
   const isAdmin =
     currentUser && community && community.creator_id === currentUser.id;
 
-  // Check membership and request status on load
+  
   useEffect(() => {
     if (currentUser && communityId) {
       const checkMembershipStatus = async () => {
         try {
-          // Use the correct endpoint from your urls.py
+          
           const membershipResponse = await axios.get(
             `http://127.0.0.1:8000/api/feed/communities/${communityId}/membership/`,
             {
@@ -105,7 +105,7 @@ const CommunityDetail = ({ currentUser }) => {
           if (membershipResponse.data.is_member) {
             setMembership(membershipResponse.data);
           } else {
-            // Check for pending join requests
+            
             const requestResponse = await axios.get(
               `http://127.0.0.1:8000/api/feed/join-requests/`,
               {
@@ -132,7 +132,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   }, [currentUser, communityId]);
 
-  // Fetch pending requests if user is admin
+  
   useEffect(() => {
     if (isAdmin && communityId) {
       const fetchPendingRequests = async () => {
@@ -156,7 +156,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   }, [isAdmin, communityId]);
 
-  // Function to handle liking a post
+  
   const handleLikePost = async (postId) => {
     if (!currentUser) {
       alert("You need to sign in to like posts.");
@@ -164,13 +164,13 @@ const CommunityDetail = ({ currentUser }) => {
     }
 
     try {
-      // Send both user_id and user_name to support the backend
+     
       await axios.post(`http://127.0.0.1:8000/api/feed/posts/${postId}/like/`, {
         user_id: currentUser.id,
-        user_name: currentUser.email || currentUser.id, // Use email as name if available
+        user_name: currentUser.email || currentUser.id, 
       });
 
-      // Refresh the posts to update likes
+      
       const postsResponse = await axios.get(
         `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`
       );
@@ -184,7 +184,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Function to format the date
+ 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -194,18 +194,18 @@ const CommunityDetail = ({ currentUser }) => {
     });
   };
 
-  // Function to handle deleting a post
+ 
   const handleDeletePost = async (postId) => {
     try {
-      // Include user_id in the request body using axios config
+      
       await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
-        data: { user_id: currentUser.id }, // This is how you send data with DELETE requests
+        data: { user_id: currentUser.id }, 
       });
 
-      // Update posts state, removing the deleted post
+     
       setPosts(posts.filter((post) => post.id !== postId));
 
-      // Show success notification
+      
       alert("Post deleted successfully");
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -213,7 +213,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Handle join request submission
+  
   const handleJoinRequest = async (e) => {
     e.preventDefault();
 
@@ -239,7 +239,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Handle request approval
+  
   const handleApproveRequest = async (requestId) => {
     try {
       await axios.post(
@@ -249,7 +249,7 @@ const CommunityDetail = ({ currentUser }) => {
         }
       );
 
-      // Update pending requests list
+     
       setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
       alert("Request approved");
     } catch (error) {
@@ -258,7 +258,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Handle request rejection
+  
   const handleRejectRequest = async (requestId) => {
     try {
       await axios.post(
@@ -268,7 +268,7 @@ const CommunityDetail = ({ currentUser }) => {
         }
       );
 
-      // Update pending requests list
+      
       setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
       alert("Request rejected");
     } catch (error) {
@@ -277,12 +277,12 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // In your CommunityDetail component
+ 
   const handleCreatePost = async (postData) => {
     try {
       setIsCreatingPost(true);
 
-      // Make sure community is included
+     
       const payload = {
         ...postData,
         author_id: currentUser?.id,
@@ -291,7 +291,7 @@ const CommunityDetail = ({ currentUser }) => {
 
       console.log("Creating post with data:", payload);
 
-      // Use the community-specific posts endpoint
+     
       const response = await axios.post(
         `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`,
         payload
@@ -299,7 +299,7 @@ const CommunityDetail = ({ currentUser }) => {
 
       console.log("Post created successfully:", response.data);
 
-      // Add the new post to the state
+      
       setPosts((prevPosts) => [response.data, ...prevPosts]);
       setIsCreatePostModalOpen(false);
     } catch (error) {
@@ -310,7 +310,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Add function to fetch voice channels
+  
   const fetchVoiceChannels = async () => {
     try {
       const response = await axios.get(
@@ -322,7 +322,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Add function to create voice channel
+  
   const createVoiceChannel = async (name) => {
     try {
       if (!name || name.trim() === "") {
@@ -343,7 +343,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Add this function to your CommunityDetail component
+  
   const deleteVoiceChannel = async (channelId) => {
     if (
       !window.confirm("Are you sure you want to delete this voice channel?")
@@ -356,7 +356,7 @@ const CommunityDetail = ({ currentUser }) => {
         `http://127.0.0.1:8000/api/feed/voice-channels/${channelId}/?user_id=${currentUser.id}`
       );
 
-      // Update local state to remove the deleted channel
+     
       setVoiceChannels((prevChannels) =>
         prevChannels.filter((channel) => channel.id !== channelId)
       );
@@ -382,7 +382,7 @@ const CommunityDetail = ({ currentUser }) => {
     return <div className={styles.loadingOrError}>Community not found</div>;
   }
 
-  // Update the action buttons section to show appropriate join options
+ 
   const renderJoinButton = () => {
     if (!currentUser) {
       return (
@@ -415,7 +415,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
 
     if (community?.privacy_type === "public") {
-      // For public communities, join directly
+     
       return (
         <button
           className={styles.joinButton}
@@ -444,7 +444,7 @@ const CommunityDetail = ({ currentUser }) => {
         </button>
       );
     } else {
-      // For restricted communities, show request button
+      
       return (
         <>
           <button
@@ -500,7 +500,7 @@ const CommunityDetail = ({ currentUser }) => {
     }
   };
 
-  // Add pending requests section for admins
+  
   const renderPendingRequestsSection = () => {
     if (!isAdmin || pendingRequests.length === 0) return null;
 
@@ -576,7 +576,7 @@ const CommunityDetail = ({ currentUser }) => {
                 className={styles.communityIcon}
               />
             ) : (
-              <FiUsers size={40} className={styles.communityIcon} /> // Adjusted size
+              <FiUsers size={40} className={styles.communityIcon} /> 
             )}
           </div>
           <div className={styles.communityHeaderText}>
@@ -679,9 +679,9 @@ const CommunityDetail = ({ currentUser }) => {
                   key={post.id}
                   post={post}
                   onDelete={handleDeletePost}
-                  currentUser={currentUser} // Make sure to pass this prop
-                  handleLikePost={handleLikePost} // Add this prop
-                  onCommentDeleted={(updatedPosts) => setPosts(updatedPosts)} // Add this line
+                  currentUser={currentUser} 
+                  handleLikePost={handleLikePost} 
+                  onCommentDeleted={(updatedPosts) => setPosts(updatedPosts)} 
                 />
               ))
             ) : (
@@ -704,7 +704,7 @@ const CommunityDetail = ({ currentUser }) => {
             isOpen={isCreatePostModalOpen}
             onClose={() => setIsCreatePostModalOpen(false)}
             onPostCreated={(newPost) => {
-              setPosts([newPost, ...posts]); // Add new post to the top
+              setPosts([newPost, ...posts]); 
             }}
             communityId={communityId}
             currentUser={currentUser}
@@ -715,7 +715,7 @@ const CommunityDetail = ({ currentUser }) => {
   );
 };
 
-// Post Card Component
+
 const PostCard = ({
   post,
   onDelete,
@@ -726,16 +726,16 @@ const PostCard = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Add this line to access the community from context
+  
   const { community } = React.useContext(CommunityContext);
 
-  // Safe check for currentUser and community
+  
   const canDelete =
     currentUser &&
     (post.author_id === currentUser.id ||
       (community && community.creator_id === currentUser.id));
 
-  // Handle click outside to close menu
+ 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -747,12 +747,12 @@ const PostCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Inside the PostCard component, add these state variables at the top
+  
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-  // Add this handleSubmitComment function
+  
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!currentUser) {
@@ -776,12 +776,12 @@ const PostCard = ({
         }
       );
 
-      // Check if we got a successful response
+     
       if (response.status === 201) {
         setCommentText("");
         setShowCommentForm(false);
 
-        // Refresh the community posts to show the new comment
+        
         const refreshResponse = await axios.get(
           `http://127.0.0.1:8000/api/feed/communities/${community.id}/posts/`
         );
@@ -803,7 +803,7 @@ const PostCard = ({
     }
   };
 
-  // Add this function inside the PostCard component
+  
   const handleDeleteComment = async (commentId) => {
     if (!currentUser) {
       alert("You need to be signed in to delete comments");
@@ -820,12 +820,12 @@ const PostCard = ({
         {
           data: {
             user_id: currentUser.id,
-            author_email: currentUser.email, // Add this line
+            author_email: currentUser.email, 
           },
         }
       );
 
-      // Refresh posts to update comments
+      
       const refreshResponse = await axios.get(
         `http://127.0.0.1:8000/api/feed/communities/${community.id}/posts/`
       );
@@ -834,7 +834,7 @@ const PostCard = ({
           ? refreshResponse.data
           : refreshResponse.data.results || [];
 
-        // We need to access the setPosts function from the parent component
+        
         if (typeof onCommentDeleted === "function") {
           onCommentDeleted(updatedPosts);
         }
@@ -1010,7 +1010,7 @@ const PostCard = ({
   );
 };
 
-// Create Post Modal Component
+
 const CreateCommunityPostModal = ({
   isOpen,
   onClose,
@@ -1025,7 +1025,7 @@ const CreateCommunityPostModal = ({
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle image selection
+ 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -1038,7 +1038,7 @@ const CreateCommunityPostModal = ({
     }
   };
 
-  // Handle form submission
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -1053,7 +1053,7 @@ const CreateCommunityPostModal = ({
       console.log("Creating post with title:", title);
       console.log("Post content:", content);
 
-      // Create FormData for file upload
+      
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
@@ -1065,12 +1065,12 @@ const CreateCommunityPostModal = ({
         formData.append("image", image);
       }
 
-      // Log form data for debugging
+     
       for (let pair of formData.entries()) {
         console.log(pair[0] + ": " + pair[1]);
       }
 
-      // CHANGE THIS: Use community-specific endpoint
+      
       const response = await axios.post(
         `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`,
         formData,
@@ -1081,7 +1081,7 @@ const CreateCommunityPostModal = ({
         }
       );
 
-      // Close the modal and update the post list
+      
       onPostCreated(response.data);
       onClose();
     } catch (error) {
@@ -1095,7 +1095,7 @@ const CreateCommunityPostModal = ({
   if (!isOpen) return null;
 
   return (
-    // Use modal styles from Communities module
+   
     <div className={modalStyles.modalOverlay} onClick={onClose}>
       <div
         className={modalStyles.modalContent}
@@ -1112,7 +1112,7 @@ const CreateCommunityPostModal = ({
           <input
             type="text"
             placeholder="Post title"
-            className={modalStyles.modalFormInput} // Use imported style
+            className={modalStyles.modalFormInput} 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -1120,7 +1120,7 @@ const CreateCommunityPostModal = ({
           />
           <textarea
             placeholder="What's on your mind? (Optional)"
-            className={modalStyles.modalFormTextArea} // Use imported style
+            className={modalStyles.modalFormTextArea} 
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={isSubmitting}
@@ -1134,7 +1134,7 @@ const CreateCommunityPostModal = ({
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className={styles.fileInput} // Style the input itself
+              className={styles.fileInput} 
               disabled={isSubmitting}
             />
             {imagePreview && (
@@ -1147,8 +1147,8 @@ const CreateCommunityPostModal = ({
           </div>
           <button
             type="submit"
-            className={modalStyles.modalSubmitButton} // Use imported style
-            disabled={isSubmitting || !title.trim()} // Disable if no title
+            className={modalStyles.modalSubmitButton} 
+            disabled={isSubmitting || !title.trim()} 
           >
             {isSubmitting ? "Creating Post..." : "Create Post"}
           </button>

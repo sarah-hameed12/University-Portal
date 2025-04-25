@@ -10,20 +10,20 @@ import {
   FiStar,
   FiMessageSquare,
 } from "react-icons/fi";
-import styles from "../Styles/Communities.module.css"; // Import the CSS module
+import styles from "../Styles/Communities.module.css"; 
 
 const Communities = ({ user }) => {
-  // Removed supabase prop if not used directly here
+  
   const [communities, setCommunities] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredCommunityId, setHoveredCommunityId] = useState(null);
-  const [searchFocused, setSearchFocused] = useState(false); // Keep focus state
+  const [searchFocused, setSearchFocused] = useState(false); 
   const navigate = useNavigate();
 
-  // Define tabs for easier rendering
+  
   const tabs = [
     { id: "all", label: "All Communities", icon: <FiUsers size={16} /> },
     { id: "trending", label: "Trending", icon: <FiTrendingUp size={16} /> },
@@ -33,16 +33,15 @@ const Communities = ({ user }) => {
       : []),
   ];
 
-  // ... (Keep useEffect for fetching communities) ...
+ 
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
         setIsLoading(true);
-        // Fetch member_count and post_count if available from your API
         const response = await axios.get(
           "http://127.0.0.1:8000/api/feed/communities/"
         );
-        // Assuming API returns member_count and post_count
+        
         setCommunities(response.data);
       } catch (error) {
         console.error("Error fetching communities:", error);
@@ -53,7 +52,7 @@ const Communities = ({ user }) => {
     fetchCommunities();
   }, []);
 
-  // ... (Keep filtering logic: filteredCommunities, displayedCommunities) ...
+  
   const filteredCommunities = communities.filter(
     (community) =>
       community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -101,7 +100,7 @@ const Communities = ({ user }) => {
             <input
               type="text"
               placeholder="Search communities..."
-              className={styles.searchInput} // Use className
+              className={styles.searchInput} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
@@ -118,7 +117,7 @@ const Communities = ({ user }) => {
                 key={tab.id}
                 className={`${styles.tab} ${
                   activeTab === tab.id ? styles.activeTab : ""
-                }`} // Combine classes
+                }`} 
                 onClick={() => setActiveTab(tab.id)}
               >
                 {tab.icon} {tab.label}
@@ -143,7 +142,7 @@ const Communities = ({ user }) => {
               {displayedCommunities.map((community) => (
                 <div
                   key={community.id}
-                  className={styles.communityCard} // Use className
+                  className={styles.communityCard} 
                   onMouseEnter={() => setHoveredCommunityId(community.id)}
                   onMouseLeave={() => setHoveredCommunityId(null)}
                   onClick={() => navigate(`/communities/${community.id}`)}
@@ -151,7 +150,7 @@ const Communities = ({ user }) => {
                   <div
                     className={styles.communityBanner}
                     style={{
-                      // Keep background image inline
+                      
                       backgroundImage: community.banner_image
                         ? `url(${community.banner_image})`
                         : "linear-gradient(135deg, #374151 0%, #111827 100%)",
@@ -234,7 +233,7 @@ const Communities = ({ user }) => {
   );
 };
 
-// Update CreateCommunityModal to use CSS Modules
+
 const CreateCommunityModal = ({
   isOpen,
   onClose,
@@ -249,12 +248,12 @@ const CreateCommunityModal = ({
   const [error, setError] = useState(null);
   const [privacyType, setPrivacyType] = useState("public");
 
-  // ...handle privacy selection
+  
   const handlePrivacyChange = (e) => {
     setPrivacyType(e.target.value);
   };
 
-  // ... (handleSubmit logic remains the same) ...
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -267,13 +266,13 @@ const CreateCommunityModal = ({
       const response = await axios.post(
         "http://127.0.0.1:8000/api/feed/communities/",
         {
-          name: name, // Required
-          description: description, // Can be empty but should be included
+          name: name, 
+          description: description, 
           banner_image: bannerImage || null,
           icon_image: iconImage || null,
-          creator_id: currentUser?.id, // Required
-          creator_name: currentUser?.email || "Anonymous", // Required
-          privacy_type: privacyType || "public", // Default to public if not specified
+          creator_id: currentUser?.id, 
+          creator_name: currentUser?.email || "Anonymous", 
+          privacy_type: privacyType || "public", 
         }
       );
       onCommunityCreated(response.data);
@@ -289,7 +288,7 @@ const CreateCommunityModal = ({
   if (!isOpen) return null;
 
   return (
-    // Use module styles for modal
+    
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <button className={styles.modalCloseButton} onClick={onClose}>
@@ -305,7 +304,7 @@ const CreateCommunityModal = ({
             placeholder="Community Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={styles.modalFormInput} // Use className
+            className={styles.modalFormInput} 
             required
             disabled={isSubmitting}
           />
@@ -313,7 +312,7 @@ const CreateCommunityModal = ({
             placeholder="Community Description (Optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={styles.modalFormTextArea} // Use className
+            className={styles.modalFormTextArea} 
             disabled={isSubmitting}
           />
           <input
@@ -321,7 +320,7 @@ const CreateCommunityModal = ({
             placeholder="Banner Image URL (Optional)"
             value={bannerImage}
             onChange={(e) => setBannerImage(e.target.value)}
-            className={styles.modalFormInput} // Use className
+            className={styles.modalFormInput} 
             disabled={isSubmitting}
           />
           <input
@@ -329,7 +328,7 @@ const CreateCommunityModal = ({
             placeholder="Icon Image URL (Optional)"
             value={iconImage}
             onChange={(e) => setIconImage(e.target.value)}
-            className={styles.modalFormInput} // Use className
+            className={styles.modalFormInput} 
             disabled={isSubmitting}
           />
           <div className={styles.formGroup}>
@@ -383,7 +382,7 @@ const CreateCommunityModal = ({
           </div>
           <button
             type="submit"
-            className={styles.modalSubmitButton} // Use className
+            className={styles.modalSubmitButton} 
             disabled={isSubmitting}
           >
             {isSubmitting ? "Creating..." : "Create Community"}

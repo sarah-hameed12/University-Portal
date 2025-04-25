@@ -33,7 +33,7 @@ import {
   FiCornerDownRight,
   FiChevronsRight,
   FiUsers,
-  // FaPeopleGroup // Add this import
+  FiInfo,
 } from "react-icons/fi";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
@@ -335,7 +335,10 @@ const styles = {
     alignItems: "center",
     gap: "6px",
   },
-  postDeleteButtonHover: { color: "#f0f0f5", transform: "scale(1.05)" },
+  postDeleteButtonHover: {
+    color: "#f0f0f5",
+    transform: "scale(1.05)",
+  },
   latestComment: {
     fontSize: "0.85rem",
     color: "#a0a3bd",
@@ -365,7 +368,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1000,
-  }, // Slightly darker overlay
+  },
   // --- Create Post Modal Enhanced Styles ---
   modalContentEnhanced: {
     backgroundColor: "#161827",
@@ -704,6 +707,7 @@ export const SideNav = () => {
     { name: "Profile", icon: <FiUser />, path: "/profile" },
     { name: "Communities", icon: <IoIosPeople />, path: "/communities" },
     { name: "Societies", icon: <FiUsers />, path: "/society" },
+    { name: "About Us", icon: <FiInfo />, path: "/about" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
   return (
