@@ -1,0 +1,45 @@
+/* App.css or index.css */
+:root {
+  /* Adjusted Colors */
+  --bg-primary: #14151B;         /* Darker main background */
+  --bg-content: #21232E;         /* Slightly darker content/card bg */
+  --bg-content-hover: #2c2f3b;   /* Hover for cards/buttons */
+  --bg-input: #2c2f3b;          /* Inputs */
+
+  /* Text & Accent (mostly unchanged) */
+  --accent-primary: #8A2BE2;
+  --accent-primary-hover: #a050e0;
+  --text-primary: #EAEAEA;       /* Slightly off-white for less harshness */
+  --text-secondary: #9FA6B0;     /* Muted gray */
+  --text-placeholder: #6b7280;
+
+  /* Borders & Radius (unchanged) */
+  --border-color: #373a48;       /* Slightly adjusted border */
+  --border-radius-small: 4px;
+  --border-radius-medium: 8px;
+  --border-radius-large: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.35);
+
+  /* Font */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Make sure body and main content use the new primary bg */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  min-height: 100vh;
+}
+
+.main-content {
+  /* ... other styles from previous step ... */
+  background-color: var(--bg-primary);
+}
+
+/* ... other base styles ... */

@@ -1,0 +1,162 @@
+/* --- Global Settings (add to index.css/App.css) --- */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #14141f;
+  color: #e0e0e0;
+}
+
+/* --- Modal Backdrop --- */
+.request_background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  padding: 20px;
+}
+
+/* --- Form Container --- */
+.request_form {
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 550px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Image Upload Area --- */
+.images {
+  display: flex;
+  justify-content: center;
+}
+
+.pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #2a2a3d;
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+}
+
+.pic:hover {
+  border-color: #4ecca3;
+  transform: scale(1.05);
+}
+
+/* --- Text Fields Section --- */
+.form_text_fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form_text_fields label {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: #c0c0c0;
+  margin-bottom: -6px;
+  text-align: left;
+}
+
+.form_text_fields input[type="text"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 1em;
+  line-height: 1.5;
+  color: #e0e0e0;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form_text_fields input[type="text"]:focus {
+  outline: none;
+  border-color: #4ecca3;
+  background-color: rgba(78, 204, 163, 0.1);
+  box-shadow: 0 0 15px rgba(78, 204, 163, 0.2);
+}
+
+/* --- Button Area --- */
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.buttons button {
+  padding: 10px 25px;
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.buttons button:active {
+  transform: scale(0.97);
+}
+
+.buttons button.cancel {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #c0c0c0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.buttons button.cancel:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(78, 204, 163, 0.3);
+  color: #fff;
+}
+
+.buttons button.submit {
+  background-color: #4ecca3;
+  color: #16213e;
+}
+
+.buttons button.submit:hover {
+  background-color: #45b08c;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 480px) {
+  .request_form {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  .pic {
+    width: 100px;
+    height: 100px;
+  }
+  .buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .buttons button {
+    width: 100%;
+  }
+}

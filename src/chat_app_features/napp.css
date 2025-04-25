@@ -105,11 +105,11 @@ body {
 /* --- Form Element (Input + Button) (`C1.js`) --- */
 .forms { display: flex; align-items: center; gap: var(--padding-m); }
 .forms input[type="text"] {
-  flex: 1; padding: 11px var(--padding-m); border: none; border-radius: var(--border-radius-medium);
+  flex: 1; padding: 11px var(--padding-m); border: none; border-radius: 50px;
   background-color: var(--bg-input-field); color: var(--text-input); font-size: 0.95rem; font-family: inherit;
   outline: none; transition: box-shadow 0.2s ease-in-out;
 }
-.forms input::placeholder { color: var(--text-secondary); opacity: 1; }
+.forms input::placeholder { color: var(--text-secondary); opacity: 0.5; }
 .forms input:focus { box-shadow: 0 0 0 2px var(--focus-ring-color); }
 
 /* --- Send Button (`C1.js`) --- */

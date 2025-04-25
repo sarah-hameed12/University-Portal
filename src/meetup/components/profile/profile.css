@@ -1,0 +1,250 @@
+/* Global box-sizing remains the same */
+html {
+    box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+/* --- Profile Backdrop with Fade Animation --- */
+.profile_background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    animation: backdropFade 0.3s ease-out;
+}
+
+@keyframes backdropFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* --- Profile Content with Scale Animation --- */
+.profile-info {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow-y: auto;
+    max-height: 90vh;
+    animation: modalScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes modalScale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Headings with Gradient Text */
+.profile-info h2 {
+    margin: 0 0 2rem;
+    background: linear-gradient(45deg, #4ecca3, #45b08c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+}
+
+.profile-info h3 {
+    color: #f0f0f0;
+    font-size: 1.5rem;
+    margin: 1.5rem 0;
+    font-weight: 600;
+}
+
+/* Enhanced User Pictures */
+.user-pictures {
+    position: relative;
+    margin: 1.5rem 0 2.5rem;
+    display: flex;             /* <-- added */
+    justify-content: center;   /* <-- added */
+}
+
+.picture {
+    width: 120px;
+    height: 120px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    margin: 0 auto;            /* <-- added fallback centering */
+}
+
+.picture:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(78, 204, 163, 0.3);
+}
+
+.pic {
+    border-radius: 50%;
+    transition: opacity 0.3s ease;
+}
+
+/* Profile Details Card */
+.profile-detail {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 100%;
+    margin: 1rem 0;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.profile-detail:hover {
+    transform: translateY(-3px);
+}
+
+.profile-detail p {
+    color: #d1d1d1;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0.8rem 0;
+}
+
+.profile-detail strong {
+    color: #4ecca3;
+    font-weight: 500;
+}
+
+/* Modern Form Elements */
+.form_group {
+    margin: 1.2rem 0;
+    width: 100%;
+}
+
+.form_group label {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    text-align: left;
+}
+
+.form_group input,
+.form_group textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form_group input:focus,
+.form_group textarea:focus {
+    border-color: #4ecca3;
+    background: rgba(78, 204, 163, 0.05);
+    box-shadow: 0 0 15px rgba(78, 204, 163, 0.2);
+}
+
+/* Social Links with Hover Effects */
+.socials a {
+    color: #8d8d8d;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.socials a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #4ecca3;
+    transition: width 0.3s ease;
+}
+
+.socials a:hover {
+    color: #4ecca3;
+    background: rgba(78, 204, 163, 0.05);
+}
+
+.socials a:hover::before {
+    width: 100%;
+}
+
+/* Enhanced Action Buttons */
+.profile_actions button {
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile_actions button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent);
+    transition: left 0.6s;
+}
+
+.profile_actions button:hover::after {
+    left: 100%;
+}
+
+.button-save { background: #4ecca3; color: #16213e; }
+.button-edit { background: #5288ec; color: white; }
+.button-cancel { background: #ec5288; color: white; }
+.button-close { background: #4a5568; color: white; }
+
+.profile_actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    .profile-info {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .picture {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile_actions {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .profile_actions button {
+        width: 100%;
+    }
+}
