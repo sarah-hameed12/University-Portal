@@ -35,6 +35,7 @@ import {
   FiChevronsRight,
   FiUsers, // Add this import
 } from "react-icons/fi";
+import { MdGroups } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- Style Definitions (Includes all dashboard, modal, loading styles) ---
@@ -702,6 +703,7 @@ export const SideNav = () => {
     { name: "Utilities", icon: <FiGrid />, path: "/documents" }, // Changed path back
     { name: "Profile", icon: <FiUser />, path: "/profile" },
     { name: "Communities", icon: <FiUsers />, path: "/communities" },
+    {name: "Meetup", icon: <MdGroups/>, path: "/meetup" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
   return (

@@ -18,6 +18,8 @@ import PostDetailPage from "./PostDetailPage.jsx";
 import UserProfileView from "./UserProfileView.jsx";
 import Communities from "./Communities";
 import CommunityDetail from "./CommunityDetail";
+import Meet from "./meetup/src/meetApp.jsx"; 
+import { WebsocketProvider } from "./meetup/src/context/websocket.jsx";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
@@ -77,13 +79,19 @@ const App = () => {
         <Route path="/scheduler" element={<Scheduler />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/faculty" element={<FacultyOfficeHours />} />
-        <Route path="/chat" element={<ChatApp />} />
+        {<Route path="/chat" element={
+        <ChatApp />
+        } />}
         <Route path="/profile" element={<Profile />} />
         <Route path="/society/:societyId" element={<SocietyDetailPage />} />
         <Route path="/post/:postId/comments" element={<PostDetailPage />} />
         <Route path="/profile/email/:email" element={<UserProfileView />} />
         <Route path="/communities" element={<Communities user={user} />} />
         <Route path="/communities/:communityId" element={<CommunityDetail currentUser={user} />} />
+        <Route path="/meetup" element={<>
+          <WebsocketProvider>
+            <Meet />
+          </WebsocketProvider></>} />
       </Routes>
     </Router>
   );

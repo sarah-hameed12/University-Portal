@@ -29,15 +29,7 @@ const client_schema = new schema(
     {
         username: {
             type: String,
-            required: true
-        },
-        password: {
-            type: String,
-            required: true
-        },
-        token: {
-            type: String,
-            required: true
+            required: true,
         },
         message_record: [p_sender_schema]
     }
