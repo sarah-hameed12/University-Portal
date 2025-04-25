@@ -1,0 +1,81 @@
+/* Navbar.css */
+
+.navbar {
+  width: 240px;
+  background-color: #1a1a2e; /* dark base */
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08); /* subtler border */
+}
+
+.navbar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar-item {
+  margin-bottom: 4px;
+  position: relative; /* Crucial: Establishes positioning context for the absolute badge */
+}
+
+.navbar-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 20px;
+  background-color: transparent;
+  border: none;
+  /* Corrected color - using the hex value */
+  color: #a0a0c0; /* Adjusted secondary text - slightly lighter gray/purple */
+  font-size: 0.95rem;
+  font-weight: 500; /* Slightly bolder text */
+  cursor: pointer;
+  border-radius: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative; /* Allows consistent positioning if needed */
+  z-index: 1; /* Keep button content above potential background effects */
+}
+
+.navbar-button:hover {
+  background-color: rgba(78, 204, 163, 0.1); /* light green tint */
+  color: #ffffff; /* primary text - pure white */
+}
+
+/* --- Notification Badge Styling --- */
+.notification-badge {
+  position: absolute;
+  z-index: 2; /* Ensure badge is above button background */
+
+  /* --- Styling for a simple DOT --- */
+  top: 14px;       /* Adjust vertical position (aligns with text better) */
+  right: 18px;      /* Adjust horizontal position from the right edge */
+  width: 9px;       /* Size of the dot */
+  height: 9px;
+  background-color: #e74c3c; /* A common notification red */
+  border-radius: 50%; /* Makes it a circle */
+  border: 1.5px solid #1a1a2e; /* Add border using navbar background color for "cutout" effect */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1); /* Optional subtle glow/outer border */
+
+
+  /* --- Styling IF you want a number count INSTEAD of a dot --- */
+  /* Comment out the dot styles above and uncomment these if using numbers */
+  /*
+  top: 10px;
+  right: 15px;
+  min-width: 18px;      // Minimum width to look good with one digit
+  height: 18px;
+  padding: 0 5px;       // Horizontal padding for numbers
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 18px;    // Vertically center text (match height)
+  text-align: center;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 9px;     // Pill shape
+  border: 1px solid #1a1a2e; // Cutout effect
+  */
+}

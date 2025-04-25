@@ -24,10 +24,8 @@ function Users({sock, use, set}){
                 return [...p_use,n_temp]}})
         };
 
-        // Register the listener
         sock.on("user", handleusers);
 
-        // Cleanup listener when component unmounts
         return () => {
             sock.off("user", handleusers);
         };
