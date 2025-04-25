@@ -26,6 +26,7 @@ import CommunityDetail from "./Utility/CommunityDetail";
 import VoiceChannel from "./Utility/VoiceChannel.jsx";
 import RequireAuth from "./Auth/RequireAuth";
 import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
+import SettingsPage from './settings/SettingsPage';
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -145,6 +146,7 @@ const App = () => {
           <Route path="/faculty" element={<FacultyOfficeHours />} />
           <Route path="/chat" element={<ChatApp />} />
           <Route path="/profile" element={<Profile />} />{" "}
+          <Route path="/settings" element={<SettingsPage />} />
           {/* Assumes Profile fetches its own data */}
           <Route path="/society" element={<SocietiesPage />} />
           <Route path="/society/:societyId" element={<SocietyDetailPage />} />
