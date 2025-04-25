@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
-import styles from "./Signup.module.css"; // Import the new CSS Module
+import styles from "../Styles/Signup.module.css"; // Import the new CSS Module
 import { Link } from "react-router-dom";
 
 // Supabase Client (keep as before)

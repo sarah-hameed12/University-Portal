@@ -13,7 +13,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
-import styles from "./Profile.module.css";
+import styles from "../Styles/Profile.module.css";
 import {
   FiUser, // Added FiUser just in case, though not explicitly used in final render maybe
   FiEdit2,

@@ -10,7 +10,7 @@ import {
   FiStar,
   FiMessageSquare,
 } from "react-icons/fi";
-import styles from "./Communities.module.css"; // Import the CSS module
+import styles from "../Styles/Communities.module.css"; // Import the CSS module
 
 const Communities = ({ user }) => {
   // Removed supabase prop if not used directly here

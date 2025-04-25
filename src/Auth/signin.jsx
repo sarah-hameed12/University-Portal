@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
-import styles from "./signin.module.css";
+import styles from "../Styles/signin.module.css";
 
 import { FiUser, FiLock, FiMail } from "react-icons/fi";
 

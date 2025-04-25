@@ -6,26 +6,26 @@ import {
   Navigate,
 } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
-import WelcomePage from "./welcome.jsx";
-import SignIn from "./signin.jsx";
-import Signup from "./signup2.jsx";
-import DocsTab from "./documents.jsx";
-import Outlines from "./outlines.jsx";
-import Calculator from "./calculator.jsx";
-import Scheduler from "./scheduler.jsx";
-import Dashboard from "./dashboard.jsx";
-import FacultyOfficeHours from "./faculty.jsx";
+// import WelcomePage from "./welcome.jsx";
+import SignIn from "./Auth/signin.jsx";
+import Signup from "./Auth/signup2.jsx";
+import DocsTab from "./Features/documents.jsx";
+import Outlines from "./Features/outlines.jsx";
+import Calculator from "./Features/calculator.jsx";
+import Scheduler from "./Features/scheduler.jsx";
+import Dashboard from "./Dashboard/dashboard.jsx";
+import FacultyOfficeHours from "./Features/faculty.jsx";
 import ChatApp from "./chat_app_features/ChatApp.jsx";
-import Profile from "./profile.jsx";
-import SocietiesPage from "./socities.jsx";
-import SocietyDetailPage from "./SocietyDetailPage.jsx";
-import PostDetailPage from "./PostDetailPage.jsx";
-import UserProfileView from "./UserProfileView.jsx";
-import Communities from "./Communities";
-import CommunityDetail from "./CommunityDetail";
-import VoiceChannel from "./VoiceChannel.jsx";
-import RequireAuth from "./RequireAuth";
-import UpdatePasswordPage from "./UpdatePasswordPage";
+import Profile from "./Profile/profile.jsx";
+import SocietiesPage from "./Utility/socities.jsx";
+import SocietyDetailPage from "./Utility/SocietyDetailPage.jsx";
+import PostDetailPage from "./Dashboard/PostDetailPage.jsx";
+import UserProfileView from "./Profile/UserProfileView.jsx";
+import Communities from "./Utility/Communities";
+import CommunityDetail from "./Utility/CommunityDetail";
+import VoiceChannel from "./Utility/VoiceChannel.jsx";
+import RequireAuth from "./Auth/RequireAuth";
+import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;

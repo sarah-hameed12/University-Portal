@@ -19,12 +19,6 @@ body {
     position: relative; /* Needed for fixed TopNav */
   }
   
-  .dashboard-scrollable-area {
-    flex-grow: 1;
-    overflow-y: auto; /* Make this area scrollable */
-    padding: 24px;
-    padding-top: 80px; /* Space for the fixed TopNav (64px height + 16px padding) */
-  }
   
   /* --- SideNav --- */
   .sidenav {
@@ -283,4 +277,34 @@ body {
   
   .post-actions button:hover {
     color: #a78bfa; /* purple-400 */
+  }
+  .dashboard-scrollable-area {
+    /* --- Firefox --- */
+    scrollbar-width: thin;                     /* Makes scrollbar thin */
+    scrollbar-color: #a78bfa #374151;        /* Thumb color (purple-400), Track color (gray-700) */
+  
+    /* --- WebKit Browsers (Chrome, Safari, Edge, Opera) --- */
+    /* Customize the overall scrollbar */
+    &::-webkit-scrollbar {
+      width: 8px;                              /* Width of the vertical scrollbar */
+      height: 8px;                             /* Height of the horizontal scrollbar (if any) */
+    }
+  
+    /* Customize the track (the background bar) */
+    &::-webkit-scrollbar-track {
+      background: #1f2937; /* Slightly darker than track color above (e.g., gray-800) */
+      border-radius: 10px;                     /* Optional: round the track */
+    }
+  
+    /* Customize the thumb (the draggable part) */
+    &::-webkit-scrollbar-thumb {
+      background-color: #a78bfa;               /* Thumb color (purple-400) */
+      border-radius: 10px;                     /* Make the thumb rounded */
+      border: 2px solid #1f2937;             /* Creates padding around thumb, matches track bg */
+    }
+  
+    /* Optional: Style the thumb on hover */
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #8b5cf6;               /* Darker purple on hover (purple-500) */
+    }
   }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import styles from "./UserProfileView.module.css";
+import styles from "../Styles/UserProfileView.module.css";
 
 import {
   FiUser,

@@ -10,7 +10,7 @@ import {
   FaClock,
   FaCalculator,
 } from "react-icons/fa";
-import styles from "./DocsTab.module.css";
+import styles from "../Styles/DocsTab.module.css";
 
 // Animation Variants
 const containerVariants = {

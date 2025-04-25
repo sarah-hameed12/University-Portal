@@ -1,18 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom"; // Removed Link if not used
 import axios from "axios";
-import { FiUsers, FiMessageSquare, FiThumbsUp, FiPlus, FiTrash2, FiHeadphones } from "react-icons/fi";
-import styles from './CommunityDetail.module.css'; // Import the CSS module
-import modalStyles from './Communities.module.css'; // Import shared modal styles
+import {
+  FiUsers,
+  FiMessageSquare,
+  FiThumbsUp,
+  FiPlus,
+  FiTrash2,
+  FiHeadphones,
+} from "react-icons/fi";
+import styles from "../Styles/CommunityDetail.module.css"; // Import the CSS module
+import modalStyles from "../Styles/Communities.module.css"; // Import shared modal styles
 
 // Add this utility function
 const formatDate = (dateString) => {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
@@ -30,7 +37,7 @@ const CommunityDetail = ({ currentUser }) => {
   const [membership, setMembership] = useState(null);
   const [joinRequestStatus, setJoinRequestStatus] = useState(null);
   const [showJoinRequestForm, setShowJoinRequestForm] = useState(false);
-  const [joinRequestMessage, setJoinRequestMessage] = useState('');
+  const [joinRequestMessage, setJoinRequestMessage] = useState("");
   const [pendingRequests, setPendingRequests] = useState([]);
   const [showPendingRequests, setShowPendingRequests] = useState(false);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
@@ -42,19 +49,23 @@ const CommunityDetail = ({ currentUser }) => {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Fetch community details
-        const communityResponse = await axios.get(`http://127.0.0.1:8000/api/feed/communities/${communityId}/`);
+        const communityResponse = await axios.get(
+          `http://127.0.0.1:8000/api/feed/communities/${communityId}/`
+        );
         setCommunity(communityResponse.data);
         console.log("Community data:", communityResponse.data);
-        
+
         // Fetch posts specific to this community
-        const postsResponse = await axios.get(`http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`);
+        const postsResponse = await axios.get(
+          `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`
+        );
         console.log("Community posts raw data:", postsResponse.data);
 
         // Check if we're getting an array or if we need to parse it
-        const postsData = Array.isArray(postsResponse.data) 
-          ? postsResponse.data 
+        const postsData = Array.isArray(postsResponse.data)
+          ? postsResponse.data
           : postsResponse.data.results || [];
         console.log("Processed posts data:", postsData);
 
@@ -66,7 +77,7 @@ const CommunityDetail = ({ currentUser }) => {
         setIsLoading(false);
       }
     };
-    
+
     if (communityId) {
       console.log("Fetching data for community:", communityId);
       fetchCommunityDetails();
@@ -75,7 +86,8 @@ const CommunityDetail = ({ currentUser }) => {
   }, [communityId]);
 
   // Check if user is admin
-  const isAdmin = currentUser && community && community.creator_id === currentUser.id;
+  const isAdmin =
+    currentUser && community && community.creator_id === currentUser.id;
 
   // Check membership and request status on load
   useEffect(() => {
@@ -86,10 +98,10 @@ const CommunityDetail = ({ currentUser }) => {
           const membershipResponse = await axios.get(
             `http://127.0.0.1:8000/api/feed/communities/${communityId}/membership/`,
             {
-              params: { user_id: currentUser.id }
+              params: { user_id: currentUser.id },
             }
           );
-          
+
           if (membershipResponse.data.is_member) {
             setMembership(membershipResponse.data);
           } else {
@@ -100,13 +112,13 @@ const CommunityDetail = ({ currentUser }) => {
                 params: {
                   community: communityId,
                   user_id: currentUser.id,
-                  status: 'pending'
-                }
+                  status: "pending",
+                },
               }
             );
-            
+
             if (requestResponse.data.length > 0) {
-              setJoinRequestStatus('pending');
+              setJoinRequestStatus("pending");
             } else {
               setJoinRequestStatus(null);
             }
@@ -115,7 +127,7 @@ const CommunityDetail = ({ currentUser }) => {
           console.error("Error checking membership status:", error);
         }
       };
-      
+
       checkMembershipStatus();
     }
   }, [currentUser, communityId]);
@@ -125,18 +137,21 @@ const CommunityDetail = ({ currentUser }) => {
     if (isAdmin && communityId) {
       const fetchPendingRequests = async () => {
         try {
-          const response = await axios.get(`http://127.0.0.1:8000/api/feed/join-requests/`, {
-            params: {
-              community: communityId,
-              status: 'pending'
+          const response = await axios.get(
+            `http://127.0.0.1:8000/api/feed/join-requests/`,
+            {
+              params: {
+                community: communityId,
+                status: "pending",
+              },
             }
-          });
+          );
           setPendingRequests(response.data);
         } catch (error) {
           console.error("Error fetching pending requests:", error);
         }
       };
-      
+
       fetchPendingRequests();
     }
   }, [isAdmin, communityId]);
@@ -152,13 +167,15 @@ const CommunityDetail = ({ currentUser }) => {
       // Send both user_id and user_name to support the backend
       await axios.post(`http://127.0.0.1:8000/api/feed/posts/${postId}/like/`, {
         user_id: currentUser.id,
-        user_name: currentUser.email || currentUser.id // Use email as name if available
+        user_name: currentUser.email || currentUser.id, // Use email as name if available
       });
-      
+
       // Refresh the posts to update likes
-      const postsResponse = await axios.get(`http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`);
-      const postsData = Array.isArray(postsResponse.data) 
-        ? postsResponse.data 
+      const postsResponse = await axios.get(
+        `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`
+      );
+      const postsData = Array.isArray(postsResponse.data)
+        ? postsResponse.data
         : postsResponse.data.results || [];
       setPosts(postsData);
     } catch (error) {
@@ -170,10 +187,10 @@ const CommunityDetail = ({ currentUser }) => {
   // Function to format the date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -182,12 +199,12 @@ const CommunityDetail = ({ currentUser }) => {
     try {
       // Include user_id in the request body using axios config
       await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
-        data: { user_id: currentUser.id }  // This is how you send data with DELETE requests
+        data: { user_id: currentUser.id }, // This is how you send data with DELETE requests
       });
-      
+
       // Update posts state, removing the deleted post
-      setPosts(posts.filter(post => post.id !== postId));
-      
+      setPosts(posts.filter((post) => post.id !== postId));
+
       // Show success notification
       alert("Post deleted successfully");
     } catch (error) {
@@ -199,21 +216,21 @@ const CommunityDetail = ({ currentUser }) => {
   // Handle join request submission
   const handleJoinRequest = async (e) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       alert("You need to sign in to join communities");
       return;
     }
-    
+
     try {
       await axios.post(`http://127.0.0.1:8000/api/feed/join-requests/`, {
         community: communityId,
         user_id: currentUser.id,
         user_name: currentUser.email || currentUser.id,
-        message: joinRequestMessage
+        message: joinRequestMessage,
       });
-      
-      setJoinRequestStatus('pending');
+
+      setJoinRequestStatus("pending");
       setShowJoinRequestForm(false);
       alert("Join request submitted successfully");
     } catch (error) {
@@ -225,12 +242,15 @@ const CommunityDetail = ({ currentUser }) => {
   // Handle request approval
   const handleApproveRequest = async (requestId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/api/feed/join-requests/${requestId}/approve/`, {
-        admin_id: currentUser.id
-      });
-      
+      await axios.post(
+        `http://127.0.0.1:8000/api/feed/join-requests/${requestId}/approve/`,
+        {
+          admin_id: currentUser.id,
+        }
+      );
+
       // Update pending requests list
-      setPendingRequests(pendingRequests.filter(req => req.id !== requestId));
+      setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
       alert("Request approved");
     } catch (error) {
       console.error("Error approving request:", error);
@@ -241,12 +261,15 @@ const CommunityDetail = ({ currentUser }) => {
   // Handle request rejection
   const handleRejectRequest = async (requestId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/api/feed/join-requests/${requestId}/reject/`, {
-        admin_id: currentUser.id
-      });
-      
+      await axios.post(
+        `http://127.0.0.1:8000/api/feed/join-requests/${requestId}/reject/`,
+        {
+          admin_id: currentUser.id,
+        }
+      );
+
       // Update pending requests list
-      setPendingRequests(pendingRequests.filter(req => req.id !== requestId));
+      setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
       alert("Request rejected");
     } catch (error) {
       console.error("Error rejecting request:", error);
@@ -258,26 +281,26 @@ const CommunityDetail = ({ currentUser }) => {
   const handleCreatePost = async (postData) => {
     try {
       setIsCreatingPost(true);
-      
+
       // Make sure community is included
       const payload = {
         ...postData,
         author_id: currentUser?.id,
-        author_name: currentUser?.email || 'Anonymous',
+        author_name: currentUser?.email || "Anonymous",
       };
-      
+
       console.log("Creating post with data:", payload);
-      
+
       // Use the community-specific posts endpoint
       const response = await axios.post(
         `http://127.0.0.1:8000/api/feed/communities/${communityId}/posts/`,
         payload
       );
-      
+
       console.log("Post created successfully:", response.data);
-      
+
       // Add the new post to the state
-      setPosts(prevPosts => [response.data, ...prevPosts]);
+      setPosts((prevPosts) => [response.data, ...prevPosts]);
       setIsCreatePostModalOpen(false);
     } catch (error) {
       console.error("Error creating post:", error);
@@ -302,16 +325,16 @@ const CommunityDetail = ({ currentUser }) => {
   // Add function to create voice channel
   const createVoiceChannel = async (name) => {
     try {
-      if (!name || name.trim() === '') {
+      if (!name || name.trim() === "") {
         alert("Please enter a valid channel name");
         return;
       }
-      
+
       const response = await axios.post(
         `http://127.0.0.1:8000/api/feed/communities/${communityId}/voice-channels/`,
         { name: name.trim() }
       );
-      
+
       console.log("Voice channel created:", response.data);
       setVoiceChannels([...voiceChannels, response.data]);
     } catch (error) {
@@ -322,18 +345,21 @@ const CommunityDetail = ({ currentUser }) => {
 
   // Add this function to your CommunityDetail component
   const deleteVoiceChannel = async (channelId) => {
-    if (!window.confirm("Are you sure you want to delete this voice channel?")) {
+    if (
+      !window.confirm("Are you sure you want to delete this voice channel?")
+    ) {
       return;
     }
-    
+
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/feed/voice-channels/${channelId}/?user_id=${currentUser.id}`);
-      
-      // Update local state to remove the deleted channel
-      setVoiceChannels(prevChannels => 
-        prevChannels.filter(channel => channel.id !== channelId)
+      await axios.delete(
+        `http://127.0.0.1:8000/api/feed/voice-channels/${channelId}/?user_id=${currentUser.id}`
       );
-      
+
+      // Update local state to remove the deleted channel
+      setVoiceChannels((prevChannels) =>
+        prevChannels.filter((channel) => channel.id !== channelId)
+      );
     } catch (error) {
       console.error("Error deleting voice channel:", error);
       alert("Failed to delete voice channel. Please try again.");
@@ -345,7 +371,11 @@ const CommunityDetail = ({ currentUser }) => {
   }
 
   if (error) {
-    return <div className={`${styles.loadingOrError} ${styles.errorText}`}>{error}</div>;
+    return (
+      <div className={`${styles.loadingOrError} ${styles.errorText}`}>
+        {error}
+      </div>
+    );
   }
 
   if (!community) {
@@ -356,7 +386,7 @@ const CommunityDetail = ({ currentUser }) => {
   const renderJoinButton = () => {
     if (!currentUser) {
       return (
-        <button 
+        <button
           className={styles.joinButton}
           onClick={() => alert("Please sign in to join communities")}
         >
@@ -365,7 +395,7 @@ const CommunityDetail = ({ currentUser }) => {
         </button>
       );
     }
-    
+
     if (membership) {
       return (
         <button className={`${styles.joinButton} ${styles.alreadyMember}`}>
@@ -374,8 +404,8 @@ const CommunityDetail = ({ currentUser }) => {
         </button>
       );
     }
-    
-    if (joinRequestStatus === 'pending') {
+
+    if (joinRequestStatus === "pending") {
       return (
         <button className={`${styles.joinButton} ${styles.pendingRequest}`}>
           <FiUsers size={16} />
@@ -383,22 +413,25 @@ const CommunityDetail = ({ currentUser }) => {
         </button>
       );
     }
-    
-    if (community?.privacy_type === 'public') {
+
+    if (community?.privacy_type === "public") {
       // For public communities, join directly
       return (
-        <button 
+        <button
           className={styles.joinButton}
           onClick={async () => {
             try {
-              await axios.post(`http://127.0.0.1:8000/api/feed/community-members/`, {
-                community: communityId,
-                user_id: currentUser.id,
-                display_name: currentUser.email || currentUser.id
-              });
+              await axios.post(
+                `http://127.0.0.1:8000/api/feed/community-members/`,
+                {
+                  community: communityId,
+                  user_id: currentUser.id,
+                  display_name: currentUser.email || currentUser.id,
+                }
+              );
               setMembership({
                 user_id: currentUser.id,
-                member_type: 'member'
+                member_type: "member",
               });
               alert("You've joined the community!");
             } catch (error) {
@@ -414,28 +447,37 @@ const CommunityDetail = ({ currentUser }) => {
       // For restricted communities, show request button
       return (
         <>
-          <button 
+          <button
             className={styles.joinButton}
             onClick={() => setShowJoinRequestForm(true)}
           >
             <FiUsers size={16} />
             Request to Join
           </button>
-          
+
           {/* Join Request Form Modal */}
           {showJoinRequestForm && (
-            <div className={modalStyles.modalOverlay} onClick={() => setShowJoinRequestForm(false)}>
-              <div className={modalStyles.modalContent} onClick={e => e.stopPropagation()}>
-                <h3 className={modalStyles.modalTitle}>Request to Join {community.name}</h3>
-                <button 
-                  className={modalStyles.modalCloseButton} 
+            <div
+              className={modalStyles.modalOverlay}
+              onClick={() => setShowJoinRequestForm(false)}
+            >
+              <div
+                className={modalStyles.modalContent}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className={modalStyles.modalTitle}>
+                  Request to Join {community.name}
+                </h3>
+                <button
+                  className={modalStyles.modalCloseButton}
                   onClick={() => setShowJoinRequestForm(false)}
                 >
                   ×
                 </button>
                 <form onSubmit={handleJoinRequest}>
                   <p className={styles.joinRequestInfo}>
-                    This community requires approval from an administrator to join.
+                    This community requires approval from an administrator to
+                    join.
                   </p>
                   <textarea
                     placeholder="Message to community administrators (optional)"
@@ -443,7 +485,10 @@ const CommunityDetail = ({ currentUser }) => {
                     value={joinRequestMessage}
                     onChange={(e) => setJoinRequestMessage(e.target.value)}
                   />
-                  <button type="submit" className={modalStyles.modalSubmitButton}>
+                  <button
+                    type="submit"
+                    className={modalStyles.modalSubmitButton}
+                  >
                     Submit Request
                   </button>
                 </form>
@@ -458,22 +503,22 @@ const CommunityDetail = ({ currentUser }) => {
   // Add pending requests section for admins
   const renderPendingRequestsSection = () => {
     if (!isAdmin || pendingRequests.length === 0) return null;
-    
+
     return (
       <div className={styles.adminSection}>
         <div className={styles.adminSectionHeader}>
           <h3>Pending Join Requests ({pendingRequests.length})</h3>
-          <button 
+          <button
             className={styles.toggleButton}
             onClick={() => setShowPendingRequests(!showPendingRequests)}
           >
             {showPendingRequests ? "Hide" : "Show"}
           </button>
         </div>
-        
+
         {showPendingRequests && (
           <div className={styles.requestsList}>
-            {pendingRequests.map(request => (
+            {pendingRequests.map((request) => (
               <div key={request.id} className={styles.requestItem}>
                 <div className={styles.requestInfo}>
                   <span className={styles.userName}>{request.user_name}</span>
@@ -481,19 +526,19 @@ const CommunityDetail = ({ currentUser }) => {
                     {formatDate(request.created_at)}
                   </span>
                 </div>
-                
+
                 {request.message && (
                   <p className={styles.requestMessage}>"{request.message}"</p>
                 )}
-                
+
                 <div className={styles.requestActions}>
-                  <button 
+                  <button
                     className={`${styles.requestButton} ${styles.approveButton}`}
                     onClick={() => handleApproveRequest(request.id)}
                   >
                     Approve
                   </button>
-                  <button 
+                  <button
                     className={`${styles.requestButton} ${styles.rejectButton}`}
                     onClick={() => handleRejectRequest(request.id)}
                   >
@@ -514,14 +559,22 @@ const CommunityDetail = ({ currentUser }) => {
         {/* Community Banner */}
         <div
           className={styles.communityBanner}
-          style={{ backgroundImage: community.banner_image ? `url(${community.banner_image})` : undefined }}
+          style={{
+            backgroundImage: community.banner_image
+              ? `url(${community.banner_image})`
+              : undefined,
+          }}
         />
 
         {/* Community Header */}
         <div className={styles.communityHeader}>
           <div className={styles.communityIconWrapper}>
             {community.icon_image ? (
-              <img src={community.icon_image} alt={`${community.name} icon`} className={styles.communityIcon} />
+              <img
+                src={community.icon_image}
+                alt={`${community.name} icon`}
+                className={styles.communityIcon}
+              />
             ) : (
               <FiUsers size={40} className={styles.communityIcon} /> // Adjusted size
             )}
@@ -529,7 +582,9 @@ const CommunityDetail = ({ currentUser }) => {
           <div className={styles.communityHeaderText}>
             <h1 className={styles.communityName}>{community.name}</h1>
             <div className={styles.communityStats}>
-              <span><FiUsers size={16} /> {community.member_count || 0} members</span>
+              <span>
+                <FiUsers size={16} /> {community.member_count || 0} members
+              </span>
               <span>•</span>
               <span>Created {formatDate(community.created_at)}</span>
             </div>
@@ -548,7 +603,7 @@ const CommunityDetail = ({ currentUser }) => {
         <div className={styles.actionButtonsContainer}>
           {/* Dynamic join button based on community type */}
           {renderJoinButton()}
-          
+
           {/* Only show create post button to members */}
           {(membership || isAdmin) && (
             <button
@@ -564,10 +619,10 @@ const CommunityDetail = ({ currentUser }) => {
         {/* Voice Channels Section */}
         <div className={styles.voiceChannelsSection}>
           <h3>Voice Channels</h3>
-          
+
           {voiceChannels.length > 0 ? (
             <div className={styles.voiceChannelList}>
-              {voiceChannels.map(channel => (
+              {voiceChannels.map((channel) => (
                 <div key={channel.id} className={styles.voiceChannelItem}>
                   <div className={styles.channelInfo}>
                     <FiHeadphones size={16} />
@@ -576,15 +631,17 @@ const CommunityDetail = ({ currentUser }) => {
                       {channel.participant_count} users
                     </span>
                   </div>
-                  
+
                   <div className={styles.channelActions}>
-                    <Link to={`/communities/${communityId}/voice/${channel.id}`}>
+                    <Link
+                      to={`/communities/${communityId}/voice/${channel.id}`}
+                    >
                       <button className={styles.joinButton}>Join</button>
                     </Link>
-                    
+
                     {/* Only show delete button for admins */}
                     {isAdmin && (
-                      <button 
+                      <button
                         className={styles.deleteButton}
                         onClick={() => deleteVoiceChannel(channel.id)}
                       >
@@ -598,9 +655,9 @@ const CommunityDetail = ({ currentUser }) => {
           ) : (
             <p>No voice channels yet.</p>
           )}
-          
+
           {(membership || isAdmin) && (
-            <button 
+            <button
               className={styles.createChannelButton}
               onClick={() => {
                 const name = prompt("Enter voice channel name:");
@@ -614,15 +671,15 @@ const CommunityDetail = ({ currentUser }) => {
         </div>
 
         {/* Posts - only show if public or user is member */}
-        {(community.privacy_type === 'public' || membership || isAdmin) ? (
+        {community.privacy_type === "public" || membership || isAdmin ? (
           <div className={styles.postsContainer}>
             {posts.length > 0 ? (
               posts.map((post) => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
+                <PostCard
+                  key={post.id}
+                  post={post}
                   onDelete={handleDeletePost}
-                  currentUser={currentUser}  // Make sure to pass this prop
+                  currentUser={currentUser} // Make sure to pass this prop
                   handleLikePost={handleLikePost} // Add this prop
                   onCommentDeleted={(updatedPosts) => setPosts(updatedPosts)} // Add this line
                 />
@@ -659,19 +716,25 @@ const CommunityDetail = ({ currentUser }) => {
 };
 
 // Post Card Component
-const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDeleted }) => {
+const PostCard = ({
+  post,
+  onDelete,
+  currentUser,
+  handleLikePost,
+  onCommentDeleted,
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  
+
   // Add this line to access the community from context
   const { community } = React.useContext(CommunityContext);
-  
+
   // Safe check for currentUser and community
-  const canDelete = currentUser && (
-    post.author_id === currentUser.id || 
-    (community && community.creator_id === currentUser.id)
-  );
-  
+  const canDelete =
+    currentUser &&
+    (post.author_id === currentUser.id ||
+      (community && community.creator_id === currentUser.id));
+
   // Handle click outside to close menu
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -679,14 +742,14 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
         setIsMenuOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Inside the PostCard component, add these state variables at the top
   const [showCommentForm, setShowCommentForm] = useState(false);
-  const [commentText, setCommentText] = useState('');
+  const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   // Add this handleSubmitComment function
@@ -696,30 +759,35 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
       alert("You need to sign in to comment.");
       return;
     }
-    
+
     if (!commentText.trim()) {
       alert("Comment cannot be empty.");
       return;
     }
-    
+
     try {
       setIsSubmittingComment(true);
-      const response = await axios.post(`http://127.0.0.1:8000/api/feed/posts/${post.id}/comments/`, {
-        content: commentText,
-        author_name: currentUser.email || currentUser.id,
-        author_email: currentUser.email
-      });
-      
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/feed/posts/${post.id}/comments/`,
+        {
+          content: commentText,
+          author_name: currentUser.email || currentUser.id,
+          author_email: currentUser.email,
+        }
+      );
+
       // Check if we got a successful response
       if (response.status === 201) {
-        setCommentText('');
+        setCommentText("");
         setShowCommentForm(false);
-        
+
         // Refresh the community posts to show the new comment
-        const refreshResponse = await axios.get(`http://127.0.0.1:8000/api/feed/communities/${community.id}/posts/`);
+        const refreshResponse = await axios.get(
+          `http://127.0.0.1:8000/api/feed/communities/${community.id}/posts/`
+        );
         if (refreshResponse.data) {
-          const updatedPosts = Array.isArray(refreshResponse.data) 
-            ? refreshResponse.data 
+          const updatedPosts = Array.isArray(refreshResponse.data)
+            ? refreshResponse.data
             : refreshResponse.data.results || [];
           setPosts(updatedPosts);
           alert("Comment posted successfully!");
@@ -741,64 +809,79 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
       alert("You need to be signed in to delete comments");
       return;
     }
-    
+
     if (!window.confirm("Are you sure you want to delete this comment?")) {
       return;
     }
-    
+
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/feed/comments/${commentId}/`, {
-        data: { 
-          user_id: currentUser.id,
-          author_email: currentUser.email  // Add this line
+      await axios.delete(
+        `http://127.0.0.1:8000/api/feed/comments/${commentId}/`,
+        {
+          data: {
+            user_id: currentUser.id,
+            author_email: currentUser.email, // Add this line
+          },
         }
-      });
-      
+      );
+
       // Refresh posts to update comments
-      const refreshResponse = await axios.get(`http://127.0.0.1:8000/api/feed/communities/${community.id}/posts/`);
+      const refreshResponse = await axios.get(
+        `http://127.0.0.1:8000/api/feed/communities/${community.id}/posts/`
+      );
       if (refreshResponse.data) {
-        const updatedPosts = Array.isArray(refreshResponse.data) 
-          ? refreshResponse.data 
+        const updatedPosts = Array.isArray(refreshResponse.data)
+          ? refreshResponse.data
           : refreshResponse.data.results || [];
-        
+
         // We need to access the setPosts function from the parent component
-        if (typeof onCommentDeleted === 'function') {
+        if (typeof onCommentDeleted === "function") {
           onCommentDeleted(updatedPosts);
         }
-        
+
         alert("Comment deleted successfully");
       }
     } catch (error) {
       console.error("Error deleting comment:", error);
-      alert(`Failed to delete comment: ${error.response?.data?.detail || error.message}`);
+      alert(
+        `Failed to delete comment: ${
+          error.response?.data?.detail || error.message
+        }`
+      );
     }
   };
-  
+
   return (
     <div className={styles.postCard}>
       <div className={styles.postHeader}>
         <div className={styles.postAuthor}>
-          Posted by {post.author_name || 'Anonymous'} • {formatDate(post.created_at || post.timestamp)}
+          Posted by {post.author_name || "Anonymous"} •{" "}
+          {formatDate(post.created_at || post.timestamp)}
         </div>
         {/* Add post menu for delete (only for author/admin) */}
         {canDelete && (
           <div className={styles.postMenu} ref={menuRef}>
-            <button 
-              className={styles.postMenuButton} 
+            <button
+              className={styles.postMenuButton}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Post options"
             >
               {/* Three dots menu icon */}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
                 <circle cx="8" cy="2" r="1.5" />
                 <circle cx="8" cy="8" r="1.5" />
                 <circle cx="8" cy="14" r="1.5" />
               </svg>
             </button>
-            
+
             {isMenuOpen && (
               <div className={styles.postMenuDropdown}>
-                <button 
+                <button
                   className={styles.postMenuOption}
                   onClick={() => {
                     if (confirm("Are you sure you want to delete this post?")) {
@@ -813,22 +896,22 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
           </div>
         )}
       </div>
-      
+
       {/* Add conditional rendering for title */}
       {post.title && <h2 className={styles.postTitle}>{post.title}</h2>}
-      
+
       {/* Keep the content rendering */}
       {post.content && <p className={styles.postContent}>{post.content}</p>}
-      
+
       {/* Handle both image and image_url */}
       {(post.image_url || post.image) && (
-        <img 
-          src={post.image_url || post.image} 
-          alt={post.title || 'Post image'} 
-          className={styles.postImage} 
+        <img
+          src={post.image_url || post.image}
+          alt={post.title || "Post image"}
+          className={styles.postImage}
         />
       )}
-      
+
       <div className={styles.postActions}>
         <button
           className={styles.postActionButton}
@@ -838,9 +921,9 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
           <FiThumbsUp size={16} />
           {post.like_count || 0}
         </button>
-        
-        <button 
-          className={styles.postActionButton} 
+
+        <button
+          className={styles.postActionButton}
           onClick={() => setShowCommentForm(!showCommentForm)}
           title={showCommentForm ? "Cancel" : "Add Comment"}
         >
@@ -858,7 +941,9 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
               {/* Display latest comment */}
               <div className={styles.commentItem}>
                 <div className={styles.commentHeader}>
-                  <span className={styles.commentAuthor}>{post.latest_comment.author_name}</span>
+                  <span className={styles.commentAuthor}>
+                    {post.latest_comment.author_name}
+                  </span>
                   <span className={styles.commentDate}>
                     {formatDate(post.latest_comment.timestamp)}
                   </span>
@@ -866,26 +951,30 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
                 <div className={styles.commentContent}>
                   {post.latest_comment.content}
                 </div>
-                
+
                 {/* Add delete button if current user is author or admin */}
-                {(currentUser && 
-                 (post.latest_comment.author_email === currentUser.email || 
-                  community.creator_id === currentUser.id)) && (
-                  <div className={styles.commentActions}>
-                    <button 
-                      className={styles.commentDeleteButton}
-                      onClick={() => handleDeleteComment(post.latest_comment.id)}
-                      title="Delete comment"
-                    >
-                      <FiTrash2 size={14} /> Delete
-                    </button>
-                  </div>
-                )}
+                {currentUser &&
+                  (post.latest_comment.author_email === currentUser.email ||
+                    community.creator_id === currentUser.id) && (
+                    <div className={styles.commentActions}>
+                      <button
+                        className={styles.commentDeleteButton}
+                        onClick={() =>
+                          handleDeleteComment(post.latest_comment.id)
+                        }
+                        title="Delete comment"
+                      >
+                        <FiTrash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  )}
               </div>
-              
+
               {/* Link to view all comments if there are more */}
-              <button 
-                onClick={() => window.location.href = `/post/${post.id}/comments`}
+              <button
+                onClick={() =>
+                  (window.location.href = `/post/${post.id}/comments`)
+                }
                 className={styles.viewMoreCommentsButton}
               >
                 View all comments
@@ -908,8 +997,8 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
             disabled={isSubmittingComment}
             required
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.commentSubmitButton}
             disabled={isSubmittingComment || !commentText.trim()}
           >
@@ -922,7 +1011,13 @@ const PostCard = ({ post, onDelete, currentUser, handleLikePost, onCommentDelete
 };
 
 // Create Post Modal Component
-const CreateCommunityPostModal = ({ isOpen, onClose, onPostCreated, communityId, currentUser }) => {
+const CreateCommunityPostModal = ({
+  isOpen,
+  onClose,
+  onPostCreated,
+  communityId,
+  currentUser,
+}) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
@@ -954,25 +1049,25 @@ const CreateCommunityPostModal = ({ isOpen, onClose, onPostCreated, communityId,
     try {
       setIsSubmitting(true);
       setError("");
-      
+
       console.log("Creating post with title:", title);
       console.log("Post content:", content);
-      
+
       // Create FormData for file upload
       const formData = new FormData();
-      formData.append('title', title);
-      formData.append('content', content);
-      formData.append('community', communityId);
-      formData.append('author_id', currentUser?.id || '');
-      formData.append('author_name', currentUser?.email || 'Anonymous');
-      
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("community", communityId);
+      formData.append("author_id", currentUser?.id || "");
+      formData.append("author_name", currentUser?.email || "Anonymous");
+
       if (image) {
-        formData.append('image', image);
+        formData.append("image", image);
       }
 
       // Log form data for debugging
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+        console.log(pair[0] + ": " + pair[1]);
       }
 
       // CHANGE THIS: Use community-specific endpoint
@@ -981,8 +1076,8 @@ const CreateCommunityPostModal = ({ isOpen, onClose, onPostCreated, communityId,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
@@ -1002,8 +1097,13 @@ const CreateCommunityPostModal = ({ isOpen, onClose, onPostCreated, communityId,
   return (
     // Use modal styles from Communities module
     <div className={modalStyles.modalOverlay} onClick={onClose}>
-      <div className={modalStyles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <button className={modalStyles.modalCloseButton} onClick={onClose}>×</button>
+      <div
+        className={modalStyles.modalContent}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className={modalStyles.modalCloseButton} onClick={onClose}>
+          ×
+        </button>
         <h2 className={modalStyles.modalTitle}>Create a New Post</h2>
 
         {error && <div className={modalStyles.modalError}>{error}</div>}
@@ -1027,7 +1127,9 @@ const CreateCommunityPostModal = ({ isOpen, onClose, onPostCreated, communityId,
           />
           {/* Use detail page styles for file input */}
           <div className={styles.fileUploadContainer}>
-            <label className={styles.fileUploadLabel}>Add an image (optional)</label>
+            <label className={styles.fileUploadLabel}>
+              Add an image (optional)
+            </label>
             <input
               type="file"
               accept="image/*"

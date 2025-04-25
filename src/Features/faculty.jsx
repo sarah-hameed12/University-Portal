@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Use Link and useNavigate
 import { motion } from "framer-motion";
-import styles from "./FacultyOfficeHours.module.css"; // Import the CSS Module
+import styles from "../Styles/FacultyOfficeHours.module.css"; // Import the CSS Module
 
 // --- Import Icons ---
 import { FiSearch, FiClock, FiArrowLeft } from "react-icons/fi";

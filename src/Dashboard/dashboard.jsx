@@ -1,22 +1,15 @@
 // src/Dashboard.jsx
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useReducer } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
-// --- >>> Import the single Supabase client instance <<< ---
-// import { supabase } from "./supabaseClient"; // Make sure the path is correct
+import Chatbot from "../Features/chatbot";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// --- >>> Import Icons <<< ---
-const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpdm9ramN1bG5mbHJ5eHp0ZmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5NzExOTAsImV4cCI6MjA1NDU0NzE5MH0.8rBAN4tZP8S0j1wkfj8SwSN1Opdf9LOERb-T47rZRYk";
 const supabase = createClient(supabaseUrl, supabaseKey);
-// If not using supabaseClient.js, uncomment and configure below:
-// import { createClient } from "@supabase/supabase-js";
-// const supabaseUrl = "YOUR_SUPABASE_URL";
-// const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
-// const supabase = createClient(supabaseUrl, supabaseKey);
 
 import {
   FiHome,
@@ -34,7 +27,15 @@ import {
   FiMessageCircle,
   FiShare,
   FiTrash2,
+  FiX,
+  FiImage,
+  FiLoader,
+  FiCornerDownRight,
+  FiChevronsRight,
+  FiUsers,
+  // FaPeopleGroup // Add this import
 } from "react-icons/fi";
+import { FaPeopleGroup } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- Style Definitions (Includes all dashboard, modal, loading styles) ---
@@ -46,6 +47,10 @@ const styles = {
     backgroundColor: "#111827",
     color: "#e5e7eb",
     fontFamily: "sans-serif",
+    overflowY: "auto", // <<< Enable vertical scroll for the whole page if content overflows
+    // Custom scrollbar styles for the page container
+    scrollbarWidth: "thin", // Firefox
+    scrollbarColor: "rgba(156, 141, 255, 0.6) transparent",
   },
   dashboardMainContent: {
     flexGrow: 1,
@@ -294,7 +299,6 @@ const styles = {
     whiteSpace: "pre-wrap",
     wordWrap: "break-word",
   },
-  // --- >>> Updated Post Action Styles <<< ---
   postActions: {
     display: "flex",
     justifyContent: "space-between",
@@ -349,75 +353,157 @@ const styles = {
     borderRadius: "50%",
     animation: "spin 0.8s linear infinite",
   },
-  "@keyframes spin": { to: { transform: "rotate(360deg)" } },
-  // --- >>> End Updated Post Action Styles <<< ---
+  // --- Modal General ---
   modalOverlay: {
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1000,
-  },
-  modalContent: {
-    backgroundColor: "#1f2937",
-    padding: "25px",
-    borderRadius: "8px",
-    boxShadow: "0 5px 15px rgba(0, 0, 0, 0.5)",
+  }, // Slightly darker overlay
+  // --- Create Post Modal Enhanced Styles ---
+  modalContentEnhanced: {
+    backgroundColor: "#161827",
+    padding: "30px 35px",
+    borderRadius: "12px",
+    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.7)",
     width: "90%",
-    maxWidth: "500px",
+    maxWidth: "550px",
     position: "relative",
-    border: "1px solid #374151",
+    border: "1px solid #4b5563",
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
   },
-  modalCloseButton: {
+  modalCloseButtonEnhanced: {
     position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none",
+    top: "15px",
+    right: "15px",
+    background: "rgba(74, 77, 109, 0.3)",
     border: "none",
-    color: "#9ca3af",
-    fontSize: "1.5rem",
+    color: "#a0a3bd",
+    fontSize: "1.2rem",
     cursor: "pointer",
     lineHeight: "1",
+    borderRadius: "50%",
+    width: "30px",
+    height: "30px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "background-color 0.2s ease, color 0.2s ease",
   },
-  modalTitle: {
+  modalCloseButtonEnhancedHover: {
+    backgroundColor: "rgba(90, 93, 125, 0.6)",
+    color: "#f0f0f5",
+  },
+  modalTitleEnhanced: {
     marginTop: 0,
-    marginBottom: "20px",
-    color: "#e5e7eb",
+    marginBottom: "5px",
+    color: "#f0f0f5",
     textAlign: "center",
+    fontSize: "1.4rem",
+    fontWeight: "600",
   },
-  modalFormTextArea: {
+  modalFormTextAreaEnhanced: {
     width: "100%",
-    minHeight: "100px",
-    padding: "10px",
-    marginBottom: "15px",
-    borderRadius: "6px",
-    backgroundColor: "#374151",
-    color: "white",
+    minHeight: "120px",
+    padding: "12px 15px",
+    borderRadius: "8px",
+    backgroundColor: "#1f2937",
+    color: "#e5e7eb",
     border: "1px solid #4b5563",
     boxSizing: "border-box",
     resize: "vertical",
+    fontSize: "1rem",
+    outline: "none",
+    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
   },
-  modalFormInput: {
-    width: "100%",
-    padding: "10px",
-    marginBottom: "20px",
-    borderRadius: "6px",
-    backgroundColor: "#374151",
-    color: "white",
-    border: "1px solid #4b5563",
-    boxSizing: "border-box",
+  modalFormTextAreaEnhancedFocus: {
+    borderColor: "#8c78ff",
+    boxShadow: "0 0 0 3px rgba(140, 120, 255, 0.3)",
   },
-  modalError: {
-    color: "#f87171",
+  fileInputLabel: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "10px 15px",
+    borderRadius: "8px",
+    backgroundColor: "#1f2937",
+    color: "#a0a3bd",
+    border: "1px dashed #4b5563",
+    cursor: "pointer",
+    transition:
+      "background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease",
     textAlign: "center",
-    marginBottom: "15px",
-    fontSize: "0.875rem",
+    fontSize: "0.9rem",
+    gap: "8px",
   },
+  fileInputLabelHover: {
+    backgroundColor: "#374151",
+    borderColor: "#8c78ff",
+    color: "#f0f0f5",
+  },
+  fileInputHidden: {
+    width: "0.1px",
+    height: "0.1px",
+    opacity: 0,
+    overflow: "hidden",
+    position: "absolute",
+    zIndex: -1,
+  },
+  imagePreviewContainer: {
+    marginTop: "5px",
+    marginBottom: "5px",
+    position: "relative",
+    maxWidth: "100%",
+    maxHeight: "200px",
+    alignSelf: "center",
+  },
+  imagePreviewImg: {
+    display: "block",
+    maxWidth: "100%",
+    maxHeight: "200px",
+    borderRadius: "8px",
+    border: "1px solid #4b5563",
+    objectFit: "contain",
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: "5px",
+    right: "5px",
+    background: "rgba(0, 0, 0, 0.7)",
+    color: "white",
+    border: "none",
+    borderRadius: "50%",
+    width: "24px",
+    height: "24px",
+    fontSize: "0.8rem",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    lineHeight: "1",
+    padding: "0",
+    transition: "background-color 0.2s ease",
+  },
+  removeImageButtonHover: { backgroundColor: "rgba(255, 0, 0, 0.7)" },
+  modalSubmitButtonContainer: { marginTop: "10px", textAlign: "center" },
+  modalErrorEnhanced: {
+    color: "#f87171",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    textAlign: "center",
+    fontSize: "0.9rem",
+    padding: "8px 12px",
+    borderRadius: "6px",
+    border: "1px solid rgba(239, 68, 68, 0.3)",
+  },
+  // --- Loading & Setup Modals ---
   loadingOverlay: {
     position: "fixed",
     top: 0,
@@ -489,10 +575,13 @@ const styles = {
     transform: "translateY(-1px)",
     boxShadow: "0 4px 10px rgba(140, 120, 255, 0.3)",
   },
+  // --- Keyframes ---
+  "@keyframes spin": { to: { transform: "rotate(360deg)" } },
   postDeleteButton: {
+    // <<< Ensure this exists
     background: "none",
     border: "none",
-    color: "#f87171", // Or #ff6b6b from previous
+    color: "#ff6b6b", // Or your preferred delete color
     cursor: "pointer",
     padding: "5px",
     fontSize: "0.9rem",
@@ -502,40 +591,92 @@ const styles = {
     gap: "6px",
   },
   postDeleteButtonHover: {
-    color: "#ef4444", // Or #f0f0f5 from previous
+    // <<< Ensure this exists
+    color: "#f0f0f5", // Or a brighter red? e.g., #f87171
     transform: "scale(1.05)",
   },
-  buttonSpinnerSmall: {
-    width: "16px",
-    height: "16px",
-    border: "2px solid rgba(255, 255, 255, 0.3)",
-    borderTopColor: "#f0f0f5",
-    borderRadius: "50%",
-    animation: "spin 0.8s linear infinite",
-    display: "inline-block",
+  latestCommentContainer: {
+    // New container to hold comment and view more button
+    display: "flex",
+    justifyContent: "space-between", // Pushes button to the right
+    alignItems: "flex-start", // Align items at the top
+    marginTop: "10px",
+    paddingTop: "10px",
+    borderTop: "1px solid rgba(74, 77, 109, 0.5)", // Solid border
+    backgroundColor: "rgba(31, 41, 55, 0.3)",
+    padding: "10px 12px",
+    borderRadius: "6px",
   },
-  "@keyframes spin": { to: { transform: "rotate(360deg)" } },
+  latestCommentTextWrapper: {
+    // Wrapper for icon and text
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "8px",
+    flexGrow: 1, // Allow text to take up space
+    marginRight: "10px", // Add space before the button
+  },
+  latestCommentIcon: {
+    flexShrink: 0,
+    color: "#8c78ff",
+    position: "relative",
+    top: "3px", // Align icon nicely with text
+    fontSize: "1rem",
+  },
+  latestCommentContent: {
+    // Styles for the text part (author + comment)
+    flexGrow: 1,
+    fontSize: "0.85rem",
+    color: "#a0a3bd",
+    wordBreak: "break-word",
+  },
+  // commentAuthor: { fontWeight: "600", color: "#f0f0f5", marginRight: "5px" },
+  viewMoreCommentsButton: {
+    // Style for the "View More" button
+    background: "none",
+    border: "none",
+    color: "#a0a3bd",
+    cursor: "pointer",
+    padding: "3px 5px", // Small padding
+    fontSize: "0.8rem", // Smaller font size
+    fontWeight: "500",
+    borderRadius: "4px",
+    transition: "color 0.2s ease, background-color 0.2s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    flexShrink: 0, // Prevent button from shrinking
+    marginTop: "2px", // Align slightly better with text top
+    whiteSpace: "nowrap", // Prevent text wrapping
+  },
+  viewMoreCommentsButtonHover: {
+    color: "#f0f0f5",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
 };
 
-// Composite Modal Button Styles
-const modalSubmitButtonStyle = {
+// --- >>> Define Composite Styles *AFTER* the main 'styles' object <<< ---
+const modalSubmitButtonStyleEnhanced = {
   ...styles.topnavButton,
   ...styles.topnavButtonPrimary,
-  display: "block",
-  width: "50%",
-  margin: "0 auto",
-  padding: "10px 16px",
+  width: "auto",
+  minWidth: "120px",
+  padding: "12px 30px",
+  fontSize: "1rem",
+  fontWeight: "600",
 };
-const modalSubmitButtonDisabledStyle = {
-  ...styles.topnavButton,
-  backgroundColor: "#4b5563",
-  color: "#a0a3bd",
+
+const modalSubmitButtonDisabledStyleEnhanced = {
+  ...styles.topnavButton, // Base button styles
+  backgroundColor: "#4b5563", // Disabled background
+  color: "#a0a3bd", // Disabled text color
   cursor: "not-allowed",
-  display: "block",
-  width: "50%",
-  margin: "0 auto",
-  padding: "10px 16px",
+  width: "auto",
+  minWidth: "120px",
+  padding: "12px 30px",
+  fontSize: "1rem",
+  fontWeight: "600",
 };
+// --- End Composite Styles ---
 
 // Animation Variants
 const pageVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
@@ -548,25 +689,28 @@ const messageVariants = {
   visible: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -10 },
 };
+import { IoIosPeople } from "react-icons/io";
 // --- Components --- (Assuming SideNav, TopNav, PostItem, Feed, CreatePostModal are defined as previously shown)
 
 // Side Navigation Component
-const SideNav = () => {
+export const SideNav = () => {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState(null);
   const navItems = [
     { name: "Home", icon: <FiHome />, path: "/" },
-    { name: "Explore", icon: <FiCompass />, path: "/explore" },
+    // { name: "Explore", icon: <FiCompass />, path: "/explore" },
     { name: "Chat", icon: <FiMessageSquare />, path: "/chat" },
     { name: "Utilities", icon: <FiGrid />, path: "/documents" }, // Changed path back
     { name: "Profile", icon: <FiUser />, path: "/profile" },
+    { name: "Communities", icon: <IoIosPeople />, path: "/communities" },
+    { name: "Societies", icon: <FiUsers />, path: "/society" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
   return (
     <nav style={styles.sidenav}>
       <div style={styles.sidenavTitle}>
         {" "}
-        Uni<span style={styles.sidenavTitleAccent}>Social</span>{" "}
+        Super<span style={styles.sidenavTitleAccent}>LUMS</span>{" "}
       </div>
       <ul style={styles.sidenavList}>
         {" "}
@@ -595,7 +739,7 @@ const SideNav = () => {
           );
         })}{" "}
       </ul>
-      <div style={styles.sidenavFooter}>© 2024 UniSocial</div>
+      <div style={styles.sidenavFooter}>© 2024 SuperLums</div>
     </nav>
   );
 };
@@ -753,12 +897,29 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   const [isLiking, setIsLiking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [hoveredAction, setHoveredAction] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  // const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
+  const [isViewMoreHovered, setIsViewMoreHovered] = useState(false);
 
   useEffect(() => {
     setIsLiked(post?.is_liked_by_user || false);
     setLikeCount(post?.like_count || 0);
+    // setCommentCount(post?.comment_count || 0);
   }, [post]);
-
+  useEffect(() => {
+    console.log(
+      `[PostItem Render/Prop Update] Post ID: ${post?.id}, Received comment_count prop: ${post?.comment_count}`
+    );
+  }, [post]);
+  // useEffect(() => {
+  //   // Call the callback only if the count actually changed and the function exists
+  //   if (post && onCommentCountUpdate && commentCount !== post.comment_count) {
+  //     console.log(
+  //       `PostItem ${post.id}: Propagating comment count update to ${commentCount}`
+  //     );
+  //     onCommentCountUpdate(post.id, commentCount);
+  //   }
+  // }, [commentCount, post, onCommentCountUpdate]);
   console.log(`PostItem Render - Post ID: ${post?.id}`);
   console.log("currentUser:", currentUser);
   console.log("post:", post);
@@ -797,30 +958,34 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
     }
   };
 
-  const handleDeleteClick = async () => {
-    const isAuthorCheck = // Recalculate for safety inside handler if needed
-      currentUser && post?.author_id && currentUser.id === post.author_id;
-    console.log("Calculated isAuthor inside handleDeleteClick:", isAuthorCheck);
+  const handleDeleteClick = () => {
+    if (!isAuthor || isDeleting) return; // Prevent opening if already deleting
+    setIsConfirmModalOpen(true); // <<<--- Open the modal
+  };
 
-    if (!isAuthorCheck || isDeleting) {
-      console.log("Delete check failed or already deleting.");
-      return;
-    }
+  // --- New: Handles the actual deletion after confirmation ---
+  const handleConfirmDelete = async () => {
+    if (!isAuthor) return; // Double check permission
 
-    if (
-      window.confirm(
-        "Are you sure you want to delete this post? This cannot be undone."
-      )
-    ) {
-      setIsDeleting(true);
-      try {
-        await onDeletePost(post.id); // Call prop passed from Dashboard
-      } catch (error) {
-        console.error("Delete failed (caught in PostItem):", error);
-        setIsDeleting(false);
-      }
-      // Don't reset isDeleting on success, component should unmount
+    setIsDeleting(true); // Show spinner IN THE MODAL
+    try {
+      await onDeletePost(post.id); // Call prop passed from Dashboard
+      // No need to close modal here, component will unmount on success
+      // No need to setIsDeleting(false) on success
+    } catch (error) {
+      console.error(
+        "Delete failed (error caught in PostItem on confirm):",
+        error
+      );
+      // Alert is handled in Dashboard's handler
+      setIsDeleting(false); // Stop spinner on failure
+      setIsConfirmModalOpen(false); // Close modal on failure to show alert
     }
+  };
+
+  // --- New: Handles cancellation ---
+  const handleCancelDelete = () => {
+    setIsConfirmModalOpen(false);
   };
 
   const handleCommentClick = () => {
@@ -850,146 +1015,193 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
       hover = {}; // Don't apply hover style if liked? Or adjust as needed
     }
     if (actionName === "delete") {
-      specific = styles.postDeleteButton; // Use the correct delete style
+      specific = styles.postDeleteButton;
       hover = styles.postDeleteButtonHover;
     }
 
     return { ...base, ...specific, ...(isButtonHovered && hover) };
   };
-
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+    exit: { opacity: 0, y: -20, scale: 0.9, transition: { duration: 0.3 } },
+  };
   // Define isAuthor once for use in JSX
   const isAuthor =
     currentUser && post?.author_id && currentUser.id === post.author_id;
-
+  const viewMoreButtonStyle = {
+    ...styles.viewMoreCommentsButton,
+    ...(isViewMoreHovered && styles.viewMoreCommentsButtonHover),
+  };
   if (!post) return null;
 
   console.log("Calculated isAuthor (for render):", isAuthor);
-
+  const profileLinkTarget = post?.author_email
+    ? `/profile/email/${encodeURIComponent(post.author_email)}`
+    : "#";
   return (
-    <motion.div
-      style={styles.postItem}
-      variants={cardVariants}
-      layout
-      exit={{ opacity: 0, y: -20, scale: 0.9 }}
-    >
-      <div style={styles.postHeader}>
-        <img
-          src={authorAvatarSrc}
-          alt={post.author_name || "User"}
-          style={styles.postAuthorAvatar}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${
-              post?.author_name || "anon"
-            }`;
-          }}
-        />
-        <div>
-          <p style={styles.postAuthorName}>{post.author_name || "Anonymous"}</p>
-          <p style={styles.postTimestamp}>
-            {post.timestamp
-              ? new Date(post.timestamp).toLocaleString()
-              : "No date"}
-          </p>
-        </div>
-      </div>
-
-      {post.image_url && (
-        <img src={post.image_url} alt="Post content" style={styles.postImage} /> // Added better alt text
-      )}
-      <p style={styles.postContent}>{post.content || ""}</p>
-
-      {post.latest_comment && (
-        <div style={styles.latestComment}>
-          <span style={styles.commentAuthor}>
-            {post.latest_comment.author_name || "Anon"}:
-          </span>{" "}
-          {post.latest_comment.content}
-        </div>
-      )}
-
-      <div style={styles.postActions}>
-        <div style={styles.postActionButtonGroup}>
-          {/* Like Button */}
-          <button
-            style={getActionStyle("like")}
-            onClick={handleLikeClick}
-            disabled={isLiking || !currentUser}
-            onMouseEnter={() => setHoveredAction("like")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+    <>
+      <motion.div style={styles.postItem} /* ... */>
+        <div style={styles.postHeader}>
+          <Link
+            to={profileLinkTarget}
+            title={`View ${post.author_name || "User"}'s profile`}
           >
-            {isLiking ? (
-              <div style={styles.buttonSpinnerSmall}></div>
-            ) : (
-              <FiThumbsUp />
-            )}
-            <span style={{ marginLeft: isLiking ? "8px" : "0" }}>
-              {likeCount} Like{likeCount !== 1 ? "s" : ""}
-            </span>
-          </button>
-
-          {/* Comment Button */}
-          <button
-            style={getActionStyle("comment")}
-            onClick={handleCommentClick}
-            onMouseEnter={() => setHoveredAction("comment")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            <FiMessageCircle /> Comment
-          </button>
-
-          {/* Share Button */}
-          <button
-            style={getActionStyle("share")}
-            onClick={handleShare}
-            onMouseEnter={() => setHoveredAction("share")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            <FiShare /> Share
-          </button>
+            <img
+              src={authorAvatarSrc}
+              alt={post.author_name || "User"}
+              style={styles.postAuthorAvatar} /* ... */
+            />
+          </Link>
+          <div>
+            <Link to={profileLinkTarget} style={{ textDecoration: "none" }}>
+              <p style={styles.postAuthorName}>
+                {post.author_name || "Anonymous"}
+              </p>
+              <p style={styles.postTimestamp}>
+                {post.timestamp
+                  ? new Date(post.timestamp).toLocaleString()
+                  : "No date"}
+              </p>
+            </Link>
+            <p style={styles.postTimestamp}>{/* ... */}</p>
+          </div>
         </div>
 
-        {/* --- Single Delete Button --- */}
-        {isAuthor && ( // Use the isAuthor variable
-          <button
-            style={getActionStyle("delete")}
-            onClick={handleDeleteClick}
-            disabled={isDeleting}
-            title="Delete Post"
-            onMouseEnter={() => setHoveredAction("delete")}
-            onMouseLeave={() => setHoveredAction(null)}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.95)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            {isDeleting ? (
-              <div style={styles.buttonSpinnerSmall}></div>
-            ) : (
-              <FiTrash2 /> // Use the correct icon component
-            )}
-          </button>
+        {post.image_url && (
+          <img
+            src={post.image_url}
+            alt="Post content"
+            style={styles.postImage}
+          /> // Added better alt text
         )}
-        {/* --- End Single Delete Button --- */}
-      </div>
-    </motion.div>
+        <p style={styles.postContent}>{post.content || ""}</p>
+
+        {post.latest_comment && (
+          <div style={styles.latestCommentContainer}>
+            <div style={styles.latestCommentTextWrapper}>
+              <FiCornerDownRight style={styles.latestCommentIcon} />
+              <div style={styles.latestCommentContent}>
+                <span style={styles.commentAuthor}>
+                  {post.latest_comment.author_name || "Anon"}:
+                </span>
+                {post.latest_comment.content}
+              </div>
+            </div>
+            {/* View More Button */}
+            <button
+              style={viewMoreButtonStyle}
+              onClick={handleCommentClick} // Re-use the navigation handler
+              onMouseEnter={() => setIsViewMoreHovered(true)}
+              onMouseLeave={() => setIsViewMoreHovered(false)}
+              aria-label="View all comments"
+            >
+              View More <FiChevronsRight size="0.9em" />
+            </button>
+          </div>
+        )}
+
+        <div style={styles.postActions}>
+          <div style={styles.postActionButtonGroup}>
+            {/* Like Button */}
+            <button
+              style={getActionStyle("like")}
+              onClick={handleLikeClick}
+              disabled={isLiking || !currentUser}
+              onMouseEnter={() => setHoveredAction("like")}
+              onMouseLeave={() => setHoveredAction(null)}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "scale(0.95)")
+              }
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              {isLiking ? (
+                <div style={styles.buttonSpinnerSmall}></div>
+              ) : (
+                <FiThumbsUp />
+              )}
+              <span style={{ marginLeft: isLiking ? "8px" : "0" }}>
+                {likeCount} Like{likeCount !== 1 ? "s" : ""}
+              </span>
+            </button>
+
+            {/* Comment Button */}
+            <button
+              style={getActionStyle("comment")}
+              onClick={handleCommentClick}
+              onMouseEnter={() => setHoveredAction("comment")}
+              onMouseLeave={() => setHoveredAction(null)}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "scale(0.95)")
+              }
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <FiMessageCircle />
+              {/* Display comment_count from post prop, fallback to 0 */}
+              {post.comment_count ?? 0} Comment
+              {(post.comment_count ?? 0) !== 1 ? "s" : ""}
+            </button>
+
+            {/* Share Button */}
+            <button
+              style={getActionStyle("share")}
+              onClick={handleShare}
+              onMouseEnter={() => setHoveredAction("share")}
+              onMouseLeave={() => setHoveredAction(null)}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "scale(0.95)")
+              }
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <FiShare /> Share
+            </button>
+          </div>
+
+          {/* --- Single Delete Button --- */}
+          {/* Delete Button - Now only opens the modal */}
+          {isAuthor && (
+            <button
+              style={getActionStyle("delete")}
+              onClick={handleDeleteClick} // <<<--- Calls function to OPEN modal
+              disabled={isDeleting} // Disable if delete process started
+              title="Delete Post"
+              onMouseEnter={() => setHoveredAction("delete")}
+              onMouseLeave={() => setHoveredAction(null)}
+            >
+              <FiTrash2 /> {/* Keep icon simple, modal shows loading */}
+            </button>
+          )}
+        </div>
+      </motion.div>
+      <AnimatePresence>
+        {isConfirmModalOpen && (
+          <ConfirmDeleteModal
+            isOpen={isConfirmModalOpen}
+            onClose={handleCancelDelete} // Close modal on cancel
+            onConfirm={handleConfirmDelete} // Trigger actual delete on confirm
+            isDeleting={isDeleting} // Pass loading state to modal button
+            itemName="post" // Customize item name
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 // --- UPDATED: Feed Component ---
 // Passes handlers down to PostItem
-const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
+const Feed = ({
+  posts,
+  loading,
+  error,
+  user,
+  onDeletePost,
+  onLikePost,
+  // onCommentCountUpdate,
+}) => {
   // Added onDeletePost, onLikePost
   const errorCombinedStyle = {
     ...styles.feedStatusMessage,
@@ -1022,7 +1234,8 @@ const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
                 post={post}
                 currentUser={user}
                 onDeletePost={onDeletePost} // <<< Check props passed
-                onLikePost={onLikePost} // <<< Check props passed
+                onLikePost={onLikePost}
+                // onCommentCountUpdate={onCommentCountUpdate} // <<< Check props passed
               />
             </motion.div>
           ))}
@@ -1037,155 +1250,314 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
   console.log("--- CreatePostModal RENDERED --- isOpen:", isOpen);
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null); // State for the image file object
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
+  const [isCloseHovered, setIsCloseHovered] = useState(false);
+  const [isFileLabelHovered, setIsFileLabelHovered] = useState(false);
 
+  useEffect(() => {
+    // If the modal is closed or a new file is selected (clearing old preview)
+    if (!isOpen || !selectedFile) {
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl); // Revoke old URL to prevent memory leaks
+        setImagePreviewUrl(null);
+      }
+    }
+    // This return function executes when the component unmounts or dependencies change BEFORE the effect runs again
+    return () => {
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, [isOpen, selectedFile]);
   useEffect(() => {
     if (!isOpen) {
       setContent("");
-      setImageUrl("");
+      setSelectedFile(null);
+      // imagePreviewUrl is handled by the cleanup effect above
       setError(null);
       setIsSubmitting(false);
+      setIsTextAreaFocused(false); // Reset focus state
     }
   }, [isOpen]);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedFile(file);
+      // Create a temporary URL for preview
+      setImagePreviewUrl(URL.createObjectURL(file));
+      setError(null); // Clear previous errors
+    } else {
+      setSelectedFile(null);
+      setImagePreviewUrl(null);
+      if (file) {
+        // Only show error if a file was selected but it wasn't an image
+        setError("Please select a valid image file (JPEG, PNG, GIF, etc.).");
+      }
+    }
+  };
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    // Preview URL cleanup is handled by the useEffect hook
+    // Manually clear the file input value if needed (optional, can be tricky)
+    const fileInput = document.getElementById("post-image-upload");
+    if (fileInput) fileInput.value = null;
+  };
 
   const handleSubmit = async (event) => {
-    if (!isOpen) {
-      console.log(
-        "CreatePostModal returning null because isOpen is false/falsy."
-      ); // Add this log
-      return null; // If isOpen is false, nothing is rendered
-    }
     event.preventDefault();
-    if (!content.trim()) {
-      setError("Post content cannot be empty.");
+    if (!content.trim() && !selectedFile) {
+      // Require content OR an image
+      setError("Please write something or add an image to your post.");
       return;
     }
+    if (isSubmitting) return; // Prevent double submission
+
     setIsSubmitting(true);
     setError(null);
-    // console.log(currentUser?.id, "THIS IS THE ID");
-    const postData = {
-      content: content,
-      author_name: currentUser?.name || currentUser?.email || "Anonymous User",
-      user_id: currentUser?.id || "Anonymous user",
-      author_email: currentUser.email,
-      image_url: imageUrl.trim() || null,
-    };
+
+    // --- Prepare FormData ---
+    // NOTE: Backend MUST be updated to handle 'multipart/form-data'
+    // and look for an 'image_file' field.
+    const formData = new FormData();
+    formData.append("content", content);
+    formData.append(
+      "author_name",
+      currentUser?.name || currentUser?.email || "Anonymous User"
+    );
+    formData.append("user_id", currentUser?.id || "Anonymous user"); // Ensure backend uses this for author_id
+    formData.append("author_email", currentUser?.email); // Keep sending email for lookup if needed
+
+    if (selectedFile) {
+      formData.append("image_file", selectedFile); // Key the backend will look for
+      // Do NOT append image_url here unless backend specifically needs it
+    }
+
+    // --- Log FormData content for debugging (can't directly log FormData easily) ---
+    console.log("Submitting Post Data:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value instanceof File ? value.name : value);
+    }
+    // --- End Logging ---
+
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/feed/posts/",
-        postData
+        formData, // Send FormData
+        {
+          // Add headers if necessary, Axios often sets Content-Type automatically for FormData
+          headers: {
+            "Content-Type": "multipart/form-data",
+            // Add Authorization header if your backend requires it for post creation
+            // Authorization: `Bearer ${your_token_here}`
+          },
+        }
       );
-      console.log("I PRINTED THIS", response.data);
-      // profileurl = response.data.profilePicUrl;
+      console.log("Post created successfully:", response.data);
       onPostCreated(response.data);
-      onClose();
+      onClose(); // Close modal on success
     } catch (err) {
       console.error("Error creating post:", err);
       let errorMessage = "Failed to create post. Please try again.";
       if (err.response && err.response.data) {
+        // Try to parse backend error messages
         const errors = err.response.data;
-        const messages = Object.entries(errors)
-          .map(
-            ([field, msgs]) =>
-              `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
-          )
-          .join("; ");
+        let messages = "";
+        if (typeof errors === "object" && errors !== null) {
+          messages = Object.entries(errors)
+            .map(
+              ([field, msgs]) =>
+                `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+            )
+            .join("; ");
+        } else if (typeof errors === "string") {
+          messages = errors; // Handle plain string errors
+        }
         if (messages) errorMessage = messages;
+      } else if (err.request) {
+        errorMessage = "Network error. Could not reach the server.";
+      } else {
+        errorMessage = `An unexpected error occurred: ${err.message}`;
       }
       setError(errorMessage);
-      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false); // Always stop submitting state
     }
   };
 
-  if (!isOpen) return null;
-  console.log("CreatePostModal rendering content because isOpen is true.");
-  return (
-    <div style={styles.modalOverlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <button style={styles.modalCloseButton} onClick={onClose}>
-          {" "}
-        </button>
-        <h3 style={styles.modalTitle}>Create New Post</h3>
-        {error && <p style={styles.modalError}>{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <textarea
-            placeholder="What's on your mind?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            style={styles.modalFormTextArea}
-            required
-            disabled={isSubmitting}
-          />
-          <input
-            type="url"
-            placeholder="Image URL (Optional)"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            style={styles.modalFormInput}
-            disabled={isSubmitting}
-          />
-          <button
-            type="submit"
-            style={
-              isSubmitting
-                ? modalSubmitButtonDisabledStyle
-                : modalSubmitButtonStyle
-            }
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Posting..." : "Post"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Setup Profile Modal Component
-const SetupProfileModal = ({ onNavigateToProfile }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  // Use the correct composite style objects
-  const buttonStyle = {
-    ...styles.setupModalButton,
-    ...(isHovered && styles.setupModalButtonHover),
+  // --- Modal Animation ---
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+  const modalVariants = {
+    hidden: { opacity: 0, y: -50, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 },
+    },
+    exit: { opacity: 0, y: 50, scale: 0.9, transition: { duration: 0.2 } },
   };
 
+  // Combine base and hover styles for close button
+  const closeButtonStyle = {
+    ...styles.modalCloseButtonEnhanced,
+    ...(isCloseHovered && styles.modalCloseButtonEnhancedHover),
+  };
+  // Combine base and hover styles for file label
+  const fileLabelStyle = {
+    ...styles.fileInputLabel,
+    ...(isFileLabelHovered && styles.fileInputLabelHover),
+  };
+  // Combine base and disabled styles for submit button
+  const submitButtonStyle = isSubmitting
+    ? styles.modalSubmitButtonDisabledStyleEnhanced
+    : styles.modalSubmitButtonStyleEnhanced;
+  // Combine base and focus styles for textarea
+  const textAreaStyle = {
+    ...styles.modalFormTextAreaEnhanced,
+    ...(isTextAreaFocused && styles.modalFormTextAreaEnhancedFocus),
+  };
+
+  // Don't render anything if not open
+  if (!isOpen) return null;
+
   return (
-    <div style={styles.setupModalOverlay}>
-      {" "}
-      {/* Use overlay style */}
+    // Use AnimatePresence in the parent component (Dashboard) for enter/exit animations
+    // This component assumes it's wrapped in AnimatePresence
+    <motion.div
+      style={styles.modalOverlay}
+      variants={backdropVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      onClick={onClose} // Close when clicking overlay
+    >
       <motion.div
-        style={styles.setupModalContent}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        style={styles.modalContentEnhanced} // Use enhanced style
+        variants={modalVariants}
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal content
       >
-        <div style={styles.setupModalIcon}>
-          <FiAlertTriangle />
-        </div>
-        <h2 style={styles.setupModalTitle}>Complete Your Profile</h2>
-        <p style={styles.setupModalText}>
-          {" "}
-          Welcome! Please set up your profile details (name, batch, school,
-          major) to unlock all features and connect with others.{" "}
-        </p>
-        <motion.button
-          style={buttonStyle}
-          onClick={onNavigateToProfile}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
+        {/* Close Button */}
+        <button
+          style={closeButtonStyle}
+          onClick={onClose}
+          onMouseEnter={() => setIsCloseHovered(true)}
+          onMouseLeave={() => setIsCloseHovered(false)}
+          aria-label="Close create post modal"
         >
-          {" "}
-          Go to Profile Setup{" "}
-        </motion.button>
+          <FiX />
+        </button>
+
+        {/* Title */}
+        <h3 style={styles.modalTitleEnhanced}>Create New Post</h3>
+
+        {/* Display Error */}
+        {error && <p style={styles.modalErrorEnhanced}>{error}</p>}
+
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "15px",
+          }}
+        >
+          {/* Text Area */}
+          <textarea
+            placeholder={`What's on your mind, ${currentUser?.name || "User"}?`}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            style={textAreaStyle} // Use combined style
+            required={!selectedFile} // Content is required only if no image is selected
+            disabled={isSubmitting}
+            rows={5} // Suggest initial height
+            onFocus={() => setIsTextAreaFocused(true)}
+            onBlur={() => setIsTextAreaFocused(false)}
+          />
+
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            id="post-image-upload" // ID for the label's htmlFor
+            style={styles.fileInputHidden} // Hide the default input
+            onChange={handleFileChange}
+            accept="image/*" // Accept only image files
+            disabled={isSubmitting}
+          />
+
+          {/* Styled File Input Label */}
+          <label
+            htmlFor="post-image-upload"
+            style={fileLabelStyle} // Use combined style
+            onMouseEnter={() => setIsFileLabelHovered(true)}
+            onMouseLeave={() => setIsFileLabelHovered(false)}
+            role="button" // Indicate it's clickable
+            tabIndex={0} // Make it focusable
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") e.currentTarget.click();
+            }} // Allow keyboard activation
+          >
+            <FiImage />
+            {selectedFile
+              ? `Image: ${selectedFile.name}`
+              : "Add Photo (Optional)"}
+          </label>
+
+          {/* Image Preview */}
+          {imagePreviewUrl && (
+            <div style={styles.imagePreviewContainer}>
+              <img
+                src={imagePreviewUrl}
+                alt="Selected preview"
+                style={styles.imagePreviewImg}
+              />
+              <button
+                type="button" // Prevent form submission
+                style={styles.removeImageButton}
+                onClick={handleRemoveImage}
+                aria-label="Remove selected image"
+              >
+                <FiX size="0.8em" />
+              </button>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <div style={styles.modalSubmitButtonContainer}>
+            <motion.button
+              type="submit"
+              style={submitButtonStyle} // Use combined style
+              disabled={isSubmitting}
+              whileHover={
+                !isSubmitting
+                  ? { scale: 1.05, transition: { duration: 0.2 } }
+                  : {}
+              }
+              whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+            >
+              {isSubmitting ? (
+                <>
+                  <FiLoader style={{ animation: "spin 1s linear infinite" }} />
+                  <span style={{ marginLeft: "8px" }}>Posting...</span>
+                </>
+              ) : (
+                "Post"
+              )}
+            </motion.button>
+          </div>
+        </form>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
-
 // Main Dashboard Component
 const Dashboard = () => {
   // Auth State
@@ -1329,41 +1701,67 @@ const Dashboard = () => {
   }, []); // Removed fetchUserProfile from dependency array
 
   // Fetching Logic for Feed Posts (Depends on profileStatus)
-  const fetchPosts = useCallback(async () => {
-    if (profileStatus !== "exists") {
-      console.log("Skipping feed fetch: Profile status is", profileStatus);
-      setLoadingFeed(false);
-      setPosts([]);
-      return;
-    }
-    console.log("Fetching feed posts...");
-    setLoadingFeed(true);
-    setErrorFeed(null);
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/api/feed/posts/");
-      const postsData = response.data.results || response.data;
-
-      // --- >>> ADD THIS LOG <<< ---
-      console.log(
-        "RAW FEED DATA FROM BACKEND:",
-        JSON.stringify(postsData, null, 2)
-      );
-      // --- >>> END LOG <<< ---
-
-      if (Array.isArray(postsData)) {
-        setPosts(postsData);
-      } else {
-        console.error("Feed API response is not an array:", postsData);
-        setErrorFeed("Unexpected feed data format.");
-        setPosts([]);
+  const fetchPosts = useCallback(
+    async (showLoading = true) => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user || profileStatus !== "exists") {
+        // Check profile status too
+        console.log(
+          "Skipping feed fetch: Not authenticated or profile doesn't exist."
+        );
+        setLoadingFeed(false); // Ensure loading stops
+        // setPosts([]); // Optionally clear posts, or keep stale data
+        return;
       }
-    } catch (err) {
-      console.error("Error fetching posts:", err);
-      setErrorFeed("Failed to load feed.");
-    } finally {
-      setLoadingFeed(false);
-    }
-  }, [profileStatus]);
+      if (showLoading) setLoadingFeed(true);
+      setErrorFeed(null);
+      if (profileStatus !== "exists") {
+        console.log("Skipping feed fetch: Profile status is", profileStatus);
+        setLoadingFeed(false);
+        setPosts([]);
+        return;
+      }
+      console.log("Fetching feed posts...");
+      setLoadingFeed(true);
+      setErrorFeed(null);
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/feed/posts/",
+          {
+            params: {
+              // Send the user's name to the backend so it knows who is asking
+              // The backend MUST NOT trust this implicitly in production!
+              requesting_user_name: user.name,
+            },
+          }
+        );
+        const postsData = response.data.results || response.data;
+
+        // --- >>> ADD THIS LOG <<< ---
+        console.log(
+          "RAW FEED DATA FROM BACKEND:",
+          JSON.stringify(postsData, null, 2)
+        );
+        // --- >>> END LOG <<< ---
+
+        if (Array.isArray(postsData)) {
+          setPosts(postsData);
+        } else {
+          console.error("Feed API response is not an array:", postsData);
+          setErrorFeed("Unexpected feed data format.");
+          setPosts([]);
+        }
+      } catch (err) {
+        console.error("Error fetching posts:", err);
+        setErrorFeed("Failed to load feed.");
+      } finally {
+        setLoadingFeed(false);
+      }
+    },
+    [profileStatus, user]
+  );
 
   // Fetch posts when profileStatus changes to 'exists'
   useEffect(() => {
@@ -1374,7 +1772,23 @@ const Dashboard = () => {
       setLoadingFeed(false);
     }
   }, [profileStatus, fetchPosts]);
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log("Dashboard focused, refetching posts...");
+      // Refetch without showing the main loading spinner for a smoother UX
+      fetchPosts(false);
+    };
 
+    window.addEventListener("focus", handleFocus);
+    // Optional: Also fetch immediately when component mounts after initial auth/profile check
+    // This helps if user navigates directly to dashboard after login elsewhere
+    // fetchPosts(false); // Fetch silently on mount too if needed
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchPosts]);
   // Modal Handlers
   const handleLikePost = useCallback(
     async (postId) => {
@@ -1443,30 +1857,46 @@ const Dashboard = () => {
   ); // Empty dependency array is fine if it only relies on props passed in
 
   // --- >>> NEW: Delete Post Handler <<< ---
-  const handleDeletePost = useCallback(async (postId) => {
-    const sessionData = await supabase.auth.getSession();
-    const token = sessionData?.data?.session?.access_token;
-    if (!token) {
-      alert("Please log in again.");
-      throw new Error("No token");
-    }
-    const currentUserId = user?.id;
-    console.log("this is user id::::", currentUserId);
-    try {
-      await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
-        data: { user_id: currentUserId },
-      });
-      // Remove post directly from Dashboard state after successful deletion
-      setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
-    } catch (error) {
-      console.error(`Delete error:`, error.response?.data || error.message);
-      let errorMsg = "Could not delete post.";
-      if (error.response?.status === 403)
-        errorMsg = "You don't have permission to delete this post.";
-      if (error.response?.status === 401) errorMsg = "Authentication failed.";
-      alert(errorMsg); // Show feedback
-      throw error; // Re-throw error
-    }
+  const handleDeletePost = useCallback(
+    async (postId) => {
+      const sessionData = await supabase.auth.getSession();
+      const token = sessionData?.data?.session?.access_token;
+      if (!token) {
+        alert("Please log in again.");
+        throw new Error("No token");
+      }
+      const currentUserId = user?.id;
+      console.log("this is user id::::", currentUserId);
+      console.log("no");
+      try {
+        await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
+          data: { user_id: currentUserId },
+        });
+        // Remove post directly from Dashboard state after successful deletion
+        setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
+      } catch (error) {
+        console.error(`Delete error:`, error.response?.data || error.message);
+        let errorMsg = "Could not delete post.";
+        if (error.response?.status === 403)
+          errorMsg = "You don't have permission to delete this post.";
+        if (error.response?.status === 401) errorMsg = "Authentication failed.";
+        alert(errorMsg); // Show feedback
+        throw error; // Re-throw error
+      }
+    },
+    [user]
+  );
+  const handleCommentCountUpdate = useCallback((postId, newCount) => {
+    console.log(
+      `Dashboard: Updating comment count for post ${postId} to ${newCount}`
+    );
+    setPosts((currentPosts) =>
+      currentPosts.map((p) =>
+        p.id === postId
+          ? { ...p, comment_count: newCount } // Update only the specific post's count
+          : p
+      )
+    );
   }, []);
   const handleOpenCreateModal = () => {
     if (!isAuthenticated) {
@@ -1478,20 +1908,61 @@ const Dashboard = () => {
   };
   const handleCloseCreateModal = () => setIsCreateModalOpen(false);
   const handlePostCreated = (newPost) => {
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
+    const postWithCount = {
+      ...newPost,
+      comment_count: newPost.comment_count ?? 0,
+    };
+    setPosts((prevPosts) => [postWithCount, ...prevPosts]);
   };
 
   // Logout Handler
   const handleLogout = async () => {
-    setAuthLoading(true); // Show loading during logout transition
-    const { error } = await supabase.auth.signOut();
-    // No need to manually set authLoading false here, listener will handle state update
-    if (error) {
-      console.error("Error logging out:", error);
-      setAuthLoading(false); /* Handle error display */
-    } else {
+    // Optional: Keep for immediate visual feedback if desired,
+    // but the listener will also set loading.
+    // setAuthLoading(true);
+
+    try {
+      console.log("Attempting Supabase sign out...");
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        // Log the error, but don't necessarily stop the logout flow
+        // especially if it's the AuthSessionMissingError
+        console.error("Error during Supabase sign out:", error);
+
+        // You could specifically check for the error type if needed:
+        // if (error.name === 'AuthSessionMissingError') {
+        //   console.warn("Sign out called, but session was already missing.");
+        // } else {
+        //   // Handle other potential sign-out errors more critically if needed
+        //   alert(`Logout failed: ${error.message}`);
+        //   setAuthLoading(false); // Stop loading indicator on critical failure
+        //   return; // Stop execution if it's a critical error
+        // }
+      } else {
+        console.log("Supabase sign out successful.");
+      }
+    } catch (catchError) {
+      // Catch any unexpected errors during the signOut process itself
+      console.error("Unexpected error calling signOut:", catchError);
+      // Still proceed to navigate, as the user's intent is to log out.
+    } finally {
+      // This block executes whether signOut succeeded or failed (including AuthSessionMissingError).
+      // It's the critical part to ensure the UI reflects the logged-out state.
+
+      // IMPORTANT: Let the onAuthStateChange listener handle setting
+      // setIsAuthenticated(false), setUser(null), and potentially authLoading=false.
+      // Directly setting them here can cause race conditions with the listener.
+
+      // The primary action here is navigation.
+      console.log("Navigating to /signin after logout attempt.");
       navigate("/signin");
-    } // Navigate after sign out attempt
+
+      // Note: The onAuthStateChange listener should fire shortly after signOut
+      // (even if it errored with AuthSessionMissingError) or upon navigation
+      // to a page requiring auth, and it will correctly update
+      // isAuthenticated, user, and authLoading state.
+    }
   };
 
   // Navigation handler for Setup Profile modal
@@ -1529,6 +2000,7 @@ const Dashboard = () => {
               // --- >>> Pass handlers down <<< ---
               onDeletePost={handleDeletePost}
               onLikePost={handleLikePost}
+              // onCommentCountUpdate={handleCommentCountUpdate}
               // --- >>> End Pass <<< ---
             />
           ) : isAuthenticated && profileStatus === "error" ? (
@@ -1544,12 +2016,35 @@ const Dashboard = () => {
           <SetupProfileModal onNavigateToProfile={handleNavigateToProfile} />
         )}{" "}
       </AnimatePresence>
-      <CreatePostModal
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-        onPostCreated={handlePostCreated}
-        currentUser={user}
-      />
+      <AnimatePresence>
+        {isCreateModalOpen && ( // Use the state variable to conditionally render
+          <CreatePostModal
+            isOpen={isCreateModalOpen} // Still pass isOpen for internal logic if needed
+            onClose={handleCloseCreateModal}
+            onPostCreated={handlePostCreated}
+            currentUser={user}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <CreatePostModal
+            isOpen={isCreateModalOpen}
+            onClose={handleCloseCreateModal}
+            onPostCreated={handlePostCreated}
+            currentUser={user}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isAuthenticated && profileStatus === "missing" && (
+          <SetupProfileModal onNavigateToProfile={handleNavigateToProfile} />
+        )}
+      </AnimatePresence>
+
+      {/* --- 2. Render the Chatbot Component --- */}
+      {/* Render chatbot if user is authenticated (optional, adjust as needed) */}
+      {isAuthenticated && <Chatbot />}
     </div>
   );
 };
