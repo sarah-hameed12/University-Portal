@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './settings.css';
 import { Link } from 'react-router-dom';
 import { FiHome } from 'react-icons/fi';
-import { motion } from 'framer-motion'; // Optional for animations
+import { motion } from 'framer-motion'; 
 
 const SettingsPage = () => {
   const [profileInfo, setProfileInfo] = useState({ name: '', email: '' });
@@ -32,7 +32,6 @@ const SettingsPage = () => {
 
   return (
     <div className="settings-container">
-      {/* Back to Home Button */}
       <Link to="/" title="Back to Home">
         <motion.div
           className="back-to-home-button"
@@ -48,7 +47,6 @@ const SettingsPage = () => {
 
       <h1 className="settings-title">Settings</h1>
 
-      {/* Profile Info */}
       <form className="settings-card" onSubmit={handleSubmitProfile}>
         <h2>Profile Settings</h2>
         <div className="settings-form-group">
