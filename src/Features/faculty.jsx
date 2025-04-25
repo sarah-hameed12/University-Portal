@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Use Link and useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import styles from "../Styles/FacultyOfficeHours.module.css"; // Import the CSS Module
+import styles from "../Styles/FacultyOfficeHours.module.css";
 
-// --- Import Icons ---
 import { FiSearch, FiClock, FiArrowLeft } from "react-icons/fi";
 
-// Animation Variants
 const pageVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.5 } },
@@ -35,8 +33,8 @@ const gridVariants = {
   visible: {
     opacity: 1,
     transition: {
-      delayChildren: 0.3, // Start staggering slightly later
-      staggerChildren: 0.08, // Stagger cards a bit faster
+      delayChildren: 0.3,
+      staggerChildren: 0.08,
     },
   },
 };
@@ -53,9 +51,8 @@ const cardVariants = {
 
 export default function FacultyOfficeHours() {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate(); // Hook for back button
+  const navigate = useNavigate();
 
-  // Static data (can be replaced with API fetch later)
   const professors = [
     { name: "Dr. Waqar", officeHours: "Mon & Wed 2:00 PM - 4:00 PM" },
     { name: "Prof. Maryam", officeHours: "Tue & Thu 1:00 PM - 3:00 PM" },
@@ -96,18 +93,14 @@ export default function FacultyOfficeHours() {
         <FiSearch className={styles.searchIcon} />
       </motion.div>
 
-      <motion.div
-        className={styles.resultsGrid}
-        variants={gridVariants}
-        // No need for initial/animate here if parent has staggerChildren
-      >
+      <motion.div className={styles.resultsGrid} variants={gridVariants}>
         {filteredProfessors.length > 0 ? (
           filteredProfessors.map((prof, idx) => (
             <motion.div
-              key={prof.name} // Use name if unique, otherwise idx
+              key={prof.name}
               className={styles.resultCard}
               variants={cardVariants}
-              whileHover={{ y: -6, transition: { duration: 0.15 } }} // Framer motion hover lift
+              whileHover={{ y: -6, transition: { duration: 0.15 } }}
             >
               {/* Card content structure */}
               <div className={styles.cardHeader}>
@@ -130,21 +123,15 @@ export default function FacultyOfficeHours() {
         )}
       </motion.div>
 
-      {/* Use button styled Link or useNavigate */}
       <motion.button
         className={styles.backButton}
-        onClick={() => navigate(-1)} // Go back to previous page
+        onClick={() => navigate(-1)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.98 }}
-        variants={searchVariants} // Reuse search animation variant
+        variants={searchVariants}
       >
         <FiArrowLeft /> Back
       </motion.button>
-      {/* Or use Link if preferred:
-       <Link to="/utilities" className={styles.backButton}>
-           <FiArrowLeft /> Back to Utilities
-       </Link>
-       */}
     </motion.div>
   );
 }

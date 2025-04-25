@@ -4,18 +4,15 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-// Assuming src/supabaseClient.js exists and exports supabase
-import { createClient } from "@supabase/supabase-js";
-// --- >>> Import the single Supabase client instance <<< ---
-// import { supabase } from "./supabaseClient"; // Make sure the path is correct
 
-// --- >>> Import Icons <<< ---
+import { createClient } from "@supabase/supabase-js";
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 import styles from "../Styles/Profile.module.css";
 import {
-  FiUser, // Added FiUser just in case, though not explicitly used in final render maybe
+  FiUser,
   FiEdit2,
   FiSave,
   FiXCircle,
@@ -25,9 +22,9 @@ import {
 
 // Data for Dropdowns
 const currentYear = new Date().getFullYear();
-const batchYears = Array.from({ length: 8 }, (_, i) => currentYear + 3 - i); // e.g., [2027, 2026, ..., 2020]
+const batchYears = Array.from({ length: 8 }, (_, i) => currentYear + 3 - i);
 
-const schoolOptions = ["", "SSE", "SDSB", "HSS", "SAHSOL", "SOE"]; // Add empty option
+const schoolOptions = ["", "SSE", "SDSB", "HSS", "SAHSOL", "SOE"];
 
 const majorsBySchool = {
   SSE: [
@@ -51,8 +48,8 @@ const majorsBySchool = {
     "Philosophy",
   ],
   SAHSOL: ["", "Law (LLB)"],
-  SOE: ["", "Education"], // Add specific majors if known
-  "": [], // No majors if no school selected
+  SOE: ["", "Education"],
+  "": [],
 };
 
 // Animation Variants
@@ -70,7 +67,6 @@ const messageVariants = {
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [formData, setFormData] = useState({
-    // Initialize with empty strings
     name: "",
     batch: "",
     school: "",
@@ -83,13 +79,12 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [authUserEmail, setAuthUserEmail] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null); // Keep for potential future use
+  const [currentUser, setCurrentUser] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Get Supabase Auth User EMAIL on component mount
   useEffect(() => {
     const getAuthUser = async () => {
       const {
@@ -115,7 +110,6 @@ const Profile = () => {
     getAuthUser();
   }, [navigate]);
 
-  // Fetch Profile Data using EMAIL
   const fetchProfile = useCallback(async () => {
     if (!authUserEmail) return;
     setLoading(true);
@@ -129,7 +123,7 @@ const Profile = () => {
       );
       console.log("Profile data received:", response.data);
       setProfileData(response.data);
-      setFormData(response.data); // Initialize form data with fetched data
+      setFormData(response.data);
     } catch (err) {
       console.error(
         "Error fetching profile:",
@@ -137,8 +131,8 @@ const Profile = () => {
       );
       if (err.response && err.response.status === 404) {
         setError("Profile not found. Please fill in and save your details.");
-        setProfileData({}); // Set to empty object to indicate fetch occurred but no data
-        // Initialize form with defaults, keep previously entered email if any
+        setProfileData({});
+
         setFormData({
           name: "",
           batch: "",
@@ -148,7 +142,7 @@ const Profile = () => {
           interests: "",
           email: authUserEmail,
         });
-        setIsEditing(true); // Force into edit mode
+        setIsEditing(true);
       } else if (err.response && err.response.status === 403) {
         setError(
           "Could not fetch profile: Email identifier missing or invalid."
@@ -205,7 +199,6 @@ const Profile = () => {
     }
   };
 
-  // Handle Save Changes using EMAIL
   const handleSave = async () => {
     if (!authUserEmail) {
       setError("Cannot save, user email not found.");
@@ -302,12 +295,10 @@ const Profile = () => {
     !formData?.school ||
     !formData?.major;
 
-  // Loading State
   if (loading) {
     return <div className={styles.loadingState}>Loading Profile...</div>;
   }
 
-  // Avatar source
   const avatarSrc =
     currentUser.name ||
     previewUrl ||

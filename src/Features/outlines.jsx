@@ -33,7 +33,6 @@ const Outlines = () => {
         } else {
           console.log("Response received:", data);
           setFiles(data);
-          // console.log("these are files", files); // Logging happens in next effect
         }
       } catch (error) {
         console.error("Error:", error);
@@ -41,17 +40,14 @@ const Outlines = () => {
     };
 
     fetchFiles();
-  }, []); // Empty dependency array - runs once on mount
+  }, []);
 
   useEffect(() => {
-    // This effect runs when 'files' state updates
-    // console.log("Updated files:", files);
     if (files.length > 0) {
       console.log("First File Object:", files[0]);
     }
-  }, [files]); // Dependency array includes 'files'
+  }, [files]);
 
-  // Function to download a file
   const downloadFile = (filename) => {
     fetch(`http://localhost:5000/files/:${filename}`)
       .then((response) => response.blob())
@@ -67,12 +63,9 @@ const Outlines = () => {
       .catch((error) => console.error("Download error:", error));
   };
 
-  // Filter files based on search query - Memoize potentially? For now it's ok.
   const filteredFiles = files.filter((file) =>
     file.filename.toLowerCase().includes(search.toLowerCase())
   );
-
-  // No need for a separate effect just to log files[0] again here
 
   const handleFilterClick = () => {
     setShowFilter(!showFilter);
@@ -81,8 +74,8 @@ const Outlines = () => {
   const handleSchoolClick = (school) => {
     const newSchool = school === selectedSchool ? null : school;
     setSelectedSchool(newSchool);
-    setSelectedMajor(null); // Reset major when school changes
-    setFilteredOutlines([]); // Reset outlines when school changes
+    setSelectedMajor(null);
+    setFilteredOutlines([]);
 
     if (newSchool) {
       setTitle("Choose Major");
@@ -101,7 +94,7 @@ const Outlines = () => {
           break;
         case "SOE":
           setMajors(["EDU"]);
-          break; // Added placeholder for SOE
+          break;
         default:
           setMajors([]);
       }
@@ -113,49 +106,38 @@ const Outlines = () => {
 
   const handleMajorClick = (major) => {
     setSelectedMajor(major === selectedMajor ? null : major);
-    setFilteredOutlines([]); // Reset outlines when major changes
+    setFilteredOutlines([]);
   };
 
-  // This function seems unused now for button color, remove if not needed later
-  // const getMajorButtonColor = (school) => { ... };
-
   const handleNextClick = () => {
-    // Don't need files passed in if using state
     if (!selectedSchool || !selectedMajor) {
-      // Maybe use a less intrusive notification than alert
       console.warn("School and Major must be selected.");
       return;
     }
 
     setSelectedOptions({ school: selectedSchool, major: selectedMajor });
 
-    // Filter based on the *current* 'files' state
     const newlyFiltered = files.filter((file) => {
-      // Make filtering more robust (e.g., handles "CS101" vs "CS")
-      // Assuming format "MAJORCODE-NUMBER..." like "CS-100..." or "CS100..."
-      const pattern = new RegExp(`^${selectedMajor}[- ]?\\d+`, "i"); // Starts with major, optional hyphen/space, digits
+      const pattern = new RegExp(`^${selectedMajor}[- ]?\\d+`, "i");
       return pattern.test(file.filename);
-      // Original simpler logic: return file.filename.startsWith(selectedMajor);
     });
 
     setFilteredOutlines(newlyFiltered);
-    setShowFilter(false); // Close filter card after selection
+    setShowFilter(false);
 
     console.log("Selected School:", selectedSchool);
     console.log("Selected Major:", selectedMajor);
     console.log("Filtered Outlines:", newlyFiltered);
   };
 
-  // --- Dynamic Style Calculation ---
-  // Calculate filter card position dynamically
   const filterCardDynamicStyle = {
-    ...styles.filterCard, // Include base styles
-    left: showFilter ? "20px" : "-400px", // Apply dynamic left position
+    ...styles.filterCard,
+    left: showFilter ? "20px" : "-400px",
   };
 
   return (
     <div style={styles.container}>
-      <motion.h1 // Use motion for potential animations
+      <motion.h1
         style={styles.header}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -166,7 +148,7 @@ const Outlines = () => {
 
       <div style={styles.searchBarContainer}>
         <input
-          className="search-input" // Add className for CSS placeholder styling
+          className="search-input"
           type="text"
           placeholder="Search Course Outlines (e.g., CS100, ECON213)"
           value={search}
@@ -175,15 +157,13 @@ const Outlines = () => {
         />
       </div>
 
-      {/* Added motion.div wrapper for list animation */}
       <motion.div
-        className="file-list-container" // Use className for CSS scrollbar styling
+        className="file-list-container"
         style={styles.fileListContainer}
-        layout // Animate layout changes
+        layout
       >
         <AnimatePresence>
           {" "}
-          {/* Handle enter/exit animations */}
           {filteredOutlines.length > 0 ? (
             filteredOutlines.map((file, index) => (
               <motion.div
@@ -192,10 +172,10 @@ const Outlines = () => {
                 onClick={() => downloadFile(file.filename)}
                 whileHover={styles.fileCardHover}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
-                initial={{ opacity: 0, y: 10 }} // Enter animation
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }} // Exit animation
-                layout // Animate position changes
+                exit={{ opacity: 0, scale: 0.9 }}
+                layout
               >
                 <FaFilePdf style={styles.fileIcon} />
                 <span style={styles.fileName}>{file.filename}</span>
@@ -258,138 +238,112 @@ const Outlines = () => {
         )}
       </motion.button>
 
-      {/* Main Content Placeholder - remove if not needed */}
-      {/* <div style={styles.content}></div> */}
-
-      {/* Filter Card - Apply dynamic style here */}
       <AnimatePresence>
         {showFilter && (
           <motion.div
-            className="filter-card" // Add className for CSS scrollbar
-            style={filterCardDynamicStyle} // Use combined style object
-            initial={{ left: "-400px" }} // Start off-screen
-            animate={{ left: "20px" }} // Animate to position
-            exit={{ left: "-400px" }} // Animate out
-            transition={{ type: "spring", stiffness: 100, damping: 20 }} // Spring animation
+            className="filter-card"
+            style={filterCardDynamicStyle}
+            initial={{ left: "-400px" }}
+            animate={{ left: "20px" }}
+            exit={{ left: "-400px" }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
           >
             <div style={styles.filterContent}>
               <h3 style={styles.filterHeader}>{title}</h3>
               <div style={styles.schoolList}>
                 {/* Row 1 */}
                 <div style={styles.row}>
-                  {["SSE", "SDSB", "SAHSOL"].map(
-                    (
-                      school // Simplified map
-                    ) => (
-                      <motion.button
-                        key={school}
-                        style={{
-                          // Apply base and conditional selected styles
-                          ...styles.schoolOption,
-                          backgroundColor:
-                            selectedSchool === school
-                              ? "#625FFF"
-                              : styles.schoolOption.background, // Use base background if not selected
-                          borderColor:
-                            selectedSchool === school
-                              ? "#625FFF"
-                              : styles.schoolOption.border.split(" ")[2], // Use base border color if not selected
-                        }}
-                        onClick={() => handleSchoolClick(school)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {school === "SSE" && (
-                          <FaLaptopCode style={styles.icon} />
-                        )}
-                        {school === "SDSB" && (
-                          <FaUniversity style={styles.icon} />
-                        )}
-                        {school === "SAHSOL" && (
-                          <FaBalanceScale style={styles.icon} />
-                        )}
-                        {school}
-                      </motion.button>
-                    )
-                  )}
-                </div>
-                {/* Row 2 */}
-                <div style={styles.row}>
-                  {["HSS", "SOE"].map(
-                    (
-                      school // Simplified map
-                    ) => (
-                      <motion.button
-                        key={school}
-                        style={{
-                          // Apply base and conditional selected styles
-                          ...styles.schoolOption,
-                          backgroundColor:
-                            selectedSchool === school
-                              ? "#625FFF"
-                              : styles.schoolOption.background,
-                          borderColor:
-                            selectedSchool === school
-                              ? "#625FFF"
-                              : styles.schoolOption.border.split(" ")[2],
-                        }}
-                        onClick={() => handleSchoolClick(school)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {school === "HSS" && (
-                          <FaGraduationCap style={styles.icon} />
-                        )}
-                        {school === "SOE" && (
-                          <FaUniversity style={styles.icon} />
-                        )}
-                        {school}
-                      </motion.button>
-                    )
-                  )}
+                  {["SSE", "SDSB", "SAHSOL"].map((school) => (
+                    <motion.button
+                      key={school}
+                      style={{
+                        ...styles.schoolOption,
+                        backgroundColor:
+                          selectedSchool === school
+                            ? "#625FFF"
+                            : styles.schoolOption.background,
+                        borderColor:
+                          selectedSchool === school
+                            ? "#625FFF"
+                            : styles.schoolOption.border.split(" ")[2],
+                      }}
+                      onClick={() => handleSchoolClick(school)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {school === "SSE" && <FaLaptopCode style={styles.icon} />}
+                      {school === "SDSB" && (
+                        <FaUniversity style={styles.icon} />
+                      )}
+                      {school === "SAHSOL" && (
+                        <FaBalanceScale style={styles.icon} />
+                      )}
+                      {school}
+                    </motion.button>
+                  ))}
                 </div>
 
-                {/* Horizontal Line */}
+                <div style={styles.row}>
+                  {["HSS", "SOE"].map((school) => (
+                    <motion.button
+                      key={school}
+                      style={{
+                        ...styles.schoolOption,
+                        backgroundColor:
+                          selectedSchool === school
+                            ? "#625FFF"
+                            : styles.schoolOption.background,
+                        borderColor:
+                          selectedSchool === school
+                            ? "#625FFF"
+                            : styles.schoolOption.border.split(" ")[2],
+                      }}
+                      onClick={() => handleSchoolClick(school)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {school === "HSS" && (
+                        <FaGraduationCap style={styles.icon} />
+                      )}
+                      {school === "SOE" && <FaUniversity style={styles.icon} />}
+                      {school}
+                    </motion.button>
+                  ))}
+                </div>
+
                 {majors.length > 0 && <div style={styles.line}></div>}
 
-                {/* Majors Row */}
                 {majors.length > 0 && (
                   <div style={styles.row}>
-                    {majors.map(
-                      (
-                        major // Simplified map
-                      ) => (
-                        <motion.button
-                          key={major}
-                          style={{
-                            // Apply base and conditional selected styles
-                            ...styles.majorOption,
-                            backgroundColor:
-                              selectedMajor === major
-                                ? "#625FFF"
-                                : styles.majorOption.background,
-                            borderColor:
-                              selectedMajor === major
-                                ? "#625FFF"
-                                : styles.majorOption.border.split(" ")[2],
-                          }}
-                          onClick={() => handleMajorClick(major)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          {major}
-                        </motion.button>
-                      )
-                    )}
+                    {majors.map((major) => (
+                      <motion.button
+                        key={major}
+                        style={{
+                          ...styles.majorOption,
+                          backgroundColor:
+                            selectedMajor === major
+                              ? "#625FFF"
+                              : styles.majorOption.background,
+                          borderColor:
+                            selectedMajor === major
+                              ? "#625FFF"
+                              : styles.majorOption.border.split(" ")[2],
+                        }}
+                        onClick={() => handleMajorClick(major)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {major}
+                      </motion.button>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* "Next" Button - Use motion.button */}
             {selectedSchool && selectedMajor && (
               <motion.button
-                onClick={handleNextClick} // No need to pass files
+                onClick={handleNextClick}
                 style={styles.nextButton}
                 whileHover={styles.nextButtonHover}
                 whileTap={{ scale: 0.95 }}
@@ -407,7 +361,6 @@ const Outlines = () => {
 
 export default Outlines;
 
-// --- Styles Object (CORRECTED: removed dynamic 'left' from filterCard) ---
 const styles = {
   container: {
     display: "flex",

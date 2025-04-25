@@ -1,10 +1,7 @@
-// src/ConfirmDeleteModal.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiAlertTriangle, FiX, FiLoader } from "react-icons/fi";
 
-// --- Styles ---
-// You can reuse some styles from Dashboard.jsx or define specific ones here
 const modalStyles = {
   overlay: {
     position: "fixed",
@@ -12,21 +9,21 @@ const modalStyles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.75)", // Darker overlay
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 1050, // Ensure it's above other content but potentially below critical system modals
+    zIndex: 1050,
   },
   content: {
-    backgroundColor: "#1f2937", // Dark background
+    backgroundColor: "#1f2937",
     padding: "30px 35px",
     borderRadius: "12px",
     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.6)",
     width: "90%",
-    maxWidth: "420px", // Suitable width for confirmation
+    maxWidth: "420px",
     position: "relative",
-    border: "1px solid #4b5563", // Subtle border
+    border: "1px solid #4b5563",
     textAlign: "center",
     color: "#e5e7eb",
   },
@@ -35,14 +32,14 @@ const modalStyles = {
     width: "50px",
     height: "50px",
     borderRadius: "50%",
-    backgroundColor: "rgba(239, 68, 68, 0.1)", // Red background for warning icon
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
   icon: {
     fontSize: "1.8rem",
-    color: "#f87171", // Red color for warning icon
+    color: "#f87171",
   },
   title: {
     fontSize: "1.3rem",
@@ -52,18 +49,17 @@ const modalStyles = {
   },
   message: {
     fontSize: "0.95rem",
-    color: "#a0a3bd", // Secondary text color
+    color: "#a0a3bd",
     marginBottom: "25px",
     lineHeight: "1.6",
   },
   actions: {
     display: "flex",
-    justifyContent: "center", // Center buttons
+    justifyContent: "center",
     gap: "15px",
     marginTop: "10px",
   },
   button: {
-    // Base button style
     padding: "10px 25px",
     border: "none",
     borderRadius: "8px",
@@ -75,37 +71,34 @@ const modalStyles = {
     alignItems: "center",
     justifyContent: "center",
     gap: "6px",
-    minWidth: "100px", // Ensure buttons have minimum width
+    minWidth: "100px",
   },
   confirmButton: {
-    // Specific style for Confirm
-    backgroundColor: "#dc2626", // Red color for delete confirmation
+    backgroundColor: "#dc2626",
     color: "white",
     boxShadow: "0 4px 10px rgba(220, 38, 38, 0.3)",
   },
   confirmButtonHover: {
-    backgroundColor: "#b91c1c", // Darker red on hover
+    backgroundColor: "#b91c1c",
     boxShadow: "0 6px 15px rgba(220, 38, 38, 0.4)",
     transform: "translateY(-1px)",
   },
   confirmButtonDisabled: {
-    backgroundColor: "#4b5563", // Disabled state
+    backgroundColor: "#4b5563",
     color: "#a0a3bd",
     cursor: "not-allowed",
     boxShadow: "none",
   },
   cancelButton: {
-    // Specific style for Cancel
-    backgroundColor: "#374151", // Dark grey
-    color: "#e5e7eb", // Light text
+    backgroundColor: "#374151",
+    color: "#e5e7eb",
     border: "1px solid #4b5563",
   },
   cancelButtonHover: {
-    backgroundColor: "#4b5563", // Slightly lighter grey on hover
+    backgroundColor: "#4b5563",
     borderColor: "#6b7280",
   },
   buttonSpinner: {
-    // Re-use or adapt spinner style
     width: "16px",
     height: "16px",
     border: "2px solid rgba(255, 255, 255, 0.4)",
@@ -114,12 +107,10 @@ const modalStyles = {
     animation: "spin 0.8s linear infinite",
   },
   "@keyframes spin": {
-    // Define spin if not globally available
     to: { transform: "rotate(360deg)" },
   },
 };
 
-// Animation variants for modal
 const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
 const modalVariants = {
   hidden: { opacity: 0, scale: 0.85, y: -20 },
@@ -161,19 +152,18 @@ const ConfirmDeleteModal = ({
   if (!isOpen) return null;
 
   return (
-    // Assumes AnimatePresence wraps this component's usage in the parent
     <motion.div
       style={modalStyles.overlay}
       variants={backdropVariants}
       initial="hidden"
       animate="visible"
       exit="hidden"
-      onClick={onClose} // Close on overlay click
+      onClick={onClose}
     >
       <motion.div
         style={modalStyles.content}
         variants={modalVariants}
-        onClick={(e) => e.stopPropagation()} // Prevent closing on content click
+        onClick={(e) => e.stopPropagation()}
       >
         <div style={modalStyles.iconWrapper}>
           <FiAlertTriangle style={modalStyles.icon} />
@@ -186,8 +176,8 @@ const ConfirmDeleteModal = ({
         <div style={modalStyles.actions}>
           <motion.button
             style={cancelButtonStyle}
-            onClick={onClose} // Use onClose for cancel
-            disabled={isDeleting} // Disable cancel while deleting
+            onClick={onClose}
+            disabled={isDeleting}
             onMouseEnter={() => setIsCancelHovered(true)}
             onMouseLeave={() => setIsCancelHovered(false)}
             whileHover={!isDeleting ? { scale: 1.05 } : {}}
@@ -197,7 +187,7 @@ const ConfirmDeleteModal = ({
           </motion.button>
           <motion.button
             style={confirmButtonStyle}
-            onClick={onConfirm} // Use onConfirm for confirmation
+            onClick={onConfirm}
             disabled={isDeleting}
             onMouseEnter={() => setIsConfirmHovered(true)}
             onMouseLeave={() => setIsConfirmHovered(false)}
@@ -211,7 +201,7 @@ const ConfirmDeleteModal = ({
             )}
           </motion.button>
         </div>
-        {/* Add the keyframes style if needed */}
+
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </motion.div>
     </motion.div>

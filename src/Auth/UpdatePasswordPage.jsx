@@ -3,11 +3,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
-// You can create a dedicated CSS module or reuse/adapt signin styles
-import styles from "../Styles/signin.module.css"; // Reuse signin styles for now
-import { FiLock, FiCheckCircle } from "react-icons/fi"; // Add relevant icons
 
-// Initialize Supabase Client (Use environment variables!)
+import styles from "../Styles/signin.module.css";
+import { FiLock, FiCheckCircle } from "react-icons/fi";
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 

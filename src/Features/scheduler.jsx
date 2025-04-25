@@ -7,7 +7,6 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 
-// --- Hardcoded Course Data (Replace with API fetch later) ---
 const initialCourses = [
   {
     id: 1,
@@ -115,13 +114,10 @@ const initialCourses = [
   },
 ];
 
-// --- Helper Functions ---
-
 const timeToMinutes = (time) => {
-  // Added safeguard for invalid time format
   if (!time || typeof time !== "string" || !time.includes(":")) {
     console.error("Invalid time format for timeToMinutes:", time);
-    return 0; // Return a default value or handle appropriately
+    return 0;
   }
   const parts = time.split(":");
   if (parts.length !== 2) {
@@ -137,7 +133,6 @@ const timeToMinutes = (time) => {
 };
 
 const doTimesOverlap = (slot1, slot2) => {
-  // Add checks for valid slots
   if (
     !slot1?.startTime ||
     !slot1?.endTime ||
@@ -145,46 +140,39 @@ const doTimesOverlap = (slot1, slot2) => {
     !slot2?.endTime
   ) {
     console.error("Invalid slot data for doTimesOverlap:", slot1, slot2);
-    return false; // Assume no overlap if data is invalid
+    return false;
   }
   const start1 = timeToMinutes(slot1.startTime);
   const end1 = timeToMinutes(slot1.endTime);
   const start2 = timeToMinutes(slot2.startTime);
   const end2 = timeToMinutes(slot2.endTime);
 
-  // Ensure end time is after start time
   if (end1 <= start1 || end2 <= start2) {
-    //  console.warn("Slot end time is not after start time:", slot1, slot2); // Can be noisy
-    // If end is same as start, they don't overlap in a meaningful way for scheduling
     return false;
   }
 
-  // Check for overlap: !(slot1 ends before slot2 starts || slot1 starts after slot2 ends)
-  // Simplified: (slot1 starts before slot2 ends) AND (slot1 ends after slot2 starts)
   return start1 < end2 && end1 > start2;
 };
 
 const checkConflict = (newCourse, existingSchedule) => {
-  // Check if newCourse and timings are valid
   if (!newCourse?.timings || !Array.isArray(newCourse.timings)) {
     console.error("Invalid newCourse data for checkConflict:", newCourse);
     return null;
   }
   if (!Array.isArray(existingSchedule)) {
     console.error("Invalid existingSchedule data for checkConflict");
-    return null; // Or handle as appropriate
+    return null;
   }
 
   for (const scheduledCourse of existingSchedule) {
-    // Check if scheduledCourse and timings are valid
     if (!scheduledCourse?.timings || !Array.isArray(scheduledCourse.timings)) {
       console.warn("Invalid scheduled course data found:", scheduledCourse);
-      continue; // Skip this potentially corrupted course
+      continue;
     }
     for (const newTiming of newCourse.timings) {
-      if (!newTiming) continue; // Skip invalid timing slots in new course
+      if (!newTiming) continue;
       for (const scheduledTiming of scheduledCourse.timings) {
-        if (!scheduledTiming) continue; // Skip invalid timing slots in scheduled course
+        if (!scheduledTiming) continue;
 
         if (
           newTiming.day === scheduledTiming.day &&
@@ -201,7 +189,6 @@ const checkConflict = (newCourse, existingSchedule) => {
   return null;
 };
 
-// --- Scheduler Component ---
 const Scheduler = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [allCourses] = useState(initialCourses);
@@ -210,33 +197,31 @@ const Scheduler = () => {
 
   const availableCourses = useMemo(() => {
     try {
-      // Add try-catch around potentially complex derivations
       const scheduledIds = new Set(scheduledCourses.map((c) => c.id));
       return allCourses.filter(
         (course) =>
-          course && // Ensure course object exists
-          course.id != null && // Ensure id exists
+          course &&
+          course.id != null &&
           !scheduledIds.has(course.id) &&
           ((course.code &&
-            course.code.toLowerCase().includes(searchTerm.toLowerCase())) || // Check if code exists
+            course.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (course.title &&
-              course.title.toLowerCase().includes(searchTerm.toLowerCase())) || // Check if title exists
+              course.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (course.instructor &&
               course.instructor
                 .toLowerCase()
-                .includes(searchTerm.toLowerCase()))) // Check if instructor exists
+                .includes(searchTerm.toLowerCase())))
       );
     } catch (error) {
       console.error("Error calculating availableCourses:", error);
-      return []; // Return empty array on error
+      return [];
     }
   }, [allCourses, scheduledCourses, searchTerm]);
 
   const handleAddCourse = useCallback(
     (courseToAdd) => {
-      console.log("handleAddCourse called with:", courseToAdd?.code); // Log input code
+      console.log("handleAddCourse called with:", courseToAdd?.code);
       if (!courseToAdd || courseToAdd.id == null) {
-        // Basic validation
         console.error("Attempted to add invalid course object:", courseToAdd);
         return;
       }
@@ -249,16 +234,15 @@ const Scheduler = () => {
             `Conflict detected: ${courseToAdd.code} clashes with ${conflictingCourse.code}`
           );
           setConflictError({ course: conflictingCourse, attempt: courseToAdd });
-          // Use a key for the error message motion.div to ensure it re-animates on new error
+
           setTimeout(() => setConflictError(null), 5000);
         } else {
           console.log("No conflict found, adding course:", courseToAdd.code);
           setScheduledCourses((prevSchedule) => {
-            // Ensure prevSchedule is an array
             const currentSchedule = Array.isArray(prevSchedule)
               ? prevSchedule
               : [];
-            // Prevent adding duplicates (optional but good practice)
+
             if (currentSchedule.some((c) => c.id === courseToAdd.id)) {
               console.warn("Course already in schedule:", courseToAdd.code);
               return currentSchedule;
@@ -269,10 +253,9 @@ const Scheduler = () => {
         }
       } catch (error) {
         console.error("Error during handleAddCourse execution:", error);
-        // Potentially set an error state to show a generic message to the user
       }
     },
-    [scheduledCourses] // Keep dependency
+    [scheduledCourses]
   );
 
   const handleRemoveCourse = useCallback((courseIdToRemove) => {
@@ -287,7 +270,7 @@ const Scheduler = () => {
           (course) => course && course.id !== courseIdToRemove
         )
       );
-      // Clear conflict error only if the removed course was part of the conflict
+
       setConflictError((prevError) => {
         if (
           prevError &&
@@ -302,9 +285,8 @@ const Scheduler = () => {
     } catch (error) {
       console.error("Error during handleRemoveCourse:", error);
     }
-  }, []); // No dependency needed here as it only uses the ID
+  }, []);
 
-  // Grid Generation Data
   const days = useMemo(() => ["Mon", "Tue", "Wed", "Thu", "Fri"], []);
   const timeInterval = 30;
   const startTime = 8 * 60;
@@ -318,12 +300,11 @@ const Scheduler = () => {
         `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
       );
     }
-    console.log("Generated Time Slots:", slots.length); // Check if slots are generated
+    console.log("Generated Time Slots:", slots.length);
     return slots;
-  }, [startTime, endTime, timeInterval]); // Dependencies
+  }, [startTime, endTime, timeInterval]);
 
   const scheduleGridData = useMemo(() => {
-    // console.log("Recalculating scheduleGridData...");
     try {
       const grid = {};
       if (!Array.isArray(scheduledCourses)) {
@@ -358,28 +339,25 @@ const Scheduler = () => {
           }
 
           const duration = endMinutes - startMinutes;
-          // Ensure minimum duration is at least one interval for calculation
+
           if (duration <= 0) {
             console.warn(
               `Zero or negative duration for ${course.code} on ${timing.day}: ${timing.startTime}-${timing.endTime}`
             );
             return;
           }
-          // Calculate slots, ensuring at least 1 if duration > 0
-          const durationSlots = Math.max(1, Math.ceil(duration / timeInterval));
 
-          // Find the index of the time slot that *contains* or *starts at* the course start time
+          const durationSlots = Math.max(1, Math.ceil(duration / timeInterval));
           const startSlotIndex = timeSlots.findIndex((slot) => {
             const slotStartMinutes = timeToMinutes(slot);
             const slotEndMinutes = slotStartMinutes + timeInterval;
-            // Course starts within this slot or exactly at the slot start
+
             return (
               startMinutes >= slotStartMinutes && startMinutes < slotEndMinutes
             );
           });
 
           if (startSlotIndex !== -1) {
-            // Check if start time exactly matches a slot time for clean display, otherwise log warning maybe
             if (timeToMinutes(timeSlots[startSlotIndex]) !== startMinutes) {
               console.warn(
                 `Course ${course.code} start time ${timing.startTime} doesn't align perfectly with time slot ${timeSlots[startSlotIndex]}. Display may be slightly offset.`
@@ -391,20 +369,19 @@ const Scheduler = () => {
               console.warn("Course object missing code or title:", course);
               return;
             }
-            // Prevent overwriting if multiple courses start in the exact same slot (shouldn't happen with conflict check)
+
             if (!grid[key]) {
               grid[key] = {
-                course: { ...course }, // Shallow copy course data
+                course: { ...course },
                 isStart: true,
                 durationSlots: durationSlots,
               };
 
-              // Mark subsequent slots as occupied
               for (let i = 1; i < durationSlots; i++) {
                 const nextSlotIndex = startSlotIndex + i;
                 if (nextSlotIndex < timeSlots.length) {
                   const occupiedKey = `${timing.day}-${timeSlots[nextSlotIndex]}`;
-                  // Only mark as occupied if not already the start of another block
+
                   if (!grid[occupiedKey]?.isStart) {
                     grid[occupiedKey] = {
                       course: { ...course },
@@ -425,16 +402,13 @@ const Scheduler = () => {
           }
         });
       });
-      //   console.log("Generated Grid Data:", grid); // Log generated grid
+
       return grid;
     } catch (error) {
       console.error("Error calculating scheduleGridData:", error);
       return {};
     }
-  }, [scheduledCourses, timeSlots, timeInterval]); // Dependencies
-
-  // --- Render ---
-  //   console.log("Scheduler rendering...");
+  }, [scheduledCourses, timeSlots, timeInterval]);
 
   return (
     <div style={styles.container}>
@@ -463,7 +437,7 @@ const Scheduler = () => {
             <AnimatePresence>
               {conflictError && (
                 <motion.div
-                  key="conflict-error-message" // Add key for animation
+                  key="conflict-error-message"
                   style={styles.errorBox}
                   initial={{ opacity: 0, y: -10, height: 0 }}
                   animate={{ opacity: 1, y: 0, height: "auto" }}
@@ -479,7 +453,6 @@ const Scheduler = () => {
                   />
                   <span>
                     {" "}
-                    {/* Wrap text for better flex handling */}
                     Cannot add {conflictError.attempt?.code || "course"}: Time
                     conflict with{" "}
                     {conflictError.course?.code || "another course"}.
@@ -494,13 +467,13 @@ const Scheduler = () => {
                     if (!course || course.id == null) return null;
                     return (
                       <motion.div
-                        key={course.id} // Use ID as key
+                        key={course.id}
                         style={styles.courseItem}
-                        layout // Animate layout changes on filter/add/remove
+                        layout
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }} // Faster transition
+                        transition={{ duration: 0.2 }}
                       >
                         <div style={styles.courseInfo}>
                           <span style={styles.courseCode}>
@@ -683,15 +656,12 @@ const Scheduler = () => {
             </motion.button>
           )}
         </div>{" "}
-        {/* End Right Panel */}
       </div>{" "}
-      {/* End Main Content Wrapper */}
-    </div> // End Container
+    </div>
   );
 };
 
 const styles = {
-  // ... (container, header, mainContentWrapper, leftPanel, search*, availableCourses*, listHeader, scrollableList, errorBox, courseItem styles remain the same as the previous corrected version) ...
   container: {
     display: "flex",
     flexDirection: "column",
@@ -929,7 +899,6 @@ const styles = {
     zIndex: 2,
   },
 
-  // --- ADJUSTED ROW HEIGHTS AND PADDING ---
   timeCell: {
     width: "70px",
     padding: "2px 4px", // Reduced vertical padding

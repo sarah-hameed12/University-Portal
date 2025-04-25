@@ -654,7 +654,6 @@ const styles = {
   },
 };
 
-// --- >>> Define Composite Styles *AFTER* the main 'styles' object <<< ---
 const modalSubmitButtonStyleEnhanced = {
   ...styles.topnavButton,
   ...styles.topnavButtonPrimary,
@@ -666,9 +665,9 @@ const modalSubmitButtonStyleEnhanced = {
 };
 
 const modalSubmitButtonDisabledStyleEnhanced = {
-  ...styles.topnavButton, // Base button styles
-  backgroundColor: "#4b5563", // Disabled background
-  color: "#a0a3bd", // Disabled text color
+  ...styles.topnavButton,
+  backgroundColor: "#4b5563",
+  color: "#a0a3bd",
   cursor: "not-allowed",
   width: "auto",
   minWidth: "120px",
@@ -676,9 +675,7 @@ const modalSubmitButtonDisabledStyleEnhanced = {
   fontSize: "1rem",
   fontWeight: "600",
 };
-// --- End Composite Styles ---
 
-// Animation Variants
 const pageVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -690,17 +687,15 @@ const messageVariants = {
   exit: { opacity: 0, y: -10 },
 };
 import { IoIosPeople } from "react-icons/io";
-// --- Components --- (Assuming SideNav, TopNav, PostItem, Feed, CreatePostModal are defined as previously shown)
 
-// Side Navigation Component
 export const SideNav = () => {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState(null);
   const navItems = [
     { name: "Home", icon: <FiHome />, path: "/" },
-    // { name: "Explore", icon: <FiCompass />, path: "/explore" },
+
     { name: "Chat", icon: <FiMessageSquare />, path: "/chat" },
-    { name: "Utilities", icon: <FiGrid />, path: "/documents" }, // Changed path back
+    { name: "Utilities", icon: <FiGrid />, path: "/documents" },
     { name: "Profile", icon: <FiUser />, path: "/profile" },
     { name: "Communities", icon: <IoIosPeople />, path: "/communities" },
     { name: "Societies", icon: <FiUsers />, path: "/society" },
@@ -744,7 +739,6 @@ export const SideNav = () => {
   );
 };
 
-// Top Navigation Component
 const TopNav = ({ isAuthenticated, user, onLogout, onOpenCreatePost }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -898,28 +892,18 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [hoveredAction, setHoveredAction] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  // const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false);
 
   useEffect(() => {
     setIsLiked(post?.is_liked_by_user || false);
     setLikeCount(post?.like_count || 0);
-    // setCommentCount(post?.comment_count || 0);
   }, [post]);
   useEffect(() => {
     console.log(
       `[PostItem Render/Prop Update] Post ID: ${post?.id}, Received comment_count prop: ${post?.comment_count}`
     );
   }, [post]);
-  // useEffect(() => {
-  //   // Call the callback only if the count actually changed and the function exists
-  //   if (post && onCommentCountUpdate && commentCount !== post.comment_count) {
-  //     console.log(
-  //       `PostItem ${post.id}: Propagating comment count update to ${commentCount}`
-  //     );
-  //     onCommentCountUpdate(post.id, commentCount);
-  //   }
-  // }, [commentCount, post, onCommentCountUpdate]);
+
   console.log(`PostItem Render - Post ID: ${post?.id}`);
   console.log("currentUser:", currentUser);
   console.log("post:", post);
@@ -1092,10 +1076,10 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
                 {post.latest_comment.content}
               </div>
             </div>
-            {/* View More Button */}
+
             <button
               style={viewMoreButtonStyle}
-              onClick={handleCommentClick} // Re-use the navigation handler
+              onClick={handleCommentClick}
               onMouseEnter={() => setIsViewMoreHovered(true)}
               onMouseLeave={() => setIsViewMoreHovered(false)}
               aria-label="View all comments"
@@ -1107,7 +1091,6 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
 
         <div style={styles.postActions}>
           <div style={styles.postActionButtonGroup}>
-            {/* Like Button */}
             <button
               style={getActionStyle("like")}
               onClick={handleLikeClick}
@@ -1129,7 +1112,6 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
               </span>
             </button>
 
-            {/* Comment Button */}
             <button
               style={getActionStyle("comment")}
               onClick={handleCommentClick}
@@ -1141,12 +1123,10 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
               onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
               <FiMessageCircle />
-              {/* Display comment_count from post prop, fallback to 0 */}
               {post.comment_count ?? 0} Comment
               {(post.comment_count ?? 0) !== 1 ? "s" : ""}
             </button>
 
-            {/* Share Button */}
             <button
               style={getActionStyle("share")}
               onClick={handleShare}
@@ -1161,18 +1141,16 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
             </button>
           </div>
 
-          {/* --- Single Delete Button --- */}
-          {/* Delete Button - Now only opens the modal */}
           {isAuthor && (
             <button
               style={getActionStyle("delete")}
-              onClick={handleDeleteClick} // <<<--- Calls function to OPEN modal
-              disabled={isDeleting} // Disable if delete process started
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
               title="Delete Post"
               onMouseEnter={() => setHoveredAction("delete")}
               onMouseLeave={() => setHoveredAction(null)}
             >
-              <FiTrash2 /> {/* Keep icon simple, modal shows loading */}
+              <FiTrash2 />
             </button>
           )}
         </div>
@@ -1181,28 +1159,18 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
         {isConfirmModalOpen && (
           <ConfirmDeleteModal
             isOpen={isConfirmModalOpen}
-            onClose={handleCancelDelete} // Close modal on cancel
-            onConfirm={handleConfirmDelete} // Trigger actual delete on confirm
-            isDeleting={isDeleting} // Pass loading state to modal button
-            itemName="post" // Customize item name
+            onClose={handleCancelDelete}
+            onConfirm={handleConfirmDelete}
+            isDeleting={isDeleting}
+            itemName="post"
           />
         )}
       </AnimatePresence>
     </>
   );
 };
-// --- UPDATED: Feed Component ---
-// Passes handlers down to PostItem
-const Feed = ({
-  posts,
-  loading,
-  error,
-  user,
-  onDeletePost,
-  onLikePost,
-  // onCommentCountUpdate,
-}) => {
-  // Added onDeletePost, onLikePost
+
+const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
   const errorCombinedStyle = {
     ...styles.feedStatusMessage,
     ...styles.feedErrorMessage,
@@ -1233,9 +1201,8 @@ const Feed = ({
               <PostItem
                 post={post}
                 currentUser={user}
-                onDeletePost={onDeletePost} // <<< Check props passed
+                onDeletePost={onDeletePost}
                 onLikePost={onLikePost}
-                // onCommentCountUpdate={onCommentCountUpdate} // <<< Check props passed
               />
             </motion.div>
           ))}
@@ -1243,14 +1210,12 @@ const Feed = ({
     </motion.div>
   );
 };
-// const profileurl = "";
-// Create Post Modal Component
+
 const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
-  // ... (Keep existing modal logic and JSX) ...
   console.log("--- CreatePostModal RENDERED --- isOpen:", isOpen);
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null); // State for the image file object
+  const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -1259,14 +1224,13 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
   const [isFileLabelHovered, setIsFileLabelHovered] = useState(false);
 
   useEffect(() => {
-    // If the modal is closed or a new file is selected (clearing old preview)
     if (!isOpen || !selectedFile) {
       if (imagePreviewUrl) {
-        URL.revokeObjectURL(imagePreviewUrl); // Revoke old URL to prevent memory leaks
+        URL.revokeObjectURL(imagePreviewUrl);
         setImagePreviewUrl(null);
       }
     }
-    // This return function executes when the component unmounts or dependencies change BEFORE the effect runs again
+
     return () => {
       if (imagePreviewUrl) {
         URL.revokeObjectURL(imagePreviewUrl);
@@ -1277,32 +1241,30 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
     if (!isOpen) {
       setContent("");
       setSelectedFile(null);
-      // imagePreviewUrl is handled by the cleanup effect above
+
       setError(null);
       setIsSubmitting(false);
-      setIsTextAreaFocused(false); // Reset focus state
+      setIsTextAreaFocused(false);
     }
   }, [isOpen]);
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("image/")) {
       setSelectedFile(file);
-      // Create a temporary URL for preview
+
       setImagePreviewUrl(URL.createObjectURL(file));
-      setError(null); // Clear previous errors
+      setError(null);
     } else {
       setSelectedFile(null);
       setImagePreviewUrl(null);
       if (file) {
-        // Only show error if a file was selected but it wasn't an image
         setError("Please select a valid image file (JPEG, PNG, GIF, etc.).");
       }
     }
   };
   const handleRemoveImage = () => {
     setSelectedFile(null);
-    // Preview URL cleanup is handled by the useEffect hook
-    // Manually clear the file input value if needed (optional, can be tricky)
+
     const fileInput = document.getElementById("post-image-upload");
     if (fileInput) fileInput.value = null;
   };
@@ -1310,60 +1272,48 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!content.trim() && !selectedFile) {
-      // Require content OR an image
       setError("Please write something or add an image to your post.");
       return;
     }
-    if (isSubmitting) return; // Prevent double submission
+    if (isSubmitting) return;
 
     setIsSubmitting(true);
     setError(null);
-
-    // --- Prepare FormData ---
-    // NOTE: Backend MUST be updated to handle 'multipart/form-data'
-    // and look for an 'image_file' field.
     const formData = new FormData();
     formData.append("content", content);
     formData.append(
       "author_name",
       currentUser?.name || currentUser?.email || "Anonymous User"
     );
-    formData.append("user_id", currentUser?.id || "Anonymous user"); // Ensure backend uses this for author_id
-    formData.append("author_email", currentUser?.email); // Keep sending email for lookup if needed
+    formData.append("user_id", currentUser?.id || "Anonymous user");
+    formData.append("author_email", currentUser?.email);
 
     if (selectedFile) {
-      formData.append("image_file", selectedFile); // Key the backend will look for
-      // Do NOT append image_url here unless backend specifically needs it
+      formData.append("image_file", selectedFile);
     }
 
-    // --- Log FormData content for debugging (can't directly log FormData easily) ---
     console.log("Submitting Post Data:");
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value instanceof File ? value.name : value);
     }
-    // --- End Logging ---
 
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/feed/posts/",
-        formData, // Send FormData
+        formData,
         {
-          // Add headers if necessary, Axios often sets Content-Type automatically for FormData
           headers: {
             "Content-Type": "multipart/form-data",
-            // Add Authorization header if your backend requires it for post creation
-            // Authorization: `Bearer ${your_token_here}`
           },
         }
       );
       console.log("Post created successfully:", response.data);
       onPostCreated(response.data);
-      onClose(); // Close modal on success
+      onClose();
     } catch (err) {
       console.error("Error creating post:", err);
       let errorMessage = "Failed to create post. Please try again.";
       if (err.response && err.response.data) {
-        // Try to parse backend error messages
         const errors = err.response.data;
         let messages = "";
         if (typeof errors === "object" && errors !== null) {
@@ -1374,7 +1324,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
             )
             .join("; ");
         } else if (typeof errors === "string") {
-          messages = errors; // Handle plain string errors
+          messages = errors;
         }
         if (messages) errorMessage = messages;
       } else if (err.request) {
@@ -1384,11 +1334,10 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
       }
       setError(errorMessage);
     } finally {
-      setIsSubmitting(false); // Always stop submitting state
+      setIsSubmitting(false);
     }
   };
 
-  // --- Modal Animation ---
   const backdropVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
@@ -1404,46 +1353,41 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
     exit: { opacity: 0, y: 50, scale: 0.9, transition: { duration: 0.2 } },
   };
 
-  // Combine base and hover styles for close button
   const closeButtonStyle = {
     ...styles.modalCloseButtonEnhanced,
     ...(isCloseHovered && styles.modalCloseButtonEnhancedHover),
   };
-  // Combine base and hover styles for file label
+
   const fileLabelStyle = {
     ...styles.fileInputLabel,
     ...(isFileLabelHovered && styles.fileInputLabelHover),
   };
-  // Combine base and disabled styles for submit button
+
   const submitButtonStyle = isSubmitting
     ? styles.modalSubmitButtonDisabledStyleEnhanced
     : styles.modalSubmitButtonStyleEnhanced;
-  // Combine base and focus styles for textarea
+
   const textAreaStyle = {
     ...styles.modalFormTextAreaEnhanced,
     ...(isTextAreaFocused && styles.modalFormTextAreaEnhancedFocus),
   };
 
-  // Don't render anything if not open
   if (!isOpen) return null;
 
   return (
-    // Use AnimatePresence in the parent component (Dashboard) for enter/exit animations
-    // This component assumes it's wrapped in AnimatePresence
     <motion.div
       style={styles.modalOverlay}
       variants={backdropVariants}
       initial="hidden"
       animate="visible"
       exit="hidden"
-      onClick={onClose} // Close when clicking overlay
+      onClick={onClose}
     >
       <motion.div
-        style={styles.modalContentEnhanced} // Use enhanced style
+        style={styles.modalContentEnhanced}
         variants={modalVariants}
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal content
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           style={closeButtonStyle}
           onClick={onClose}
@@ -1454,13 +1398,10 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
           <FiX />
         </button>
 
-        {/* Title */}
         <h3 style={styles.modalTitleEnhanced}>Create New Post</h3>
 
-        {/* Display Error */}
         {error && <p style={styles.modalErrorEnhanced}>{error}</p>}
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
           style={{
@@ -1470,40 +1411,37 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
             gap: "15px",
           }}
         >
-          {/* Text Area */}
           <textarea
             placeholder={`What's on your mind, ${currentUser?.name || "User"}?`}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            style={textAreaStyle} // Use combined style
-            required={!selectedFile} // Content is required only if no image is selected
+            style={textAreaStyle}
+            required={!selectedFile}
             disabled={isSubmitting}
-            rows={5} // Suggest initial height
+            rows={5}
             onFocus={() => setIsTextAreaFocused(true)}
             onBlur={() => setIsTextAreaFocused(false)}
           />
 
-          {/* Hidden File Input */}
           <input
             type="file"
-            id="post-image-upload" // ID for the label's htmlFor
-            style={styles.fileInputHidden} // Hide the default input
+            id="post-image-upload"
+            style={styles.fileInputHidden}
             onChange={handleFileChange}
-            accept="image/*" // Accept only image files
+            accept="image/*"
             disabled={isSubmitting}
           />
 
-          {/* Styled File Input Label */}
           <label
             htmlFor="post-image-upload"
-            style={fileLabelStyle} // Use combined style
+            style={fileLabelStyle}
             onMouseEnter={() => setIsFileLabelHovered(true)}
             onMouseLeave={() => setIsFileLabelHovered(false)}
-            role="button" // Indicate it's clickable
-            tabIndex={0} // Make it focusable
+            role="button"
+            tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") e.currentTarget.click();
-            }} // Allow keyboard activation
+            }}
           >
             <FiImage />
             {selectedFile
@@ -1511,7 +1449,6 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
               : "Add Photo (Optional)"}
           </label>
 
-          {/* Image Preview */}
           {imagePreviewUrl && (
             <div style={styles.imagePreviewContainer}>
               <img
@@ -1520,7 +1457,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
                 style={styles.imagePreviewImg}
               />
               <button
-                type="button" // Prevent form submission
+                type="button"
                 style={styles.removeImageButton}
                 onClick={handleRemoveImage}
                 aria-label="Remove selected image"
@@ -1530,11 +1467,10 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
             </div>
           )}
 
-          {/* Submit Button */}
           <div style={styles.modalSubmitButtonContainer}>
             <motion.button
               type="submit"
-              style={submitButtonStyle} // Use combined style
+              style={submitButtonStyle}
               disabled={isSubmitting}
               whileHover={
                 !isSubmitting
@@ -1558,31 +1494,26 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
     </motion.div>
   );
 };
-// Main Dashboard Component
+
 const Dashboard = () => {
-  // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null); // Holds {id, email, name, profilePicUrl}
+  const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  // Profile Status State
+
   const [profileStatus, setProfileStatus] = useState("loading");
 
   const navigate = useNavigate();
 
-  // Feed State
   const [posts, setPosts] = useState([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [errorFeed, setErrorFeed] = useState(null);
 
-  // Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Fetch User Profile function remains (not used in auth check anymore)
-  const fetchUserProfile = useCallback(async (userId) => {
-    /* ... keep implementation ... */
-  }, []);
+  // const fetchUserProfile = useCallback(async (userId) => {
+  //   /* ... keep implementation ... */
+  // }, []);
 
-  // Effect for Auth State Changes (Using Email Profile Check - INSECURE)
   useEffect(() => {
     console.log("Auth useEffect started.");
     let initialCheckDone = false;
@@ -1596,7 +1527,7 @@ const Dashboard = () => {
           `checkProfileAndSetState: Setting auth true. User Email: ${userEmail}`
         );
         setIsAuthenticated(true);
-        // Set basic user state immediately
+
         const basicUser = {
           id: session.user.id,
           email: userEmail,
@@ -1618,11 +1549,11 @@ const Dashboard = () => {
             response.data
           );
           setProfileStatus("exists");
-          // Update user state with more details from profile
+
           setUser((prevUser) => ({
             ...prevUser,
             name: response.data?.name || prevUser?.name,
-            profilePicUrl: response.data?.profile_pic_url, // Add pic URL
+            profilePicUrl: response.data?.profile_pic_url,
           }));
         } catch (err) {
           if (err.response && err.response.status === 404) {
@@ -1698,21 +1629,19 @@ const Dashboard = () => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, []); // Removed fetchUserProfile from dependency array
+  }, []);
 
-  // Fetching Logic for Feed Posts (Depends on profileStatus)
   const fetchPosts = useCallback(
     async (showLoading = true) => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session?.user || profileStatus !== "exists") {
-        // Check profile status too
         console.log(
           "Skipping feed fetch: Not authenticated or profile doesn't exist."
         );
-        setLoadingFeed(false); // Ensure loading stops
-        // setPosts([]); // Optionally clear posts, or keep stale data
+        setLoadingFeed(false);
+
         return;
       }
       if (showLoading) setLoadingFeed(true);
@@ -1731,20 +1660,16 @@ const Dashboard = () => {
           "http://127.0.0.1:8000/api/feed/posts/",
           {
             params: {
-              // Send the user's name to the backend so it knows who is asking
-              // The backend MUST NOT trust this implicitly in production!
               requesting_user_name: user.name,
             },
           }
         );
         const postsData = response.data.results || response.data;
 
-        // --- >>> ADD THIS LOG <<< ---
         console.log(
           "RAW FEED DATA FROM BACKEND:",
           JSON.stringify(postsData, null, 2)
         );
-        // --- >>> END LOG <<< ---
 
         if (Array.isArray(postsData)) {
           setPosts(postsData);
@@ -1763,7 +1688,6 @@ const Dashboard = () => {
     [profileStatus, user]
   );
 
-  // Fetch posts when profileStatus changes to 'exists'
   useEffect(() => {
     if (profileStatus === "exists") {
       fetchPosts();
@@ -1775,31 +1699,24 @@ const Dashboard = () => {
   useEffect(() => {
     const handleFocus = () => {
       console.log("Dashboard focused, refetching posts...");
-      // Refetch without showing the main loading spinner for a smoother UX
+
       fetchPosts(false);
     };
 
     window.addEventListener("focus", handleFocus);
-    // Optional: Also fetch immediately when component mounts after initial auth/profile check
-    // This helps if user navigates directly to dashboard after login elsewhere
-    // fetchPosts(false); // Fetch silently on mount too if needed
 
-    // Cleanup listener on unmount
     return () => {
       window.removeEventListener("focus", handleFocus);
     };
   }, [fetchPosts]);
-  // Modal Handlers
+
   const handleLikePost = useCallback(
     async (postId) => {
-      // No isLiked parameter needed if backend toggles
-      // --- >>> Get User NAME from state <<< ---
       if (!user || !user.name) {
-        // Check for user and user.name
         console.error(
           "User name not available in Dashboard state. Cannot like post."
         );
-        // Optionally check if name is just the email and prevent liking?
+
         if (user && user.name === user.email) {
           alert(
             "Please complete your profile (set a name) before liking posts."
@@ -1812,22 +1729,19 @@ const Dashboard = () => {
           throw new Error("User name missing");
         }
       }
-      const userName = user.name; // Get the name from the user state
-      const userIdForLogging = user.id; // Keep ID for logging if needed
-      // --- >>> End Get User Name <<< ---
+      const userName = user.name;
+      const userIdForLogging = user.id;
 
       console.log(
         `Attempting to toggle like for post ${postId} by user name: '${userName}' (ID: ${userIdForLogging})`
       );
 
       try {
-        // --- >>> Send User NAME in Request Body <<< ---
         const response = await axios.post(
           `http://127.0.0.1:8000/api/feed/posts/${postId}/like/`,
-          // Send the user NAME instead of the ID
+
           { user_name: userName }
         );
-        // --- >>> End Body Change <<< ---
 
         console.log(`Like toggle successful for ${postId}:`, response.data);
         return {
@@ -1839,24 +1753,23 @@ const Dashboard = () => {
           `Like toggle error for post ${postId}:`,
           error.response?.data || error.message
         );
-        // Adjust error messages if needed
+
         if (error.response?.status === 404) {
-          alert("Post not found."); // 404 now likely means only Post not found
+          alert("Post not found.");
         } else if (
           error.response?.status === 400 &&
           error.response?.data?.detail?.includes("blank")
         ) {
-          alert("Cannot like with a blank username."); // Specific error for blank name
+          alert("Cannot like with a blank username.");
         } else {
           alert("Failed to update like status.");
         }
         throw error;
       }
     },
-    [user] // Keep user dependency
-  ); // Empty dependency array is fine if it only relies on props passed in
+    [user]
+  );
 
-  // --- >>> NEW: Delete Post Handler <<< ---
   const handleDeletePost = useCallback(
     async (postId) => {
       const sessionData = await supabase.auth.getSession();
@@ -1872,7 +1785,7 @@ const Dashboard = () => {
         await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
           data: { user_id: currentUserId },
         });
-        // Remove post directly from Dashboard state after successful deletion
+
         setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
       } catch (error) {
         console.error(`Delete error:`, error.response?.data || error.message);
@@ -1880,8 +1793,8 @@ const Dashboard = () => {
         if (error.response?.status === 403)
           errorMsg = "You don't have permission to delete this post.";
         if (error.response?.status === 401) errorMsg = "Authentication failed.";
-        alert(errorMsg); // Show feedback
-        throw error; // Re-throw error
+        alert(errorMsg);
+        throw error;
       }
     },
     [user]
@@ -1892,9 +1805,7 @@ const Dashboard = () => {
     );
     setPosts((currentPosts) =>
       currentPosts.map((p) =>
-        p.id === postId
-          ? { ...p, comment_count: newCount } // Update only the specific post's count
-          : p
+        p.id === postId ? { ...p, comment_count: newCount } : p
       )
     );
   }, []);
@@ -1915,62 +1826,28 @@ const Dashboard = () => {
     setPosts((prevPosts) => [postWithCount, ...prevPosts]);
   };
 
-  // Logout Handler
   const handleLogout = async () => {
-    // Optional: Keep for immediate visual feedback if desired,
-    // but the listener will also set loading.
-    // setAuthLoading(true);
-
     try {
       console.log("Attempting Supabase sign out...");
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        // Log the error, but don't necessarily stop the logout flow
-        // especially if it's the AuthSessionMissingError
         console.error("Error during Supabase sign out:", error);
-
-        // You could specifically check for the error type if needed:
-        // if (error.name === 'AuthSessionMissingError') {
-        //   console.warn("Sign out called, but session was already missing.");
-        // } else {
-        //   // Handle other potential sign-out errors more critically if needed
-        //   alert(`Logout failed: ${error.message}`);
-        //   setAuthLoading(false); // Stop loading indicator on critical failure
-        //   return; // Stop execution if it's a critical error
-        // }
       } else {
         console.log("Supabase sign out successful.");
       }
     } catch (catchError) {
-      // Catch any unexpected errors during the signOut process itself
       console.error("Unexpected error calling signOut:", catchError);
-      // Still proceed to navigate, as the user's intent is to log out.
     } finally {
-      // This block executes whether signOut succeeded or failed (including AuthSessionMissingError).
-      // It's the critical part to ensure the UI reflects the logged-out state.
-
-      // IMPORTANT: Let the onAuthStateChange listener handle setting
-      // setIsAuthenticated(false), setUser(null), and potentially authLoading=false.
-      // Directly setting them here can cause race conditions with the listener.
-
-      // The primary action here is navigation.
       console.log("Navigating to /signin after logout attempt.");
       navigate("/signin");
-
-      // Note: The onAuthStateChange listener should fire shortly after signOut
-      // (even if it errored with AuthSessionMissingError) or upon navigation
-      // to a page requiring auth, and it will correctly update
-      // isAuthenticated, user, and authLoading state.
     }
   };
 
-  // Navigation handler for Setup Profile modal
   const handleNavigateToProfile = () => {
     navigate("/profile");
   };
 
-  // Render Loading States
   if (authLoading) {
     return <div style={styles.loadingOverlay}> Loading Authentication... </div>;
   }
@@ -1978,7 +1855,6 @@ const Dashboard = () => {
     return <div style={styles.loadingOverlay}> Checking Profile... </div>;
   }
 
-  // Main component render
   return (
     <div style={styles.dashboardContainer}>
       <SideNav />
