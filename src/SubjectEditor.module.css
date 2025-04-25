@@ -1,0 +1,106 @@
+/* SubjectEditor.module.css */
+
+:root {
+    --bg-color: #0d1117;
+    --card-bg: rgba(26, 28, 42, 0.65); 
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-hover-bg: rgba(37, 40, 60, 0.8);
+    --card-hover-border: rgba(255, 255, 255, 0.15);
+    --primary-accent: #8c78ff;
+    --primary-accent-glow: rgba(140, 120, 255, 0.2);
+    --secondary-accent: #00f5d4;
+    --text-primary: #f0f0f5;
+    --text-secondary: #a0a3bd;
+    --text-placeholder: #6a6f93;
+    --icon-bg: rgba(140, 120, 255, 0.1);
+    --icon-color: var(--primary-accent);
+    --font-family: 'Inter', sans-serif;
+    --card-border-radius: 16px;
+    --element-border-radius: 10px;
+  }
+  
+  .editorContainer {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    font-family: var(--font-family);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    color: var(--text-primary);
+  
+    /* Background Layers */
+    background-color: var(--bg-color);
+    background-image:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(140, 120, 255, 0.12) 0%,
+            rgba(140, 120, 255, 0) 30%
+        ),
+        radial-gradient(
+            ellipse at center,
+            rgba(13, 17, 23, 0.6) 0%,
+            rgba(13, 17, 23, 0.9) 70%,
+            var(--bg-color) 100%
+        );
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed, fixed;
+  }
+  
+  .backButton {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: color 0.2s ease;
+  }
+  
+  .backButton:hover {
+    color: var(--primary-accent);
+  }
+  
+  .subjectTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .textArea {
+    width: 100%;
+    height: 300px;
+    padding: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    resize: vertical;
+    background-color: rgb(216, 217, 232);
+    box-sizing: border-box;
+    color: #2e333c;
+  }
+  
+  .saveButton {
+    align-self: flex-end;
+    background-color: var(--primary-accent);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .saveButton:hover {
+    background-color: var(--primary-accent-glow);
+  }
+  
