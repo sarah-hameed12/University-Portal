@@ -349,6 +349,54 @@
     color: var(--secondary-accent); /* Switch to teal on hover */
     text-decoration: underline;
 }
+.helperLinkContainer {
+  width: 100%;
+  text-align: right;
+  margin-bottom: 20px; /* Space before the main button */
+  margin-top: -10px; /* Pull closer to the input above */
+}
+
+/* Style the helperLink buttons */
+.helperLink {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+    background: none; /* Ensure button looks like link */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit; /* Inherit font */
+}
+.helperLink:hover {
+    color: var(--primary-accent);
+    text-decoration: underline;
+}
+
+/* Ensure consistent focus styles if needed */
+.helperLink:focus {
+    outline: 1px dashed var(--primary-accent); /* Example focus */
+    outline-offset: 2px;
+}
+
+/* Adjust margin if the signup link is conditionally hidden */
+/* If .switchFormContainer is always present */
+/* .switchFormContainer { margin-top: 25px; } */
+
+/* If .switchFormContainer might be hidden, adjust bottom margin of button */
+.button {
+  /* Existing styles */
+  /* Add margin-bottom if the signup link might disappear */
+  margin-bottom: 25px;
+}
+
+/* Reset bottom margin if the signup link *is* present */
+
+
+.switchFormContainer {
+  margin-top: 25px; /* Ensure space above this if button margin-bottom is removed */
+   /* ... other styles */
+}
   /* Optional: Slightly more opaque card background */
   /* :root { --card-bg: rgba(26, 28, 42, 0.8); } */
   

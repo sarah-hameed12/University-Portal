@@ -1,25 +1,21 @@
-// src/pages/UserProfileView.jsx
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import styles from "./UserProfileView.module.css"; // Use the dedicated CSS module
+import styles from "./UserProfileView.module.css";
 
-// --- Import Icons ---
 import {
   FiUser,
   FiMail,
   FiCalendar,
-  FiBookOpen, // Represents School/Major
-  FiAward, // Represents Batch
-  FiHeart, // Represents Interests
-  FiBriefcase, // Represents Courses (or FiClipboard)
-  FiHome, // Back to Dashboard
-  FiAlertCircle, // For errors
+  FiBookOpen,
+  FiAward,
+  FiHeart,
+  FiBriefcase,
+  FiHome,
+  FiAlertCircle,
 } from "react-icons/fi";
 
-// Animation Variants
 const pageVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -30,20 +26,18 @@ const cardVariants = {
   },
 };
 const messageVariants = {
-  // For potential future messages inside the card
   hidden: { opacity: 0, y: -10 },
   visible: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -10 },
 };
 
 const UserProfileView = () => {
-  const { email } = useParams(); // Get email from URL parameter
+  const { email } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch Profile Data using EMAIL from URL parameter
   const fetchUserProfileView = useCallback(async () => {
     if (!email) {
       setError("No user email specified in the URL.");
@@ -82,7 +76,6 @@ const UserProfileView = () => {
     fetchUserProfileView();
   }, [fetchUserProfileView]);
 
-  // Helper function to format multi-line text (Courses, Interests)
   const formatMultiLine = (text) => {
     if (!text)
       return <span className={styles.notSpecified}>Not specified</span>;
@@ -90,21 +83,14 @@ const UserProfileView = () => {
       .split(",")
       .map((item) => item.trim())
       .filter((item) => item !== "");
-    // Display as a list or comma-separated string
-    // Option 1: Comma-separated
-    // return items.length > 0 ? items.join(', ') : <span className={styles.notSpecified}>Not specified</span>;
-    // Option 2: Unordered list (might need more styling)
+
     return items.length > 0 ? (
-      // Using simple text join for now, adjust if list is needed
       items.join(", ")
     ) : (
       <span className={styles.notSpecified}>Not specified</span>
     );
   };
 
-  // --- Render Logic ---
-
-  // Loading State
   if (loading) {
     return (
       <div className={styles.loadingState}>
@@ -120,7 +106,6 @@ const UserProfileView = () => {
     );
   }
 
-  // Error State
   if (error) {
     return (
       <motion.div
@@ -158,7 +143,6 @@ const UserProfileView = () => {
     );
   }
 
-  // Profile Not Found (Explicit check in case error handling changes)
   if (!profileData) {
     return (
       <motion.div
@@ -218,7 +202,7 @@ const UserProfileView = () => {
       >
         <motion.div
           className={styles.backToHomeButton}
-          whileHover={{ scale: 1.05 }} // Use scale from CSS hover or Framer Motion
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           <FiHome className={styles.backToHomeIcon} />
@@ -227,10 +211,7 @@ const UserProfileView = () => {
       <motion.div className={styles.profileCard} variants={cardVariants}>
         {/* Header */}
         <div className={styles.profileHeader}>
-          <motion.div
-            className={styles.avatarWrapper}
-            // whileHover={{ scale: 1.03 }} // Hover handled by CSS
-          >
+          <motion.div className={styles.avatarWrapper}>
             <img
               src={avatarSrc}
               alt={`${profileData.name || "User"}'s Profile`}

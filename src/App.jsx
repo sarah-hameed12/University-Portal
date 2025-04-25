@@ -25,6 +25,7 @@ import Communities from "./Communities";
 import CommunityDetail from "./CommunityDetail";
 import VoiceChannel from "./VoiceChannel.jsx";
 import RequireAuth from "./RequireAuth";
+import UpdatePasswordPage from "./UpdatePasswordPage";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -126,6 +127,7 @@ const App = () => {
         {/* --- Public Routes --- */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup2" element={<Signup />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
         {/* Optional: Add a public welcome page if needed */}
         {/* <Route path="/welcome" element={<WelcomePage />} /> */}
 
