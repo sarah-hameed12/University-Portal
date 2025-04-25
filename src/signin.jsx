@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./signin.module.css"; // Reuse the Signup styles!
 
-// --- Import Icons ---
-import { FiUser, FiLock } from "react-icons/fi"; // Example icons
+import { FiUser, FiLock } from "react-icons/fi";
 
-// Supabase Client
-const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpdm9ramN1bG5mbHJ5eHp0ZmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5NzExOTAsImV4cCI6MjA1NDU0NzE5MH0.8rBAN4tZP8S0j1wkfj8SwSN1Opdf9LOERb-T47rZRYk";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Animation Variants
 const splitLayoutVariants = {
-  // Renamed from cardVariants for clarity
   hidden: { opacity: 0, scale: 0.95 },
   visible: {
     opacity: 1,
@@ -43,7 +38,8 @@ const SignIn = () => {
   const [isError, setIsError] = useState(false);
   const [isIdValid, setIsIdValid] = useState(null);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/dashboard";
   const validateStudentId = (id) => /^\d{8}$/.test(id);
   useEffect(() => {
     setIsIdValid(userId ? validateStudentId(userId) : null);
@@ -73,7 +69,8 @@ const SignIn = () => {
     } else {
       setMessage("✅ Login successful! Welcome back.");
       setIsError(false);
-      navigate("/dashboard");
+      navigate(from, { replace: true });
+      // navigate("/dashboard");
     }
   };
 

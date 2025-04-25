@@ -6,10 +6,9 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import Chatbot from "./chatbot";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabaseUrl = "https://iivokjculnflryxztfgf.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpdm9ramN1bG5mbHJ5eHp0ZmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5NzExOTAsImV4cCI6MjA1NDU0NzE5MH0.8rBAN4tZP8S0j1wkfj8SwSN1Opdf9LOERb-T47rZRYk";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 import {
@@ -1915,15 +1914,52 @@ const Dashboard = () => {
 
   // Logout Handler
   const handleLogout = async () => {
-    setAuthLoading(true); // Show loading during logout transition
-    const { error } = await supabase.auth.signOut();
-    // No need to manually set authLoading false here, listener will handle state update
-    if (error) {
-      console.error("Error logging out:", error);
-      setAuthLoading(false); /* Handle error display */
-    } else {
+    // Optional: Keep for immediate visual feedback if desired,
+    // but the listener will also set loading.
+    // setAuthLoading(true);
+
+    try {
+      console.log("Attempting Supabase sign out...");
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        // Log the error, but don't necessarily stop the logout flow
+        // especially if it's the AuthSessionMissingError
+        console.error("Error during Supabase sign out:", error);
+
+        // You could specifically check for the error type if needed:
+        // if (error.name === 'AuthSessionMissingError') {
+        //   console.warn("Sign out called, but session was already missing.");
+        // } else {
+        //   // Handle other potential sign-out errors more critically if needed
+        //   alert(`Logout failed: ${error.message}`);
+        //   setAuthLoading(false); // Stop loading indicator on critical failure
+        //   return; // Stop execution if it's a critical error
+        // }
+      } else {
+        console.log("Supabase sign out successful.");
+      }
+    } catch (catchError) {
+      // Catch any unexpected errors during the signOut process itself
+      console.error("Unexpected error calling signOut:", catchError);
+      // Still proceed to navigate, as the user's intent is to log out.
+    } finally {
+      // This block executes whether signOut succeeded or failed (including AuthSessionMissingError).
+      // It's the critical part to ensure the UI reflects the logged-out state.
+
+      // IMPORTANT: Let the onAuthStateChange listener handle setting
+      // setIsAuthenticated(false), setUser(null), and potentially authLoading=false.
+      // Directly setting them here can cause race conditions with the listener.
+
+      // The primary action here is navigation.
+      console.log("Navigating to /signin after logout attempt.");
       navigate("/signin");
-    } // Navigate after sign out attempt
+
+      // Note: The onAuthStateChange listener should fire shortly after signOut
+      // (even if it errored with AuthSessionMissingError) or upon navigation
+      // to a page requiring auth, and it will correctly update
+      // isAuthenticated, user, and authLoading state.
+    }
   };
 
   // Navigation handler for Setup Profile modal
