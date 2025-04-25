@@ -1,0 +1,94 @@
+.card {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    width: 300px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+.card h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.form {
+    display: flex;
+    width: 80%; 
+    flex-direction: column;
+    align-items: center;
+}
+
+.form input,
+.form textarea {
+    width: 80%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #2a2a2a;
+    color: white;
+}
+
+.form button {
+    padding: 10px 15px;
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    width: 80%; 
+}
+
+.list-item:hover {
+    background-color: #3a3939; 
+}
+
+.card > ul { 
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+.small-text {
+    font-size: 0.8rem;
+    color: #aaa;
+    text-align: left;
+}
+
+.notification {
+    background-color: #1e3a8a; 
+    padding: 10px;
+    border-radius: 6px;
+    color: white;
+    margin-bottom: 8px;
+    width: 80%; 
+    text-align: left;
+}
+
+.notification:hover {
+    background-color: #284ba7; 
+}
+
+.notification-list {
+    list-style: none;
+    padding-left: 0;
+    width: 90%;
+    margin: 0;
+}

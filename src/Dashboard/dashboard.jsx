@@ -39,6 +39,7 @@ import {
 import { MdGroups } from "react-icons/md";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiMail } from "react-icons/fi";
 
 // --- Style Definitions (Includes all dashboard, modal, loading styles) ---
 const styles = {
@@ -702,6 +703,7 @@ export const SideNav = () => {
     { name: "Communities", icon: <IoIosPeople />, path: "/communities" },
     {name: "Meetup", icon: <MdGroups/>, path: "/meetup" },
     { name: "Societies", icon: <FiUsers />, path: "/society" },
+    { name: "Emails", icon: <FiMail />, path: "/emails" },
     { name: "About Us", icon: <FiInfo />, path: "/about-us" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
