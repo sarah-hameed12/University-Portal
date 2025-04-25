@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./SubjectEditor.module.css";
+import styles from "../Styles/SubjectEditor.module.css";
 
 const SubjectEditor = ({ subject, onBack, onUpdate }) => {
   const [content, setContent] = useState(subject.content);
