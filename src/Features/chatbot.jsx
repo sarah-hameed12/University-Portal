@@ -1,20 +1,17 @@
-// src/Chatbot.jsx
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import axios from "axios"; // If calling your backend proxy
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMessageSquare, FiX, FiSend, FiLoader, FiCpu } from "react-icons/fi";
-import { GoogleGenerativeAI } from "@google/generative-ai"; // Import if calling Gemini directly (NOT RECOMMENDED for production)
 
-// --- Styles specific to Chatbot ---
 const chatbotStyles = {
   container: {
     position: "fixed",
     bottom: "25px",
     right: "25px",
-    zIndex: 1010, // Above most dashboard content but below critical overlays if any
+    zIndex: 1010,
   },
   toggleButton: {
-    backgroundColor: "#8c78ff", // Use theme accent
+    backgroundColor: "#8c78ff",
     color: "white",
     border: "none",
     borderRadius: "50%",
@@ -23,32 +20,32 @@ const chatbotStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "1.8rem", // Icon size
+    fontSize: "1.8rem",
     cursor: "pointer",
     boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
     transition: "transform 0.2s ease-out, background-color 0.2s ease",
   },
   toggleButtonHover: {
     transform: "scale(1.1)",
-    backgroundColor: "#7038d4", // Darker accent on hover
+    backgroundColor: "#7038d4",
   },
   window: {
     position: "fixed",
-    bottom: "100px", // Position above the button
+    bottom: "100px",
     right: "25px",
-    width: "350px", // Adjust width as needed
-    height: "450px", // Adjust height as needed
-    backgroundColor: "#161827", // Dark background consistent with theme
+    width: "350px",
+    height: "450px",
+    backgroundColor: "#161827",
     borderRadius: "12px",
     boxShadow: "0 5px 25px rgba(0, 0, 0, 0.5)",
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden", // Prevent content spillover during animation
-    border: "1px solid #374151", // Consistent border
-    zIndex: 1009, // Just below the button when closed
+    overflow: "hidden",
+    border: "1px solid #374151",
+    zIndex: 1009,
   },
   header: {
-    backgroundColor: "#1f2937", // Slightly different header background
+    backgroundColor: "#1f2937",
     padding: "10px 15px",
     display: "flex",
     justifyContent: "space-between",
@@ -83,11 +80,11 @@ const chatbotStyles = {
     display: "flex",
     flexDirection: "column",
     gap: "12px",
-    color: "#e5e7eb", // Default text color
-    scrollbarWidth: "thin", // For Firefox
-    scrollbarColor: "#4b5563 #1f2937", // For Firefox
+    color: "#e5e7eb",
+    scrollbarWidth: "thin",
+    scrollbarColor: "#4b5563 #1f2937",
   },
-  // Webkit scrollbar styles
+
   messagesAreaWebkitScrollbar: {
     width: "6px",
   },
@@ -108,13 +105,13 @@ const chatbotStyles = {
     wordWrap: "break-word",
   },
   userMessage: {
-    backgroundColor: "#8c78ff", // Accent color for user
+    backgroundColor: "#8c78ff",
     color: "white",
     alignSelf: "flex-end",
     borderBottomRightRadius: "2px",
   },
   modelMessage: {
-    backgroundColor: "#374151", // Darker grey for model
+    backgroundColor: "#374151",
     color: "#e5e7eb",
     alignSelf: "flex-start",
     borderBottomLeftRadius: "2px",
@@ -122,7 +119,7 @@ const chatbotStyles = {
   inputArea: {
     padding: "10px 15px",
     borderTop: "1px solid #374151",
-    backgroundColor: "#1f2937", // Match header background
+    backgroundColor: "#1f2937",
   },
   inputForm: {
     display: "flex",
@@ -149,9 +146,9 @@ const chatbotStyles = {
     border: "none",
     color: "white",
     borderRadius: "6px",
-    padding: "8px 12px", // Adjust padding
+    padding: "8px 12px",
     cursor: "pointer",
-    fontSize: "1.1rem", // Icon size
+    fontSize: "1.1rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -178,7 +175,6 @@ const chatbotStyles = {
   },
 };
 
-// --- Chatbot Component ---
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -191,19 +187,16 @@ const Chatbot = () => {
   const [isCloseHovered, setIsCloseHovered] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const messagesEndRef = useRef(null); // Ref for scrolling
+  const messagesEndRef = useRef(null);
 
-  // --- Auto-scroll to bottom ---
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(scrollToBottom, [messages]); // Scroll when messages change
+  useEffect(scrollToBottom, [messages]);
 
-  // --- Toggle Chat Window ---
   const toggleChat = () => setIsOpen(!isOpen);
 
-  // --- Handle Sending Message ---
   const handleSendMessage = useCallback(
     async (event) => {
       event.preventDefault();
@@ -219,38 +212,16 @@ const Chatbot = () => {
       setIsLoading(true);
       setError(null);
 
-      // --- Prepare history for API ---
-      // Gemini expects history in { role: 'user' | 'model', parts: [{ text: '...'}] } format
       const chatHistory = [...messages, newUserMessage].map((msg) => ({
         role: msg.role,
         parts: msg.parts,
       }));
 
-      // --- !!! IMPORTANT: API Call Placeholder !!! ---
-      // **NEVER put your actual API key here in the frontend.**
-      // This call should go to YOUR backend endpoint, which then securely calls Google.
-      console.log("Sending to backend (placeholder):", chatHistory);
-
       try {
-        // --- Example: Calling YOUR backend endpoint ---
         const response = await axios.post("/api/chatbot/query/", {
-          // Use the path defined in urls.py
           history: chatHistory,
         });
-        const modelResponse = response.data.reply; // Assuming your backend returns { reply: "..." }
-
-        // --- Example: Direct call to Gemini (for testing ONLY, NOT recommended for production) ---
-        // const apiKey = "YOUR_GOOGLE_AI_STUDIO_API_KEY"; // Replace with your actual key (unsafe!)
-        // if (!apiKey || apiKey === "YOUR_GOOGLE_AI_STUDIO_API_KEY") {
-        //      throw new Error("API Key Missing or Placeholder!");
-        // }
-        // const genAI = new GoogleGenerativeAI(apiKey);
-        // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" }); // Or "gemini-1.5-pro-latest"
-        // const chat = model.startChat({ history: messages.map(msg => ({role: msg.role, parts: msg.parts})) }); // Pass history
-        // const result = await chat.sendMessage(userMessageText);
-        // const modelResponse = await result.response.text();
-        // --- End Direct Call Example ---
-
+        const modelResponse = response.data.reply;
         if (modelResponse) {
           setMessages((prevMessages) => [
             ...prevMessages,
@@ -264,16 +235,13 @@ const Chatbot = () => {
         setError(
           err.message || "Sorry, something went wrong. Please try again."
         );
-        // Optionally remove the user's message if the request fails? Or leave it?
-        // setMessages(prev => prev.slice(0, -1)); // Removes last (user) message on error
       } finally {
         setIsLoading(false);
       }
     },
     [inputValue, isLoading, messages]
-  ); // Dependencies for the send handler
+  );
 
-  // --- Animation Variants ---
   const windowVariants = {
     hidden: { opacity: 0, y: 50, scale: 0.9 },
     visible: {
@@ -285,7 +253,6 @@ const Chatbot = () => {
     exit: { opacity: 0, y: 30, scale: 0.9, transition: { duration: 0.2 } },
   };
 
-  // --- Dynamic Styles ---
   const toggleButtonStyle = {
     ...chatbotStyles.toggleButton,
     ...(isButtonHovered && chatbotStyles.toggleButtonHover),
@@ -300,7 +267,7 @@ const Chatbot = () => {
   };
   const sendButtonStyle = {
     ...chatbotStyles.sendButton,
-    ...((!inputValue || isLoading) && chatbotStyles.sendButtonDisabled), // Apply disabled style
+    ...((!inputValue || isLoading) && chatbotStyles.sendButtonDisabled),
   };
 
   return (

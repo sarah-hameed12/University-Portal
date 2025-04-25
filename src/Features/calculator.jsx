@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTrash, FaPlus } from "react-icons/fa";
+import CgpaGauge from "./CgpaGuage";
 
 const gradePoints = {
   "A+": 4.0,
@@ -16,93 +17,6 @@ const gradePoints = {
   D: 1.0,
   F: 0.0,
   U: 0.0,
-};
-
-const CgpaGauge = ({ cgpa }) => {
-  const radius = 50;
-  const circumference = 2 * Math.PI * radius;
-  const validCgpa = Math.max(0, Math.min(4, cgpa || 0));
-  const offset = circumference - (validCgpa / 4.0) * circumference;
-
-  let strokeColor = "#EF4444";
-  if (validCgpa >= 1.0) strokeColor = "#F97316";
-  if (validCgpa >= 2.0) strokeColor = "#EAB308";
-  if (validCgpa >= 3.0) strokeColor = "#22C55E";
-  if (validCgpa >= 3.7) strokeColor = "#3B82F6";
-
-  return (
-    <motion.div
-      style={styles.gaugeWrapper}
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300, damping: 15 }}
-    >
-      <svg
-        style={{
-          overflow: "visible",
-          position: "absolute",
-          width: 0,
-          height: 0,
-        }}
-      >
-        {" "}
-        {/* Hide defs */}
-        <defs>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow
-              dx="0"
-              dy="3"
-              stdDeviation="3"
-              floodColor="#000"
-              floodOpacity="0.3"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      <svg
-        width="120"
-        height="120"
-        viewBox="0 0 120 120"
-        style={styles.gaugeSvg}
-      >
-        <circle
-          cx="60"
-          cy="60"
-          r={radius}
-          fill="none"
-          stroke="#4B5563"
-          strokeWidth="10"
-        />
-        <motion.circle
-          cx="60"
-          cy="60"
-          r={radius}
-          fill="none"
-          stroke={strokeColor}
-          strokeWidth="10"
-          strokeDasharray={circumference}
-          strokeLinecap="round"
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: offset, stroke: strokeColor }}
-          transition={{
-            strokeDashoffset: { type: "spring", stiffness: 80, damping: 20 },
-            stroke: { duration: 0.5 },
-          }}
-        />
-      </svg>
-      <motion.div
-        key={cgpa}
-        style={styles.gaugeText}
-        initial={{ opacity: 0, scale: 0.8, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.1 }}
-      >
-        {cgpa}
-      </motion.div>
-      {/* Changed gaugeLabel style - now part of styles object */}
-      <div style={styles.gaugeLabel}>CGPA</div>
-    </motion.div>
-  );
 };
 
 const Calculator = () => {
@@ -356,39 +270,39 @@ const styles = {
     marginBottom: "0",
   },
 
-  gaugeWrapper: {
-    position: "relative",
-    width: "140px",
-    height: "140px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  gaugeSvg: {
-    transform: "rotate(-90deg)",
-    filter: "url(#shadow)",
-    overflow: "visible",
-  },
-  gaugeText: {
-    position: "absolute",
-    top: "35%",
-    left: "35%",
-    transform: "translate(-50%, -50%)",
-    fontSize: "1.8rem",
-    fontWeight: "600",
-    color: "#FFF",
-    pointerEvents: "none",
-  },
-  gaugeLabel: {
-    position: "absolute",
-    bottom: "-20px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    fontSize: "0.75rem",
-    color: "#9CA3AF",
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-  },
+  // gaugeWrapper: {
+  //   position: "relative",
+  //   width: "140px",
+  //   height: "140px",
+  //   display: "flex",
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
+  // gaugeSvg: {
+  //   transform: "rotate(-90deg)",
+  //   filter: "url(#shadow)",
+  //   overflow: "visible",
+  // },
+  // gaugeText: {
+  //   position: "absolute",
+  //   top: "35%",
+  //   left: "35%",
+  //   transform: "translate(-50%, -50%)",
+  //   fontSize: "1.8rem",
+  //   fontWeight: "600",
+  //   color: "#FFF",
+  //   pointerEvents: "none",
+  // },
+  // gaugeLabel: {
+  //   position: "absolute",
+  //   bottom: "-20px",
+  //   left: "50%",
+  //   transform: "translateX(-50%)",
+  //   fontSize: "0.75rem",
+  //   color: "#9CA3AF",
+  //   textTransform: "uppercase",
+  //   letterSpacing: "0.5px",
+  // },
 
   totalCreditsText: {
     fontSize: "1rem",

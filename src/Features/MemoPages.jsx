@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import styles from "./MemosPage.module.css";
+import styles from "../Styles/MemoPages.module.css";
 import { motion } from "framer-motion";
 import { FiPlus, FiShare2 } from "react-icons/fi";
 import SubjectEditor from "./SubjectEditor";
@@ -100,13 +100,20 @@ const MemosPage = () => {
     <motion.div className={styles.container}>
       <h1 className={styles.header}>Course Memos</h1>
       <div className={styles.actions}>
-        <button className={styles.addButton} onClick={() => setShowAddSubjectCard(true)}>
+        <button
+          className={styles.addButton}
+          onClick={() => setShowAddSubjectCard(true)}
+        >
           <FiPlus /> Add Subject
         </button>
       </div>
 
       {showAddSubjectCard && (
-        <div className={styles.addSubjectCard} ref={addCardRef} data-title="Add Subject">
+        <div
+          className={styles.addSubjectCard}
+          ref={addCardRef}
+          data-title="Add Subject"
+        >
           <div className={styles.cardContent}>
             <input
               type="text"
@@ -123,7 +130,11 @@ const MemosPage = () => {
       )}
 
       {showShareCard && (
-        <div className={styles.addSubjectCard} ref={shareCardRef} data-title="Add User">
+        <div
+          className={styles.addSubjectCard}
+          ref={shareCardRef}
+          data-title="Add User"
+        >
           <div className={styles.cardContent}>
             <input
               type="email"

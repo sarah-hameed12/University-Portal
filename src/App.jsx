@@ -26,6 +26,8 @@ import CommunityDetail from "./Utility/CommunityDetail";
 import VoiceChannel from "./Utility/VoiceChannel.jsx";
 import RequireAuth from "./Auth/RequireAuth";
 import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
+import MemosPage from "./Features/MemoPages.jsx";
+import SubjectEditor from "./Features/SubjectEditor.jsx";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -147,6 +149,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />{" "}
           {/* Assumes Profile fetches its own data */}
           <Route path="/society" element={<SocietiesPage />} />
+          <Route path="memos" element={<MemosPage />} />
           <Route path="/society/:societyId" element={<SocietyDetailPage />} />
           <Route path="/post/:postId/comments" element={<PostDetailPage />} />
           {/* UserProfileView might need the current user passed if it behaves differently for self vs others */}
