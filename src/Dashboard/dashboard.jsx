@@ -701,9 +701,9 @@ export const SideNav = () => {
     { name: "Utilities", icon: <FiGrid />, path: "/documents" },
     { name: "Profile", icon: <FiUser />, path: "/profile" },
     { name: "Communities", icon: <IoIosPeople />, path: "/communities" },
-    {name: "Meetup", icon: <MdGroups/>, path: "/meetup" },
+    { name: "Meetup", icon: <MdGroups />, path: "/meetup" },
     { name: "Societies", icon: <FiUsers />, path: "/society" },
-    { name: "Emails", icon: <FiMail />, path: "/emails" },
+    { name: "Emails", icon: <FiMail />, path: "/email-dashboard" },
     { name: "About Us", icon: <FiInfo />, path: "/about-us" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
