@@ -15,6 +15,10 @@ if (!supabaseUrl || !supabaseKey) {
     "Supabase URL or Anon Key is missing. Check your .env file and VITE_ prefix."
   );
 }
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const UpdatePasswordPage = () => {
