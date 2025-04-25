@@ -29,6 +29,7 @@ import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
 import MemosPage from "./Features/MemoPages.jsx";
 import SubjectEditor from "./Features/SubjectEditor.jsx";
 import SettingsPage from "./Settings/SettingsPage";
+import EmailDash from "./EmailDash/Dashboard";
 import AboutUs from "./Utility/AboutUs.jsx";
 import Meet from "./meetup/meetApp.jsx"; 
 import { WebsocketProvider } from "./meetup/context/websocket.jsx";
@@ -142,6 +143,7 @@ const App = () => {
           <Route path="/chat" element={<ChatApp />} />
           <Route path="/profile" element={<Profile />} />{" "}
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/email-dashboard" element={<EmailDash />} />
           <Route path="/society" element={<SocietiesPage />} />
           <Route path="/meetup" element={<>
           <WebsocketProvider>
