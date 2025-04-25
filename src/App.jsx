@@ -30,7 +30,8 @@ import MemosPage from "./Features/MemoPages.jsx";
 import SubjectEditor from "./Features/SubjectEditor.jsx";
 import SettingsPage from "./Settings/SettingsPage";
 import AboutUs from "./Utility/AboutUs.jsx";
-import Meet from "./meetup/meetApp.jsx"; 
+import Meet from "./meetup/meetApp.jsx";
+import EmailDash from "./EmailDash/Dashboard";
 import { WebsocketProvider } from "./meetup/context/websocket.jsx";
 
 // Initialize Supabase - same as in dashboard.jsx
@@ -143,11 +144,18 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />{" "}
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/society" element={<SocietiesPage />} />
-          <Route path="/meetup" element={<>
-          <WebsocketProvider>
-            <Meet />
-          </WebsocketProvider></>} />
+          <Route
+            path="/meetup"
+            element={
+              <>
+                <WebsocketProvider>
+                  <Meet />
+                </WebsocketProvider>
+              </>
+            }
+          />
           <Route path="memos" element={<MemosPage />} />
+          <Route path="email-dashboard" element={<EmailDash />} />
           <Route path="about-us" element={<AboutUs />} />
           <Route path="/society/:societyId" element={<SocietyDetailPage />} />
           <Route path="/post/:postId/comments" element={<PostDetailPage />} />
