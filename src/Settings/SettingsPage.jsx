@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Styles/settings.css";
+import "../Styles/settings.css";
 import { Link } from "react-router-dom";
 import { FiHome } from "react-icons/fi";
 import { motion } from "framer-motion";

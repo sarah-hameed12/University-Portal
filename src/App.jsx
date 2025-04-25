@@ -29,6 +29,7 @@ import UpdatePasswordPage from "./Auth/UpdatePasswordPage";
 import MemosPage from "./Features/MemoPages.jsx";
 import SubjectEditor from "./Features/SubjectEditor.jsx";
 import SettingsPage from "./settings/SettingsPage";
+import AboutUs from "./Utility/AboutUs.jsx";
 
 // Initialize Supabase - same as in dashboard.jsx
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -141,6 +142,7 @@ const App = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/society" element={<SocietiesPage />} />
           <Route path="memos" element={<MemosPage />} />
+          <Route path="about-us" element={<AboutUs />} />
           <Route path="/society/:societyId" element={<SocietyDetailPage />} />
           <Route path="/post/:postId/comments" element={<PostDetailPage />} />
           <Route path="/profile/email/:email" element={<UserProfileView />} />

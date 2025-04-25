@@ -33,6 +33,7 @@ import {
   FiCornerDownRight,
   FiChevronsRight,
   FiUsers,
+  FiInfo,
   // FaPeopleGroup // Add this import
 } from "react-icons/fi";
 import { FaPeopleGroup } from "react-icons/fa6";
@@ -699,6 +700,7 @@ export const SideNav = () => {
     { name: "Profile", icon: <FiUser />, path: "/profile" },
     { name: "Communities", icon: <IoIosPeople />, path: "/communities" },
     { name: "Societies", icon: <FiUsers />, path: "/society" },
+    { name: "About Us", icon: <FiInfo />, path: "/about-us" },
     { name: "Settings", icon: <FiSettings />, path: "/settings" },
   ];
   return (
