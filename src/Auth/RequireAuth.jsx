@@ -7,7 +7,7 @@ const RequireAuth = ({ user }) => {
   const location = useLocation();
 
   if (!user) {
-    console.log("RequireAuth: No user found, redirecting to /signin");
+    // console.log("RequireAuth: No user found, redirecting to /signin");
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 

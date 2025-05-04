@@ -906,28 +906,14 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
     setLikeCount(post?.like_count || 0);
   }, [post]);
   useEffect(() => {
-    console.log(
-      `[PostItem Render/Prop Update] Post ID: ${post?.id}, Received comment_count prop: ${post?.comment_count}`
-    );
+    `[PostItem Render/Prop Update] Post ID: ${post?.id}, Received comment_count prop: ${post?.comment_count}`;
   }, [post]);
 
-  console.log(`PostItem Render - Post ID: ${post?.id}`);
-  console.log("currentUser:", currentUser);
-  console.log("post:", post);
-  console.log(
-    "currentUser?.id:",
-    currentUser?.id,
-    "(Type:",
-    typeof currentUser?.id,
-    ")"
-  );
-  console.log(
-    "post?.author_id:",
-    post?.author_id,
-    "(Type:",
-    typeof post?.author_id,
-    ")"
-  );
+  `PostItem Render - Post ID: ${post?.id}`;
+  "currentUser:", currentUser;
+  "post:", post;
+  "currentUser?.id:", currentUser?.id, "(Type:", typeof currentUser?.id, ")";
+  "post?.author_id:", post?.author_id, "(Type:", typeof post?.author_id, ")";
 
   const authorAvatarSrc =
     post?.author_profile_pic_url ||
@@ -1030,7 +1016,7 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
   };
   if (!post) return null;
 
-  console.log("Calculated isAuthor (for render):", isAuthor);
+  "Calculated isAuthor (for render):", isAuthor;
   const profileLinkTarget = post?.author_email
     ? `/profile/email/${encodeURIComponent(post.author_email)}`
     : "#";
@@ -1229,7 +1215,7 @@ const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
 };
 
 const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
-  console.log("--- CreatePostModal RENDERED --- isOpen:", isOpen);
+  "--- CreatePostModal RENDERED --- isOpen:", isOpen;
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -1309,9 +1295,9 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
       formData.append("image_file", selectedFile);
     }
 
-    console.log("Submitting Post Data:");
+    ("Submitting Post Data:");
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value instanceof File ? value.name : value);
+      `${key}:`, value instanceof File ? value.name : value;
     }
 
     try {
@@ -1324,7 +1310,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
           },
         }
       );
-      console.log("Post created successfully:", response.data);
+      "Post created successfully:", response.data;
       onPostCreated(response.data);
       onClose();
     } catch (err) {
@@ -1548,7 +1534,7 @@ const Dashboard = () => {
   // }, []);
 
   useEffect(() => {
-    console.log("Auth useEffect started.");
+    ("Auth useEffect started.");
     let initialCheckDone = false;
     setAuthLoading(true);
     setProfileStatus("loading");
@@ -1556,9 +1542,7 @@ const Dashboard = () => {
     const checkProfileAndSetState = async (session) => {
       if (session?.user?.email) {
         const userEmail = session.user.email;
-        console.log(
-          `checkProfileAndSetState: Setting auth true. User Email: ${userEmail}`
-        );
+        `checkProfileAndSetState: Setting auth true. User Email: ${userEmail}`;
         setIsAuthenticated(true);
 
         const basicUser = {
@@ -1568,19 +1552,15 @@ const Dashboard = () => {
         };
         setUser(basicUser);
 
-        console.log(
-          "checkProfileAndSetState: Checking profile existence via email..."
-        );
+        ("checkProfileAndSetState: Checking profile existence via email...");
         try {
           const response = await axios.get(
             `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
               userEmail
             )}`
           );
-          console.log(
-            "checkProfileAndSetState: Profile check successful (profile exists). Data:",
-            response.data
-          );
+          "checkProfileAndSetState: Profile check successful (profile exists). Data:",
+            response.data;
           setProfileStatus("exists");
 
           setUser((prevUser) => ({
@@ -1590,9 +1570,7 @@ const Dashboard = () => {
           }));
         } catch (err) {
           if (err.response && err.response.status === 404) {
-            console.log(
-              "checkProfileAndSetState: Profile check returned 404 (profile missing)."
-            );
+            ("checkProfileAndSetState: Profile check returned 404 (profile missing).");
             setProfileStatus("missing");
           } else if (err.response && err.response.status === 403) {
             console.error(
@@ -1611,32 +1589,26 @@ const Dashboard = () => {
           }
         }
       } else {
-        console.log(
-          "checkProfileAndSetState: No session/email. Setting auth false, user null. Profile not needed."
-        );
+        ("checkProfileAndSetState: No session/email. Setting auth false, user null. Profile not needed.");
         setUser(null);
         setIsAuthenticated(false);
         setProfileStatus("not_needed");
       }
       if (!initialCheckDone) {
-        console.log(
-          "checkProfileAndSetState: Initial check complete. Setting authLoading false."
-        );
+        ("checkProfileAndSetState: Initial check complete. Setting authLoading false.");
         setAuthLoading(false);
         initialCheckDone = true;
       }
     };
 
-    console.log("Checking initial Supabase session...");
+    ("Checking initial Supabase session...");
     supabase.auth
       .getSession()
       .then(({ data: { session }, error: sessionError }) => {
-        console.log(
-          "Initial getSession resolved. Session:",
+        "Initial getSession resolved. Session:",
           session,
           "Error:",
-          sessionError
-        );
+          sessionError;
         if (sessionError) {
           console.error("Error directly from getSession:", sessionError);
         }
@@ -1647,17 +1619,17 @@ const Dashboard = () => {
         checkProfileAndSetState(null);
       });
 
-    console.log("Setting up onAuthStateChange listener...");
+    ("Setting up onAuthStateChange listener...");
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        console.log("onAuthStateChange triggered. Event:", _event);
+        "onAuthStateChange triggered. Event:", _event;
         setAuthLoading(true);
         initialCheckDone = false;
         checkProfileAndSetState(session);
       }
     );
     return () => {
-      console.log("Cleaning up auth listener.");
+      ("Cleaning up auth listener.");
       if (authListener?.subscription) {
         authListener.subscription.unsubscribe();
       }
@@ -1670,9 +1642,7 @@ const Dashboard = () => {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session?.user || profileStatus !== "exists") {
-        console.log(
-          "Skipping feed fetch: Not authenticated or profile doesn't exist."
-        );
+        ("Skipping feed fetch: Not authenticated or profile doesn't exist.");
         setLoadingFeed(false);
 
         return;
@@ -1680,12 +1650,12 @@ const Dashboard = () => {
       if (showLoading) setLoadingFeed(true);
       setErrorFeed(null);
       if (profileStatus !== "exists") {
-        console.log("Skipping feed fetch: Profile status is", profileStatus);
+        "Skipping feed fetch: Profile status is", profileStatus;
         setLoadingFeed(false);
         setPosts([]);
         return;
       }
-      console.log("Fetching feed posts...");
+      ("Fetching feed posts...");
       setLoadingFeed(true);
       setErrorFeed(null);
       try {
@@ -1699,10 +1669,7 @@ const Dashboard = () => {
         );
         const postsData = response.data.results || response.data;
 
-        console.log(
-          "RAW FEED DATA FROM BACKEND:",
-          JSON.stringify(postsData, null, 2)
-        );
+        "RAW FEED DATA FROM BACKEND:", JSON.stringify(postsData, null, 2);
 
         if (Array.isArray(postsData)) {
           setPosts(postsData);
@@ -1731,7 +1698,7 @@ const Dashboard = () => {
   }, [profileStatus, fetchPosts]);
   useEffect(() => {
     const handleFocus = () => {
-      console.log("Dashboard focused, refetching posts...");
+      ("Dashboard focused, refetching posts...");
 
       fetchPosts(false);
     };
@@ -1765,9 +1732,7 @@ const Dashboard = () => {
       const userName = user.name;
       const userIdForLogging = user.id;
 
-      console.log(
-        `Attempting to toggle like for post ${postId} by user name: '${userName}' (ID: ${userIdForLogging})`
-      );
+      `Attempting to toggle like for post ${postId} by user name: '${userName}' (ID: ${userIdForLogging})`;
 
       try {
         const response = await axios.post(
@@ -1776,7 +1741,7 @@ const Dashboard = () => {
           { user_name: userName }
         );
 
-        console.log(`Like toggle successful for ${postId}:`, response.data);
+        `Like toggle successful for ${postId}:`, response.data;
         return {
           status: response.data?.status,
           like_count: response.data?.like_count,
@@ -1812,8 +1777,8 @@ const Dashboard = () => {
         throw new Error("No token");
       }
       const currentUserId = user?.id;
-      console.log("this is user id::::", currentUserId);
-      console.log("no");
+      "this is user id::::", currentUserId;
+      ("no");
       try {
         await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
           data: { user_id: currentUserId },
@@ -1833,9 +1798,7 @@ const Dashboard = () => {
     [user]
   );
   const handleCommentCountUpdate = useCallback((postId, newCount) => {
-    console.log(
-      `Dashboard: Updating comment count for post ${postId} to ${newCount}`
-    );
+    `Dashboard: Updating comment count for post ${postId} to ${newCount}`;
     setPosts((currentPosts) =>
       currentPosts.map((p) =>
         p.id === postId ? { ...p, comment_count: newCount } : p
@@ -1847,7 +1810,7 @@ const Dashboard = () => {
       navigate("/signin");
       return;
     }
-    console.log("Setting isCreateModalOpen to true.");
+    ("Setting isCreateModalOpen to true.");
     setIsCreateModalOpen(true);
   };
   const handleCloseCreateModal = () => setIsCreateModalOpen(false);
@@ -1861,18 +1824,18 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      console.log("Attempting Supabase sign out...");
+      ("Attempting Supabase sign out...");
       const { error } = await supabase.auth.signOut();
 
       if (error) {
         console.error("Error during Supabase sign out:", error);
       } else {
-        console.log("Supabase sign out successful.");
+        ("Supabase sign out successful.");
       }
     } catch (catchError) {
       console.error("Unexpected error calling signOut:", catchError);
     } finally {
-      console.log("Navigating to /signin after logout attempt.");
+      ("Navigating to /signin after logout attempt.");
       navigate("/signin");
     }
   };

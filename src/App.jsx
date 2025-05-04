@@ -54,7 +54,7 @@ const App = () => {
         if (error) throw error;
 
         const session = data?.session;
-        console.log("Initial Session Check:", session);
+        "Initial Session Check:", session;
 
         if (isMounted) {
           if (session?.user) {
@@ -84,7 +84,7 @@ const App = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth State Change:", _event, session);
+      "Auth State Change:", _event, session;
       if (isMounted) {
         if (session?.user) {
           setUser({

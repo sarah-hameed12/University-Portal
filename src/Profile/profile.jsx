@@ -98,7 +98,7 @@ const Profile = () => {
         return;
       }
       if (user?.email) {
-        console.log("Authenticated User Email:", user.email);
+        "Authenticated User Email:", user.email;
         setAuthUserEmail(user.email);
         setCurrentUser(user);
       } else {
@@ -114,14 +114,14 @@ const Profile = () => {
     if (!authUserEmail) return;
     setLoading(true);
     setError(null);
-    console.log("Fetching profile for email:", authUserEmail);
+    "Fetching profile for email:", authUserEmail;
     try {
       const response = await axios.get(
         `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
           authUserEmail
         )}`
       );
-      console.log("Profile data received:", response.data);
+      "Profile data received:", response.data;
       setProfileData(response.data);
       setFormData(response.data);
     } catch (err) {

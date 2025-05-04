@@ -467,9 +467,7 @@ const PostDetailPage = () => {
       setPost(fetchedPost);
       const initialLikeStatus = fetchedPost?.is_liked_by_user || false;
       const initialLikeCount = fetchedPost?.like_count || 0;
-      console.log(
-        `[PostDetailPage fetch] Initializing local like state: isLiked=${initialLikeStatus}, likeCount=${initialLikeCount}`
-      );
+      `[PostDetailPage fetch] Initializing local like state: isLiked=${initialLikeStatus}, likeCount=${initialLikeCount}`;
       setComments(commentsResponse.data.results || commentsResponse.data || []);
       setIsLiked(fetchedPost?.is_liked_by_user || false);
       setLikeCount(fetchedPost?.like_count || 0);
@@ -568,9 +566,7 @@ const PostDetailPage = () => {
         alert("Cannot delete comment: User not identified.");
         throw new Error("User ID missing for comment delete");
       }
-      console.log(
-        `Attempting delete for comment ${commentId} by user ${currentUserId}`
-      );
+      `Attempting delete for comment ${commentId} by user ${currentUserId}`;
 
       try {
         await axios.delete(`/api/feed/comments/${commentId}/`, {

@@ -23,7 +23,7 @@ const Outlines = () => {
   const [filteredOutlines, setFilteredOutlines] = useState([]);
 
   useEffect(() => {
-    console.log("Fetching files...");
+    ("Fetching files...");
     const fetchFiles = async () => {
       try {
         const response = await fetch("http://localhost:5000/files/filenames");
@@ -31,7 +31,7 @@ const Outlines = () => {
         if (data.error) {
           console.error("Error fetching files:", data.error);
         } else {
-          console.log("Response received:", data);
+          "Response received:", data;
           setFiles(data);
         }
       } catch (error) {
@@ -44,7 +44,7 @@ const Outlines = () => {
 
   useEffect(() => {
     if (files.length > 0) {
-      console.log("First File Object:", files[0]);
+      "First File Object:", files[0];
     }
   }, [files]);
 
@@ -125,9 +125,9 @@ const Outlines = () => {
     setFilteredOutlines(newlyFiltered);
     setShowFilter(false);
 
-    console.log("Selected School:", selectedSchool);
-    console.log("Selected Major:", selectedMajor);
-    console.log("Filtered Outlines:", newlyFiltered);
+    "Selected School:", selectedSchool;
+    "Selected Major:", selectedMajor;
+    "Filtered Outlines:", newlyFiltered;
   };
 
   const filterCardDynamicStyle = {

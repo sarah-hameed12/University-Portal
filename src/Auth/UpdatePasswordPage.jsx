@@ -32,15 +32,13 @@ const UpdatePasswordPage = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      console.log(
-        "UpdatePasswordPage mounted. Supabase client will handle hash."
-      );
+      ("UpdatePasswordPage mounted. Supabase client will handle hash.");
     };
     checkSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log("UpdatePasswordPage Auth Event:", event);
+        "UpdatePasswordPage Auth Event:", event;
         if (event === "PASSWORD_RECOVERY") {
           setMessage("Please enter your new password.");
           setIsError(false);
@@ -88,7 +86,7 @@ const UpdatePasswordPage = () => {
         throw error;
       }
 
-      console.log("Password updated successfully:", data);
+      "Password updated successfully:", data;
       setMessage("✅ Password updated successfully! You can now sign in.");
       setIsSuccess(true);
       setIsError(false);

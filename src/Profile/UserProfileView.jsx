@@ -46,13 +46,13 @@ const UserProfileView = () => {
     }
     setLoading(true);
     setError(null);
-    console.log("Fetching profile view for email:", email);
+    "Fetching profile view for email:", email;
 
     try {
       const response = await axios.get(
         `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(email)}`
       );
-      console.log("Profile view data received:", response.data);
+      "Profile view data received:", response.data;
       setProfileData(response.data);
     } catch (err) {
       console.error(
