@@ -839,6 +839,7 @@ const TopNav = ({ isAuthenticated, user, onLogout, onOpenCreatePost }) => {
           <>
             {" "}
             <button
+              data-testid="create-post-button-topnav"
               style={getButtonStyle("primary")}
               onClick={onOpenCreatePost}
               onMouseEnter={() => setHoveredButton("primary")}
@@ -1035,7 +1036,10 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
     : "#";
   return (
     <>
-      <motion.div style={styles.postItem} /* ... */>
+      <motion.div
+        data-testid={`post-item-${post?.id}`}
+        style={styles.postItem} /* ... */
+      >
         <div style={styles.postHeader}>
           <Link
             to={profileLinkTarget}
@@ -1043,10 +1047,12 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
           >
             <img
               src={authorAvatarSrc}
+              data-testid="post-image"
               alt={post.author_name || "User"}
               style={styles.postAuthorAvatar} /* ... */
             />
           </Link>
+          {/* <p data-testid="post-content" style={styles.postContent}>{post.content || ""}</p> */}
           <div>
             <Link to={profileLinkTarget} style={{ textDecoration: "none" }}>
               <p style={styles.postAuthorName}>
@@ -1069,7 +1075,9 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
             style={styles.postImage}
           /> // Added better alt text
         )}
-        <p style={styles.postContent}>{post.content || ""}</p>
+        <p data-testid="post-content" style={styles.postContent}>
+          {post.content || ""}
+        </p>
 
         {post.latest_comment && (
           <div style={styles.latestCommentContainer}>
@@ -1149,6 +1157,7 @@ const PostItem = ({ post, currentUser, onDeletePost, onLikePost }) => {
 
           {isAuthor && (
             <button
+              data-testid="delete-post-button"
               style={getActionStyle("delete")}
               onClick={handleDeleteClick}
               disabled={isDeleting}
@@ -1194,24 +1203,26 @@ const Feed = ({ posts, loading, error, user, onDeletePost, onLikePost }) => {
         </p>
       )}
       <AnimatePresence>
-        {!loading &&
-          !error &&
-          validPosts.map((post) => (
-            <motion.div
-              key={post?.id}
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <PostItem
-                post={post}
-                currentUser={user}
-                onDeletePost={onDeletePost}
-                onLikePost={onLikePost}
-              />
-            </motion.div>
-          ))}
+        <div data-testid="feed-post-list">
+          {!loading &&
+            !error &&
+            validPosts.map((post) => (
+              <motion.div
+                key={post?.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <PostItem
+                  post={post}
+                  currentUser={user}
+                  onDeletePost={onDeletePost}
+                  onLikePost={onLikePost}
+                />
+              </motion.div>
+            ))}
+        </div>
       </AnimatePresence>
     </motion.div>
   );
@@ -1390,11 +1401,13 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
       onClick={onClose}
     >
       <motion.div
+        data-testid="create-post-modal-content"
         style={styles.modalContentEnhanced}
         variants={modalVariants}
         onClick={(e) => e.stopPropagation()}
       >
         <button
+          data-testid="modal-close-button"
           style={closeButtonStyle}
           onClick={onClose}
           onMouseEnter={() => setIsCloseHovered(true)}
@@ -1406,7 +1419,14 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
 
         <h3 style={styles.modalTitleEnhanced}>Create New Post</h3>
 
-        {error && <p style={styles.modalErrorEnhanced}>{error}</p>}
+        {error && (
+          <p
+            data-testid="modal-error-message"
+            style={styles.modalErrorEnhanced}
+          >
+            {error}
+          </p>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -1418,6 +1438,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
           }}
         >
           <textarea
+            data-testid="post-content-textarea"
             placeholder={`What's on your mind, ${currentUser?.name || "User"}?`}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -1430,6 +1451,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
           />
 
           <input
+            data-testid="post-image-input"
             type="file"
             id="post-image-upload"
             style={styles.fileInputHidden}
@@ -1456,13 +1478,17 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
           </label>
 
           {imagePreviewUrl && (
-            <div style={styles.imagePreviewContainer}>
+            <div
+              data-testid="image-preview-container"
+              style={styles.imagePreviewContainer}
+            >
               <img
                 src={imagePreviewUrl}
                 alt="Selected preview"
                 style={styles.imagePreviewImg}
               />
               <button
+                data-testid="remove-image-button"
                 type="button"
                 style={styles.removeImageButton}
                 onClick={handleRemoveImage}
@@ -1475,6 +1501,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
 
           <div style={styles.modalSubmitButtonContainer}>
             <motion.button
+              data-testid="post-submit-button"
               type="submit"
               style={submitButtonStyle}
               disabled={isSubmitting}

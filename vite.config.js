@@ -22,4 +22,9 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    target: "esnext", // Target modern browsers supporting top-level await
+    // You can add other build options here if needed later
+    // e.g., sourcemap: true,
+  },
 });

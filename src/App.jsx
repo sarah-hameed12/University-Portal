@@ -31,7 +31,7 @@ import SubjectEditor from "./Features/SubjectEditor.jsx";
 import SettingsPage from "./Settings/SettingsPage";
 import EmailDash from "./EmailDash/Dashboard";
 import AboutUs from "./Utility/AboutUs.jsx";
-import Meet from "./meetup/meetApp.jsx"; 
+import Meet from "./meetup/meetApp.jsx";
 import { WebsocketProvider } from "./meetup/context/websocket.jsx";
 
 // Initialize Supabase - same as in dashboard.jsx
@@ -128,8 +128,30 @@ const App = () => {
     <Router>
       <Routes>
         {/* --- Public Routes --- */}
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup2" element={<Signup />} />
+        <Route
+          path="/signin"
+          element={
+            user ? (
+              // If user exists (logged in), redirect to dashboard
+              <Navigate to="/dashboard" replace />
+            ) : (
+              // Otherwise, show the SignIn component
+              <SignIn />
+            )
+          }
+        />
+        <Route
+          path="/signup2"
+          element={
+            user ? (
+              // If user exists (logged in), redirect to dashboard
+              <Navigate to="/dashboard" replace />
+            ) : (
+              // Otherwise, show the Signup component
+              <Signup />
+            )
+          }
+        />
         <Route path="/update-password" element={<UpdatePasswordPage />} />
 
         <Route element={<RequireAuth user={user} />}>
@@ -145,10 +167,16 @@ const App = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/email-dashboard" element={<EmailDash />} />
           <Route path="/society" element={<SocietiesPage />} />
-          <Route path="/meetup" element={<>
-          <WebsocketProvider>
-            <Meet />
-          </WebsocketProvider></>} />
+          <Route
+            path="/meetup"
+            element={
+              <>
+                <WebsocketProvider>
+                  <Meet />
+                </WebsocketProvider>
+              </>
+            }
+          />
           <Route path="memos" element={<MemosPage />} />
           <Route path="about-us" element={<AboutUs />} />
           <Route path="/society/:societyId" element={<SocietyDetailPage />} />

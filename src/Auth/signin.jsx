@@ -70,7 +70,7 @@ const SignIn = () => {
     } else {
       setMessage("✅ Login successful! Welcome back.");
       setIsError(false);
-      navigate(from, { replace: true });
+      // navigate(from, { replace: true });
       // navigate("/dashboard");
     }
   };
@@ -183,7 +183,20 @@ const SignIn = () => {
             <div className={styles.form}>
               {/* Message Display (Works for both views) */}
               <AnimatePresence>
-                {message && <motion.p /* ... */> {message} </motion.p>}
+                {message && (
+                  <motion.p
+                    data-testid="auth-message" // <--- ADD THIS LINE
+                    className={
+                      isError ? styles.errorMessage : styles.successMessage
+                    } // Apply your existing styles
+                    variants={messageVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    {message}
+                  </motion.p>
+                )}
               </AnimatePresence>
 
               {/* --- User ID Input (Used in both views) --- */}
@@ -194,6 +207,7 @@ const SignIn = () => {
                 <div className={styles.inputWrapper}>
                   <input
                     id="userId"
+                    data-testid="userid-input"
                     type="text"
                     pattern="[0-9]*"
                     inputMode="numeric"
@@ -230,6 +244,7 @@ const SignIn = () => {
                     <input
                       id="password"
                       type="password"
+                      data-testid="password-input"
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -284,7 +299,8 @@ const SignIn = () => {
               {/* --- Conditional Submit Button --- */}
               {!isForgotPasswordView ? (
                 <motion.button
-                  type="button" // Changed from submit, handled by onClick
+                  type="button"
+                  data-testid="signin-button" // Changed from submit, handled by onClick
                   onClick={handleSignIn}
                   className={`${styles.button} ${styles.buttonPrimary}`}
                   disabled={loading || !isIdValid || !password}
