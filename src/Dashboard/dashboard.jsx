@@ -34,6 +34,8 @@ import {
   FiChevronsRight,
   FiUsers,
   FiInfo,
+  FiUserPlus,
+  FiArrowRight,
   // FaPeopleGroup // Add this import
 } from "react-icons/fi";
 import { MdGroups } from "react-icons/md";
@@ -691,6 +693,83 @@ const messageVariants = {
 };
 import { IoIosPeople } from "react-icons/io";
 
+// const SetupProfileModal = ({ onNavigateToProfile, styles }) => {
+//   const [isButtonHovered, setIsButtonHovered] = useState(false);
+
+//   // Animation variants can be defined here or taken from props/context
+//   const backdropVariants = {
+//     hidden: { opacity: 0 },
+//     visible: { opacity: 1 },
+//     exit: { opacity: 0 },
+//   };
+
+//   const modalVariants = {
+//     hidden: { opacity: 0, scale: 0.8, y: -20 },
+//     visible: {
+//       opacity: 1,
+//       scale: 1,
+//       y: 0,
+//       transition: { type: "spring", stiffness: 300, damping: 25 },
+//     },
+//     exit: { opacity: 0, scale: 0.8, y: 20, transition: { duration: 0.2 } },
+//   };
+
+//   // Combine base button style with hover style if active
+//   const buttonStyle = {
+//     ...styles.setupModalButton, // Use the button style defined in Dashboard styles
+//     ...(isButtonHovered && styles.setupModalButtonHover), // Apply hover style
+//   };
+
+//   // Basic check if styles object is passed correctly
+//   if (
+//     !styles ||
+//     !styles.setupModalOverlay ||
+//     !styles.setupModalContent ||
+//     !styles.setupModalButton
+//   ) {
+//     console.error("SetupProfileModal did not receive required styles object.");
+//     // You might want to render a fallback or null here
+//     return null;
+//   }
+
+//   return (
+//     <motion.div
+//       style={styles.setupModalOverlay} // Reuse overlay style
+//       variants={backdropVariants}
+//       initial="hidden"
+//       animate="visible"
+//       exit="exit"
+//       // Don't close when clicking overlay - user MUST interact
+//       // onClick={onClose} // If you add an onClose prop later
+//     >
+//       <motion.div
+//         style={styles.setupModalContent} // Reuse content style
+//         variants={modalVariants}
+//         onClick={(e) => e.stopPropagation()} // Prevent clicks inside closing it
+//       >
+//         <FiUserPlus style={styles.setupModalIcon} /> {/* Reuse icon style */}
+//         <h3 style={styles.setupModalTitle}>Complete Your Profile</h3>{" "}
+//         {/* Reuse title style */}
+//         <p style={styles.setupModalText}>
+//           {" "}
+//           {/* Reuse text style */}
+//           Welcome! Please set up your profile to get started and connect with
+//           the community.
+//         </p>
+//         <button
+//           style={buttonStyle}
+//           onClick={onNavigateToProfile} // Call the navigation function passed as prop
+//           onMouseEnter={() => setIsButtonHovered(true)}
+//           onMouseLeave={() => setIsButtonHovered(false)}
+//         >
+//           Set Up Profile <FiArrowRight style={{ marginLeft: "8px" }} />
+//         </button>
+//       </motion.div>
+//     </motion.div>
+//   );
+// };
+
+// export default SetupProfileModal;
 export const SideNav = () => {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -1302,7 +1381,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/feed/posts/",
+        "https://super-be.onrender.com/api/feed/posts/",
         formData,
         {
           headers: {
@@ -1555,11 +1634,13 @@ const Dashboard = () => {
         ("checkProfileAndSetState: Checking profile existence via email...");
         try {
           const response = await axios.get(
-            `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
+            `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
               userEmail
             )}`
           );
-          "checkProfileAndSetState: Profile check successful (profile exists). Data:",
+          console.log(
+            "checkProfileAndSetState: Profile check successful (profile exists). Data:"
+          ),
             response.data;
           setProfileStatus("exists");
 
@@ -1570,7 +1651,9 @@ const Dashboard = () => {
           }));
         } catch (err) {
           if (err.response && err.response.status === 404) {
-            ("checkProfileAndSetState: Profile check returned 404 (profile missing).");
+            console.log(
+              "checkProfileAndSetState: Profile check returned 404 (profile missing)."
+            );
             setProfileStatus("missing");
           } else if (err.response && err.response.status === 403) {
             console.error(
@@ -1589,23 +1672,27 @@ const Dashboard = () => {
           }
         }
       } else {
-        ("checkProfileAndSetState: No session/email. Setting auth false, user null. Profile not needed.");
+        console.log(
+          "checkProfileAndSetState: No session/email. Setting auth false, user null. Profile not needed."
+        );
         setUser(null);
         setIsAuthenticated(false);
         setProfileStatus("not_needed");
       }
       if (!initialCheckDone) {
-        ("checkProfileAndSetState: Initial check complete. Setting authLoading false.");
+        console.log(
+          "checkProfileAndSetState: Initial check complete. Setting authLoading false."
+        );
         setAuthLoading(false);
         initialCheckDone = true;
       }
     };
 
-    ("Checking initial Supabase session...");
+    console.log("Checking initial Supabase session...");
     supabase.auth
       .getSession()
       .then(({ data: { session }, error: sessionError }) => {
-        "Initial getSession resolved. Session:",
+        console.log("Initial getSession resolved. Session:"),
           session,
           "Error:",
           sessionError;
@@ -1619,7 +1706,7 @@ const Dashboard = () => {
         checkProfileAndSetState(null);
       });
 
-    ("Setting up onAuthStateChange listener...");
+    console.log("Setting up onAuthStateChange listener...");
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         "onAuthStateChange triggered. Event:", _event;
@@ -1641,7 +1728,13 @@ const Dashboard = () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (!session?.user || profileStatus !== "exists") {
+      // if (!session?.user || profileStatus !== "exists") {
+      //   ("Skipping feed fetch: Not authenticated or profile doesn't exist.");
+      //   setLoadingFeed(false);
+
+      //   return;
+      // }
+      if (!session?.user) {
         ("Skipping feed fetch: Not authenticated or profile doesn't exist.");
         setLoadingFeed(false);
 
@@ -1649,18 +1742,18 @@ const Dashboard = () => {
       }
       if (showLoading) setLoadingFeed(true);
       setErrorFeed(null);
-      if (profileStatus !== "exists") {
-        "Skipping feed fetch: Profile status is", profileStatus;
-        setLoadingFeed(false);
-        setPosts([]);
-        return;
-      }
+      // if (profileStatus !== "exists") {
+      //   "Skipping feed fetch: Profile status is", profileStatus;
+      //   setLoadingFeed(false);
+      //   setPosts([]);
+      //   return;
+      // }
       ("Fetching feed posts...");
       setLoadingFeed(true);
       setErrorFeed(null);
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/feed/posts/",
+          "https://super-be.onrender.com/api/feed/posts/",
           {
             params: {
               requesting_user_name: user.name,
@@ -1736,7 +1829,7 @@ const Dashboard = () => {
 
       try {
         const response = await axios.post(
-          `http://127.0.0.1:8000/api/feed/posts/${postId}/like/`,
+          `https://super-be.onrender.com/api/feed/posts/${postId}/like/`,
 
           { user_name: userName }
         );
@@ -1780,9 +1873,12 @@ const Dashboard = () => {
       "this is user id::::", currentUserId;
       ("no");
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
-          data: { user_id: currentUserId },
-        });
+        await axios.delete(
+          `https://super-be.onrender.com/api/feed/posts/${postId}/`,
+          {
+            data: { user_id: currentUserId },
+          }
+        );
 
         setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
       } catch (error) {
@@ -1884,9 +1980,13 @@ const Dashboard = () => {
       </div>
       <AnimatePresence>
         {" "}
-        {isAuthenticated && profileStatus === "missing" && (
-          <SetupProfileModal onNavigateToProfile={handleNavigateToProfile} />
-        )}{" "}
+        {isAuthenticated &&
+          profileStatus === "missing" &&
+          // <SetupProfileModal
+          //   onNavigateToProfile={handleNavigateToProfile}
+          //   styles={styles}
+          // />
+          console.log("no")}{" "}
       </AnimatePresence>
       <AnimatePresence>
         {isCreateModalOpen && ( // Use the state variable to conditionally render
@@ -1909,9 +2009,13 @@ const Dashboard = () => {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {isAuthenticated && profileStatus === "missing" && (
-          <SetupProfileModal onNavigateToProfile={handleNavigateToProfile} />
-        )}
+        {isAuthenticated &&
+          profileStatus === "missing" &&
+          // <SetupProfileModal
+          //   onNavigateToProfile={handleNavigateToProfile}
+          //   styles={styles}
+          // />
+          console.log("no")}
       </AnimatePresence>
 
       {/* --- 2. Render the Chatbot Component --- */}

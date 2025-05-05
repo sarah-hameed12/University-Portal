@@ -178,7 +178,7 @@ const checkConflict = (newCourse, existingSchedule) => {
           newTiming.day === scheduledTiming.day &&
           doTimesOverlap(newTiming, scheduledTiming)
         ) {
-          console.log(
+          (
             `Conflict found: ${newCourse.code} (${newTiming.day} ${newTiming.startTime}-${newTiming.endTime}) vs ${scheduledCourse.code} (${scheduledTiming.day} ${scheduledTiming.startTime}-${scheduledTiming.endTime})`
           );
           return scheduledCourse;
@@ -220,7 +220,7 @@ const Scheduler = () => {
 
   const handleAddCourse = useCallback(
     (courseToAdd) => {
-      console.log("handleAddCourse called with:", courseToAdd?.code);
+      ("handleAddCourse called with:", courseToAdd?.code);
       if (!courseToAdd || courseToAdd.id == null) {
         console.error("Attempted to add invalid course object:", courseToAdd);
         return;
@@ -237,7 +237,7 @@ const Scheduler = () => {
 
           setTimeout(() => setConflictError(null), 5000);
         } else {
-          console.log("No conflict found, adding course:", courseToAdd.code);
+          ("No conflict found, adding course:", courseToAdd.code);
           setScheduledCourses((prevSchedule) => {
             const currentSchedule = Array.isArray(prevSchedule)
               ? prevSchedule
@@ -249,7 +249,7 @@ const Scheduler = () => {
             }
             return [...currentSchedule, courseToAdd];
           });
-          console.log(`Added ${courseToAdd.code} to schedule state.`);
+          (`Added ${courseToAdd.code} to schedule state.`);
         }
       } catch (error) {
         console.error("Error during handleAddCourse execution:", error);
@@ -259,7 +259,7 @@ const Scheduler = () => {
   );
 
   const handleRemoveCourse = useCallback((courseIdToRemove) => {
-    console.log("handleRemoveCourse called with ID:", courseIdToRemove);
+    ("handleRemoveCourse called with ID:", courseIdToRemove);
     if (courseIdToRemove == null) {
       console.error("Attempted to remove course with null/undefined ID");
       return;
@@ -281,7 +281,7 @@ const Scheduler = () => {
         }
         return prevError;
       });
-      console.log(`Removed course ID ${courseIdToRemove} from schedule state.`);
+      (`Removed course ID ${courseIdToRemove} from schedule state.`);
     } catch (error) {
       console.error("Error during handleRemoveCourse:", error);
     }
@@ -300,7 +300,7 @@ const Scheduler = () => {
         `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
       );
     }
-    console.log("Generated Time Slots:", slots.length);
+    ("Generated Time Slots:", slots.length);
     return slots;
   }, [startTime, endTime, timeInterval]);
 

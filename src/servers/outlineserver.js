@@ -3,7 +3,7 @@ const path = require("path");
 const axios = require("axios");
 const FormData = require("form-data");
 
-const uploadEndpoint = "http://localhost:5000/upload";
+const uploadEndpoint = "https://outlineserver-production.up.railway.app/upload";
 const mainFolderPath = "C:\\Users\\xylic\\Downloads\\courseoutlines";
 
 function getPdfFiles(dir, folderName = "") {

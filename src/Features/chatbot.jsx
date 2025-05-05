@@ -218,9 +218,12 @@ const Chatbot = () => {
       }));
 
       try {
-        const response = await axios.post("/api/chatbot/query/", {
-          history: chatHistory,
-        });
+        const response = await axios.post(
+          "https://super-be.onrender.com/api/chatbot/query/",
+          {
+            history: chatHistory,
+          }
+        );
         const modelResponse = response.data.reply;
         if (modelResponse) {
           setMessages((prevMessages) => [

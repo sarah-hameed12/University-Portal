@@ -100,7 +100,7 @@ const SignIn = () => {
     setMessage("");
     setIsError(false);
     const email = `${userId}@lums.edu.pk`;
-    console.log(`Requesting password reset for: ${email}`);
+    (`Requesting password reset for: ${email}`);
     const redirectURL = window.location.origin + "/update-password";
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {

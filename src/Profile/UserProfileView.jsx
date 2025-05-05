@@ -50,7 +50,9 @@ const UserProfileView = () => {
 
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(email)}`
+        `https://super-be.onrender/api/profile/?email=${encodeURIComponent(
+          email
+        )}`
       );
       "Profile view data received:", response.data;
       setProfileData(response.data);

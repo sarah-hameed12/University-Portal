@@ -117,7 +117,7 @@ const Profile = () => {
     "Fetching profile for email:", authUserEmail;
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
+        `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
           authUserEmail
         )}`
       );
@@ -225,12 +225,12 @@ const Profile = () => {
     if (selectedFile) {
       profilePayload.append("profile_pic", selectedFile);
     }
-    const updateUrl = `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
+    const updateUrl = `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
       authUserEmail
     )}`;
     try {
       const response = await axios.patch(updateUrl, profilePayload, {
-        headers: { "Content-Type": "multipart/form-data" },
+        // headers: { "Content-Type": "multipart/form-data" },
       });
       setProfileData(response.data);
       setFormData(response.data);
