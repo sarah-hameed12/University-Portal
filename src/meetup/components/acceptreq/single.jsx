@@ -59,7 +59,7 @@ function Single({ request, acceptor, showprof }) {
     e.preventDefault();
     console.log("Accept button clicked");
     fetch(
-      `https://meetupserver-production.up.railway.app/accept_request/${acceptor}/${request.req_id}`
+      `https://meetupserver-production.up.railway.app/approved/${acceptor}/${request.req_id}`
     ).then((response) => {
       if (response.ok) {
         console.log("Request accepted successfully");
