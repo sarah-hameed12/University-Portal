@@ -5,9 +5,7 @@ function Single({ request, acceptor, showprof }) {
   const [user, setuser] = useState(null);
 
   useEffect(() => {
-    fetch(
-      `https://chatserver-production-1a8d.up.railway.app/download/${acceptor}`
-    )
+    fetch(`https://meetupserver-production.up.railway.app/download/${acceptor}`)
       .then((response) => {
         if (response.ok) {
           return response.blob();
@@ -61,7 +59,7 @@ function Single({ request, acceptor, showprof }) {
     e.preventDefault();
     console.log("Accept button clicked");
     fetch(
-      `https://chatserver-production-1a8d.up.railway.app/${acceptor}/${request.req_id}`
+      `https://meetupserver-production.up.railway.app/${acceptor}/${request.req_id}`
     ).then((response) => {
       if (response.ok) {
         console.log("Request accepted successfully");
