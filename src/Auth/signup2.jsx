@@ -131,8 +131,12 @@ const Signup = () => {
     setLoading(true);
     setMessage("");
     setIsError(false);
+    // const confirmationRedirectUrl = `${window.location.origin}/dashboard`;
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp(
-      { email, password }
+      {
+        email,
+        password,
+      }
     );
     if (signUpError) {
       setMessage(`❌ ${signUpError.message}`);
