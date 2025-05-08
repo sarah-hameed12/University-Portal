@@ -26,7 +26,9 @@ const Outlines = () => {
     ("Fetching files...");
     const fetchFiles = async () => {
       try {
-        const response = await fetch("http://localhost:5000/files/filenames");
+        const response = await fetch(
+          "https://outlineserver-production.up.railway.app/files/filenames"
+        );
         const data = await response.json();
         if (data.error) {
           console.error("Error fetching files:", data.error);
