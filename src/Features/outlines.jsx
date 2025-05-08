@@ -51,7 +51,7 @@ const Outlines = () => {
   }, [files]);
 
   const downloadFile = (filename) => {
-    fetch(`http://localhost:5000/files/:${filename}`)
+    fetch(`https://outlineserver-production.up.railway.app/files/:${filename}`)
       .then((response) => response.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(new Blob([blob]));
