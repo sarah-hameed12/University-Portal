@@ -209,6 +209,8 @@ const Profile = () => {
     setSaving(true);
     setError(null);
     const profilePayload = new FormData();
+    profilePayload.append("email", authUserEmail);
+    profilePayload.append("user_id", currentUser.id);
     Object.entries(formData).forEach(([key, value]) => {
       if (
         value !== null &&
