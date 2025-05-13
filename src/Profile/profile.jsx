@@ -141,6 +141,7 @@ const Profile = () => {
           courses: "",
           interests: "",
           email: authUserEmail,
+          user_id: currentUser?.id || "",
         });
         setIsEditing(true);
       } else if (err.response && err.response.status === 403) {
@@ -153,7 +154,7 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [authUserEmail]);
+  }, [authUserEmail, currentUser]);
 
   useEffect(() => {
     if (authUserEmail) {
@@ -200,8 +201,9 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    if (!authUserEmail) {
+    if (!authUserEmail || !currentUser?.id) {
       setError("Cannot save, user email not found.");
+      setSaving(false);
       return;
     }
     setSaving(true);
@@ -222,12 +224,22 @@ const Profile = () => {
         profilePayload.append(key, value);
       }
     });
+    if (!formData.email) {
+      profilePayload.append("email", authUserEmail);
+      console.warn(
+        "formData.email was missing, appending authUserEmail to payload."
+      );
+    }
+    if (!formData.user_id) {
+      profilePayload.append("user_id", currentUser.id);
+      console.warn(
+        "formData.user_id was missing, appending currentUser.id to payload."
+      );
+    }
     if (selectedFile) {
       profilePayload.append("profile_pic", selectedFile);
     }
-    const updateUrl = `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
-      authUserEmail
-    )}`;
+    const updateUrl = `https://super-be.onrender.com/api/profile/`;
     try {
       const response = await axios.patch(updateUrl, profilePayload, {
         // headers: { "Content-Type": "multipart/form-data" },
@@ -272,6 +284,7 @@ const Profile = () => {
         courses: "",
         interests: "",
         email: authUserEmail,
+        user_id: currentUser?.id || "",
       }
     );
     setIsEditing(false);
