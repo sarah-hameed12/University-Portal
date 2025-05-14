@@ -50,7 +50,7 @@ const UserProfileView = () => {
 
     try {
       const response = await axios.get(
-        `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
+        `https://flask-production-1e2d.up.railway.app/api/profile/?email=${encodeURIComponent(
           email
         )}`
       );

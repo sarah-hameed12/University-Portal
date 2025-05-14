@@ -117,7 +117,7 @@ const Profile = () => {
     "Fetching profile for email:", authUserEmail;
     try {
       const response = await axios.get(
-        `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
+        `https://flask-production-1e2d.up.railway.app/api/profile/?email=${encodeURIComponent(
           authUserEmail
         )}`
       );
@@ -226,6 +226,7 @@ const Profile = () => {
         profilePayload.append(key, value);
       }
     });
+
     if (!formData.email) {
       profilePayload.append("email", authUserEmail);
       console.warn(
@@ -241,7 +242,19 @@ const Profile = () => {
     if (selectedFile) {
       profilePayload.append("profile_pic", selectedFile);
     }
-    const updateUrl = `https://super-be.onrender.com/api/profile/`;
+    // const updateUrl = `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
+    //   authUserEmail
+    // )}`;
+    const updateUrl = `https://flask-production-1e2d.up.railway.app/api/profile/`;
+
+    console.log("--- Preparing to save profile ---");
+    console.log("Auth User Email for payload:", authUserEmail);
+    console.log("Current User ID for payload:", currentUser.id);
+    console.log("Saving profile with payload (form data entries):");
+    for (let pair of profilePayload.entries()) {
+      console.log(`Payload -> ${pair[0]}: ${pair[1]}`);
+    }
+    console.log("Target URL for PATCH:", updateUrl);
     try {
       const response = await axios.patch(updateUrl, profilePayload, {
         // headers: { "Content-Type": "multipart/form-data" },

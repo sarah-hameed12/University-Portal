@@ -1381,7 +1381,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
 
     try {
       const response = await axios.post(
-        "https://super-be.onrender.com/api/feed/posts/",
+        "https://flask-production-1e2d.up.railway.app/api/feed/posts/",
         formData,
         {
           headers: {
@@ -1634,7 +1634,7 @@ const Dashboard = () => {
         ("checkProfileAndSetState: Checking profile existence via email...");
         try {
           const response = await axios.get(
-            `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
+            `https://flask-production-1e2d.up.railway.app/api/profile/?email=${encodeURIComponent(
               userEmail
             )}`
           );
@@ -1753,7 +1753,7 @@ const Dashboard = () => {
       setErrorFeed(null);
       try {
         const response = await axios.get(
-          "https://super-be.onrender.com/api/feed/posts/",
+          "https://flask-production-1e2d.up.railway.app/api/feed/posts/",
           {
             params: {
               requesting_user_name: user.name,
@@ -1829,7 +1829,7 @@ const Dashboard = () => {
 
       try {
         const response = await axios.post(
-          `https://super-be.onrender.com/api/feed/posts/${postId}/like/`,
+          `https://flask-production-1e2d.up.railway.app/api/feed/posts/${postId}/like/`,
 
           { user_name: userName }
         );
@@ -1874,7 +1874,7 @@ const Dashboard = () => {
       ("no");
       try {
         await axios.delete(
-          `https://super-be.onrender.com/api/feed/posts/${postId}/`,
+          `https://flask-production-1e2d.up.railway.app/api/feed/posts/${postId}/`,
           {
             data: { user_id: currentUserId },
           }
