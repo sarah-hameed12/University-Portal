@@ -296,3 +296,117 @@
      .backToHomeButton { top: 15px; left: 15px; width: 40px; height: 40px; }
      .backToHomeIcon { font-size: 1.1rem; }
 }
+
+/* ... existing styles ... */
+.profileStats {
+  display: flex;
+  gap: 25px; /* Increased gap */
+  margin-top: 10px; /* Space from name/edit button */
+  margin-bottom: 20px; /* Space before separator */
+  justify-content: center; /* Center the stats below the name */
+  width: 100%; /* Take full width to center */
+}
+
+.statBlock {
+  text-align: center;
+  cursor: pointer; /* For future clickability */
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+.statBlock:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.statCount {
+  font-size: 1.3rem; /* Larger count */
+  font-weight: 600;
+  color: #e5e7eb; /* Brighter color for count */
+  display: block; /* Make it block to ensure it's above label */
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #9ca3af; /* Subdued color for label */
+  text-transform: uppercase; /* Optional: uppercase labels */
+  letter-spacing: 0.5px; /* Optional: slight letter spacing */
+}
+
+/* ... other styles ... */
+
+.followRequestsSection {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #374151; /* Separator */
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #cbd5e0;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.requestsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requestItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #2d3748; /* Lighter separator for items */
+}
+.requestItem:last-child {
+  border-bottom: none;
+}
+
+.requestUserInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.requestUserAvatar { /* <<< THIS IS THE STYLE FOR THE AVATAR */
+    width: 32px;      /* Currently small */
+    height: 32px;     /* Currently small */
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0; /* Prevent shrinking if text is long */
+}
+
+.requestUserName {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  flex-grow: 1; /* Allow text to take up space */
+  word-break: break-word; /* Prevent long names from breaking layout */
+}
+.requestUserName .profileLink {
+    color: #a78bfa; /* Your primary accent */
+    font-weight: 500;
+    text-decoration: none;
+}
+.requestUserName .profileLink:hover {
+    text-decoration: underline;
+}
+
+
+.requestActions button {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 1.2rem; /* Icon size */
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+  margin-left: 8px;
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+/* ... rest of button styles ... */
