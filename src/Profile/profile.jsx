@@ -5,6 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
+import apiClient from "../axiosconfig";
+
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -18,6 +20,13 @@ import {
   FiXCircle,
   FiUploadCloud,
   FiHome,
+  // FiUserPlus,
+  // FiUserCheck,
+  // FiUsers,
+  FiCheck,
+  FiX,
+  FiUsers,
+  FiUserCheck as FiBellIconForRequests,
 } from "react-icons/fi";
 
 // Data for Dropdowns
@@ -84,6 +93,8 @@ const Profile = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [incomingFollowRequests, setIncomingFollowRequests] = useState([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
 
   useEffect(() => {
     const getAuthUser = async () => {
@@ -116,10 +127,8 @@ const Profile = () => {
     setError(null);
     "Fetching profile for email:", authUserEmail;
     try {
-      const response = await axios.get(
-        `https://flask-production-1e2d.up.railway.app/api/profile/?email=${encodeURIComponent(
-          authUserEmail
-        )}`
+      const response = await apiClient.get(
+        `/profile/?email=${encodeURIComponent(authUserEmail)}`
       );
       "Profile data received:", response.data;
       setProfileData(response.data);
@@ -161,7 +170,91 @@ const Profile = () => {
       fetchProfile();
     }
   }, [authUserEmail, fetchProfile]);
+  const fetchIncomingFollowRequests = useCallback(async () => {
+    // Use profileData.user_id as it's the reliable PK from your Flask 'profiles' table
+    if (!profileData || !profileData.user_id) {
+      console.log(
+        "fetchIncomingFollowRequests: Waiting for profileData or profileData.user_id"
+      );
+      return;
+    }
+    setRequestsLoading(true);
+    console.log(
+      "fetchIncomingFollowRequests: Fetching with acting_user_id:",
+      profileData.user_id
+    );
+    try {
+      const response = await apiClient.get(`/users/follow-requests/pending`, {
+        params: { acting_user_id: profileData.user_id }, // <<< USE profileData.user_id
+      });
+      console.log(
+        "fetchIncomingFollowRequests: Received requests:",
+        response.data
+      );
+      setIncomingFollowRequests(response.data);
+    } catch (err) {
+      console.error(
+        "Error fetching incoming follow requests:",
+        err.response?.data || err
+      );
+    } finally {
+      setRequestsLoading(false);
+    }
+  }, [profileData]); // <<< DEPEND ON profileData
 
+  useEffect(() => {
+    // Fetch requests once profileData (and thus profileData.user_id) is available
+    if (profileData?.user_id) {
+      fetchIncomingFollowRequests();
+    }
+  }, [profileData, fetchIncomingFollowRequests]);
+
+  // src/pages/Profile.jsx
+
+  const handleRequestAction = async (requestId, action) => {
+    // action is 'approve' or 'reject'
+    if (!profileData || !profileData.user_id) {
+      alert("Cannot perform action, your profile data is not fully loaded.");
+      console.error(
+        "handleRequestAction: profileData or profileData.user_id is missing.",
+        profileData
+      );
+      return;
+    }
+    setRequestsLoading(true); // Or a specific loading state for this request item
+
+    const payload = {
+      acting_user_id: profileData.user_id, // This is the ID of the person APPROVING/REJECTING
+    };
+    console.log(
+      `handleRequestAction: Action: ${action}, RequestID: ${requestId}, Payload:`,
+      payload
+    );
+
+    try {
+      await apiClient.post(
+        `/users/follow-requests/${requestId}/${action}`,
+        payload
+      ); // <<< SEND THE PAYLOAD
+
+      console.log(`Follow request ${requestId} successfully ${action}ed.`);
+      // Refresh requests list and potentially follower count on profile
+      fetchIncomingFollowRequests();
+      fetchProfile(); // To update follower count if approved
+    } catch (err) {
+      console.error(
+        `Error ${action}ing request ${requestId}:`,
+        err.response?.data || err.message || err
+      );
+      alert(
+        `Failed to ${action} request. ${
+          err.response?.data?.detail || "An error occurred."
+        }`
+      );
+    } finally {
+      setRequestsLoading(false);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
@@ -394,6 +487,28 @@ const Profile = () => {
               required
             />
           )}
+          {profileData && !isEditing && (
+            <div className={styles.profileStats}>
+              <div
+                className={styles.statBlock}
+                onClick={() => console.log("Show followers list")}
+              >
+                <span className={styles.statCount}>
+                  {profileData.followers_count || 0}
+                </span>
+                <span className={styles.statLabel}>Followers</span>
+              </div>
+              <div
+                className={styles.statBlock}
+                onClick={() => console.log("Show following list")}
+              >
+                <span className={styles.statCount}>
+                  {profileData.following_count || 0}
+                </span>
+                <span className={styles.statLabel}>Following</span>
+              </div>
+            </div>
+          )}
           {!isEditing && profileData !== null && (
             <motion.button
               className={`${styles.actionButton} ${styles.editButton}`}
@@ -409,7 +524,78 @@ const Profile = () => {
         </div>
 
         <hr className={styles.separator} />
-
+        {!isEditing && incomingFollowRequests.length > 0 && (
+          <div className={styles.followRequestsSection}>
+            <h2 className={styles.sectionTitle}>
+              <FiBellIconForRequests /> Incoming Follow Requests
+            </h2>
+            {requestsLoading && incomingFollowRequests.length === 0 && (
+              <p>Loading requests...</p>
+            )}
+            <ul className={styles.requestsList}>
+              {incomingFollowRequests.map((req) => (
+                <li key={req.id} className={styles.requestItem}>
+                  <div className={styles.requestUserInfo}>
+                    <img
+                      src={
+                        req.requester_profile_pic_url ||
+                        `https://api.dicebear.com/7.x/initials/svg?seed=${
+                          req.requester_name || "anon"
+                        }`
+                      }
+                      alt={req.requester_name}
+                      className={styles.requestUserAvatar} // <<< AVATAR USES THIS CLASS
+                    />
+                    <span className={styles.requestUserName}>
+                      <Link
+                        to={`/profile/email/${encodeURIComponent(
+                          // You might need req.requester_email here if your backend provides it in to_dict()
+                          // For now, let's assume the name is enough or you add email to FollowRequest.to_dict()
+                          req.requester_email_for_link ||
+                            req.requester_name ||
+                            "" // Fallback
+                        )}`}
+                        className={styles.profileLink}
+                      >
+                        {req.requester_name || "A user"}
+                      </Link>
+                      wants to follow you. {/* Added   for a small space */}
+                    </span>
+                  </div>
+                  <div className={styles.requestActions}>
+                    <button
+                      onClick={() => handleRequestAction(req.id, "approve")}
+                      className={`${styles.requestActionButton} ${styles.approveButton}`}
+                      disabled={requestsLoading}
+                      title="Approve"
+                    >
+                      <FiCheck />
+                    </button>
+                    <button // Removed comma here
+                      onClick={() => handleRequestAction(req.id, "reject")}
+                      className={`${styles.requestActionButton} ${styles.rejectButton}`}
+                      disabled={requestsLoading}
+                      title="Reject"
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {!isEditing &&
+          !requestsLoading &&
+          incomingFollowRequests.length === 0 &&
+          profileData && (
+            <div className={styles.followRequestsSection}>
+              <h2 className={styles.sectionTitle}>
+                <FiBellIconForRequests /> Incoming Follow Requests
+              </h2>
+              <p className={styles.noRequests}>No pending follow requests.</p>
+            </div>
+          )}
         {/* Error Message */}
         <AnimatePresence>
           {" "}
