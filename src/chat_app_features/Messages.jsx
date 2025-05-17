@@ -108,45 +108,63 @@ function Mess({ sock, cur, scur }) {
   };
 
   return (
-    <div className="message-list-container" ref={messagesContainerRef}>
-      {msg.length === 0 && (
-        <div className="message-placeholder"> No messages yet. </div>
-      )}
-      {msg.map((item) => {
-        const key = item.id || `fallback-${item.timestamp}-${Math.random()}`;
+    <>
+      <div className="chat-header">
+        <div className="chat-header-info">
+          <div className="chat-header-avatar">
+            {cur && cur !== "server" ? cur[0].toUpperCase() : "S"}
+          </div>
+          <div className="chat-header-details">
+            <div className="chat-header-name">{cur}</div>
+            {/* Example status, you'd need logic for this */}
+            {/* <div className="chat-header-status">Online</div> */}
+          </div>
+        </div>
+        <div className="chat-header-actions">
+          {/* Placeholder for action icons like search, call, more options */}
+          {/* Example: <button className="icon-button" aria-label="Search"><YourSearchSVG /></button> */}
+        </div>
+      </div>
+      <div className="message-list-container" ref={messagesContainerRef}>
+        {msg.length === 0 && (
+          <div className="message-placeholder"> No messages yet. </div>
+        )}
+        {msg.map((item) => {
+          const key = item.id || `fallback-${item.timestamp}-${Math.random()}`;
 
-        const imageUrl = item.imageFileId
-          ? `https://chatserver-production-1a8d.up.railway.app/image/${item.imageFileId}`
-          : null;
+          const imageUrl = item.imageFileId
+            ? `https://chatserver-production-1a8d.up.railway.app/image/${item.imageFileId}`
+            : null;
 
-        return (
-          <div className="message" key={key}>
-            <div className={item.isOutgoing ? "my_mess" : "mess"}>
-              {!item.isOutgoing && (
-                <div className="sender-name">{item.sender}</div>
-              )}
+          return (
+            <div className="message" key={key}>
+              <div className={item.isOutgoing ? "my_mess" : "mess"}>
+                {!item.isOutgoing && (
+                  <div className="sender-name">{item.sender}</div>
+                )}
 
-              {imageUrl && (
-                <div className="message-image-container">
-                  <img
-                    src={imageUrl}
-                    alt="User upload"
-                    className="message-image"
-                  />
+                {imageUrl && (
+                  <div className="message-image-container">
+                    <img
+                      src={imageUrl}
+                      alt="User upload"
+                      className="message-image"
+                    />
+                  </div>
+                )}
+
+                {item.text && <div className="message-text"> {item.text} </div>}
+
+                <div className="message-timestamp">
+                  {" "}
+                  {formatTimestamp(item.timestamp)}{" "}
                 </div>
-              )}
-
-              {item.text && <div className="message-text"> {item.text} </div>}
-
-              <div className="message-timestamp">
-                {" "}
-                {formatTimestamp(item.timestamp)}{" "}
               </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

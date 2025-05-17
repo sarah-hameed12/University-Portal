@@ -208,7 +208,9 @@ function C1({ sock, use, isLoggedIn, onLoginSuccess }) {
           className={`file-input-label ${isUploading ? "disabled" : ""}`}
           aria-label="Attach image"
         >
-          📎
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M16.5 6V17.5C16.5 20.2614 14.2614 22.5 11.5 22.5C8.73858 22.5 6.5 20.2614 6.5 17.5V5C6.5 3.067 8.067 1.5 10 1.5C11.933 1.5 13.5 3.067 13.5 5V15.5C13.5 16.3284 12.8284 17 12 17C11.1716 17 10.5 16.3284 10.5 15.5V6H9V15.5C9 17.1569 10.3431 18.5 12 18.5C13.6569 18.5 15 17.1569 15 15.5V5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5V17.5C5 21.0899 7.91015 24 11.5 24C15.0899 24 18 21.0899 18 17.5V6H16.5Z"></path>
+          </svg>
         </label>
         <input
           id="file-input"

@@ -1,22 +1,78 @@
-/* === App.css (Modern Version for Aesthetics) === */
+/* === App.css (Futuristic Aesthetic - Input Focus Fix & Style) === */
 
 /* --- Base Variables & Font --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  /* Refined Dark Theme Palette */
-  --bg-main: #0c1317; --bg-app: #101b20; --bg-sidebar: #101b20; --bg-chat-area: #0b141a;
-  --bg-input-area: #1f2c34; --bg-input-field: #2a3942; --bg-hover-item: #222e35; --bg-active-item: #2a3942;
-  --text-primary: #e1e9f1; --text-secondary: #8595a0; --text-input: #dde1e5; --text-white: #ffffff;
-  --text-sender: #53bdeb; /* Sender name color */
-  --bubble-outgoing-bg: #005c4b; --bubble-incoming-bg: #202c33;
-  --bubble-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  --accent-primary: #00a884; --accent-secondary: #039474; --border-color: #222e35; --icon-color: #8696a0;
-  --focus-ring-color: rgba(0, 168, 132, 0.4); --scrollbar-thumb: #374045; --scrollbar-track: transparent;
-  --border-radius-small: 3px; --border-radius-medium: 8px; --border-radius-large: 8px;
-  --padding-xs: 4px; --padding-s: 8px; --padding-m: 12px; --padding-l: 16px; --padding-xl: 20px;
-  --sidebar-width: 300px;
+
+ 
+  --bg-main: #0a0d10;
+  --bg-app: #0f131a;
+  --bg-sidebar: #0f131a;
+  --bg-chat-area: #0a0d10;
+  --bg-header-footer: #141921;
+  --bg-input-field: #1a2029;
+  --bg-hover-item: #1f2630;
+  --bg-active-item: #242b36;
+  --bg-overlay-light: rgba(20, 25, 33, 0.7);
+
+  --text-primary: #e0e8f0;
+  --text-secondary: #707c8c;
+  --text-input: #c8d2dc;
+  --text-white: #ffffff;
+  --text-sender: #00c6ff;
+
+  /* Message Bubble Colors & Glows */
+  --bubble-outgoing-bg: #005c4b;
+  --bubble-incoming-bg: #202833;
+  --bubble-outgoing-glow-strong: color-mix(in srgb, var(--bubble-outgoing-bg) 70%, black 30%);
+  --bubble-outgoing-glow-hover: color-mix(in srgb, var(--bubble-outgoing-bg) 85%, black 15%);
+  --bubble-incoming-glow-strong: color-mix(in srgb, var(--bubble-incoming-bg) 60%, black 40%);
+  --bubble-incoming-glow-hover: color-mix(in srgb, var(--bubble-incoming-bg) 75%, black 25%);
+  --bubble-sendername-glow: rgba(0, 198, 255, 0.25);
+
+  /* Accent Colors */
+  --accent-primary: #00dfa2;
+  --accent-primary-glow: rgba(0, 223, 162, 0.3); /* Glow effect for primary accent */
+  --accent-secondary: #00b88a;
+  --border-color: #252d3a;
+  --icon-color: #808ea0;
+  --icon-color-hover: #a8b8c8;
+
+  /* THIS IS THE COLOR FOR YOUR CUSTOM FOCUS RING */
+  --focus-ring-color: rgba(0, 223, 162, 0.45); /* Made it slightly more opaque for better visibility */
+  /* If you want a PURPLE focus ring like the default, change it here or in the box-shadow directly: */
+  /* --focus-ring-color: rgba(128, 0, 128, 0.5); /* Example purple */
+
+
+  --scrollbar-thumb: #303a48;
+  --scrollbar-thumb-hover: var(--accent-primary);
+  --scrollbar-track: rgba(0,0,0,0.1);
+
+  --error-bg: #5d1a1a;
+  --error-text: #ffacac;
+
+  /* Shapes & Spacing */
+  --border-radius-sharp: 3px;
+  --border-radius-soft: 6px;
+  --border-radius-medium: 12px;
+  --border-radius-large: 16px;
+  --border-radius-pill: 30px;
+
+  --padding-xs: 4px;
+  --padding-s: 8px;
+  --padding-m: 12px;
+  --padding-l: 18px;
+  --padding-xl: 24px;
+
+  --sidebar-width: 320px;
+  --header-height: 60px;
+  --avatar-size: 40px;
+  --icon-button-size: 40px;
+
+  --transition-fast: 0.15s ease-out;
+  --transition-smooth: 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* --- Global Resets & Base Styles --- */
@@ -24,7 +80,7 @@ html { height: 100%; box-sizing: border-box; font-size: 15px; }
 *, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
 body {
   font-family: var(--font-primary); background-color: var(--bg-main); color: var(--text-primary);
-  height: 100%; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; line-height: 1.5;
+  height: 100%; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; line-height: 1.55;
 }
 #root { height: 100%; }
 
@@ -35,266 +91,421 @@ body {
 .users {
   display: flex; flex-direction: column; width: var(--sidebar-width); flex-shrink: 0;
   background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color); overflow-y: auto; position: relative;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 .user-list-header {
-    padding: var(--padding-l) var(--padding-l) var(--padding-s); font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);
-    border-bottom: 1px solid var(--border-color); margin-bottom: var(--padding-xs); position: sticky; top: 0;
-    background-color: var(--bg-sidebar); z-index: 10;
+  display: flex; align-items: center; height: var(--header-height);
+  padding: 0 var(--padding-l); font-size: 1.1rem; font-weight: 600; color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-header-footer);
+  flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+  text-shadow: 0 0 5px rgba(0, 223, 162, 0.1);
 }
-.sidebar-placeholder { padding: var(--padding-l); color: var(--text-secondary); text-align: center; margin-top: 20px; }
-.use { /* Styles for user list items */
-  display: flex; align-items: center; padding: var(--padding-m) var(--padding-l); margin: 0 var(--padding-s) 2px;
-  border-radius: var(--border-radius-medium); cursor: pointer; transition: background-color 0.1s ease-in-out; gap: var(--padding-m);
-  border: none; font-size: 0.9rem; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; position: relative;
+.sidebar-placeholder { padding: var(--padding-xl); color: var(--text-secondary); text-align: center; margin-top: 20px; font-style: italic; }
+
+.use {
+  display: flex; align-items: center; padding: var(--padding-m) var(--padding-l);
+  margin: 0 var(--padding-s) 2px;
+  border-radius: var(--border-radius-soft); cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  gap: var(--padding-m);
+  font-size: 0.95rem; font-weight: 500; color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative;
 }
-.use label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; margin: 0; padding: 0; }
-.use input[type="checkbox"] { appearance: none; -webkit-appearance: none; -moz-appearance: none; position: absolute; opacity: 0; width: 0; height: 0; cursor: pointer; }
-.use:hover { background-color: var(--bg-hover-item); }
-.use.active { background-color: var(--bg-active-item); }
-.use.active::before { content: ''; position: absolute; left: 0; top: 25%; bottom: 25%; width: 3px; background-color: var(--accent-primary); border-radius: 0 2px 2px 0; }
+.user-avatar-placeholder {
+  width: var(--avatar-size); height: var(--avatar-size); border-radius: 50%;
+  background-color: var(--text-secondary); color: var(--bg-sidebar);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 1rem; flex-shrink: 0;
+  text-transform: uppercase; border: 2px solid var(--bg-sidebar);
+  box-shadow: 0 0 8px rgba(0, 223, 162, 0.15);
+}
+.use label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; margin: 0; padding: 0; line-height: 1.3; }
+.use input[type="checkbox"] { display: none; }
+.use:hover { background-color: var(--bg-hover-item); transform: translateX(3px); }
+.use.active { background-color: var(--bg-active-item); box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+.use.active::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  height: 60%; width: 3.5px; background-color: var(--accent-primary);
+  border-radius: 0 var(--border-radius-sharp) var(--border-radius-sharp) 0;
+  box-shadow: 0 0 8px var(--accent-primary-glow);
+}
 
 /* --- Main Chat Area Container --- */
-.together { /* This holds messages + input */
+.together {
   display: flex; flex-direction: column; flex: 1; background-color: var(--bg-chat-area); overflow: hidden; height: 100%;
 }
-.login-view-wrapper { display: flex; flex: 1; align-items: center; justify-content: center; background-color: var(--bg-chat-area); }
+.login-view-wrapper { display: flex; flex: 1; align-items: center; justify-content: center; background-color: var(--bg-chat-area); padding: var(--padding-xl); }
 
-/* --- Message Display Area (MODERN STRUCTURE) --- */
-.message-list-container { /* Scrollable container */
-  flex: 1; /* Takes up available space */
-  overflow-y: auto; /* Allows scrolling */
-  padding: var(--padding-s) var(--padding-xl);
-  display: flex;
-  flex-direction: column; /* <<< KEY: Newest visually at bottom */
+/* --- Chat Header --- */
+.chat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--padding-l); height: var(--header-height);
+  background-color: var(--bg-header-footer);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0; z-index: 5;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.chat-header-info { display: flex; align-items: center; gap: var(--padding-m); }
+.chat-header-avatar {
+  width: var(--avatar-size); height: var(--avatar-size); border-radius: 50%;
+  background-color: var(--text-secondary); color: var(--bg-header-footer);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 1rem; flex-shrink: 0; text-transform: uppercase;
+  border: 2px solid var(--bg-header-footer);
+  box-shadow: 0 0 8px rgba(0, 223, 162, 0.15);
+}
+.chat-header-details { display: flex; flex-direction: column; }
+.chat-header-name { font-weight: 600; font-size: 1.05rem; color: var(--text-primary); line-height: 1.2; }
+.chat-header-status { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.2; }
+.chat-header-actions { display: flex; align-items: center; gap: var(--padding-xs); }
+.chat-header-actions .icon-button {
+  background: transparent; border: none; color: var(--icon-color); padding: var(--padding-s);
+  border-radius: 50%; cursor: pointer; transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  width: var(--icon-button-size); height: var(--icon-button-size);
+  display: flex; align-items: center; justify-content: center;
+}
+.chat-header-actions .icon-button:hover { background-color: var(--bg-hover-item); color: var(--icon-color-hover); transform: scale(1.1); }
+.chat-header-actions .icon-button svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* --- Message Display Area --- */
+.message-list-container {
+  flex: 1; overflow-y: auto; padding: var(--padding-m) var(--padding-xl) var(--padding-xl);
+  display: flex; flex-direction: column;
   background-color: var(--bg-chat-area);
-  scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
-.message-placeholder { text-align: center; padding: var(--padding-xl); color: var(--text-secondary); font-style: italic; margin-top: auto; margin-bottom: auto; }
+.message-placeholder { text-align: center; padding: var(--padding-xl); color: var(--text-secondary); font-style: italic; margin: auto; font-size: 0.9rem; }
 
-/* --- Individual Message Wrapper (MODERN STRUCTURE) --- */
-.message { /* Wrapper for each bubble */
-  display: flex; margin-bottom: 6px; width: 100%; padding: 0 1%;
-}
+/* --- Individual Message Wrapper --- */
+.message { display: flex; margin-bottom: 8px; width: 100%; padding: 0 1%; }
 
-/* --- Message Bubble Common Styles (MODERN STRUCTURE) --- */
-.mess, .my_mess { /* These are DIVs now */
-  padding: 7px var(--padding-m); border-radius: var(--border-radius-large); max-width: 75%; word-wrap: break-word;
-  line-height: 1.45; box-shadow: var(--bubble-shadow); font-size: 0.92rem; display: flex; flex-direction: column; /* Normal internal order */
-  position: relative; min-height: 30px;
-}
-.mess { /* Incoming bubble */
-  background-color: var(--bubble-incoming-bg); color: var(--text-primary); margin-right: auto; border-top-left-radius: var(--border-radius-small);
-}
-.my_mess { /* Outgoing bubble */
-  background-color: var(--bubble-outgoing-bg); color: var(--text-white); margin-left: auto; border-top-right-radius: var(--border-radius-small);
-}
-
-/* --- Content Inside Bubbles (MODERN STRUCTURE) --- */
-.sender-name { font-size: 0.78rem; font-weight: 600; margin-bottom: 3px; color: var(--text-sender); padding-right: var(--padding-l); }
-.message-text { padding-bottom: 15px; padding-right: 50px; word-wrap: break-word; }
-.message-timestamp { font-size: 0.7rem; color: var(--text-secondary); position: absolute; bottom: 5px; right: var(--padding-m); white-space: nowrap; line-height: 1; }
-.my_mess .message-timestamp { color: rgba(255, 255, 255, 0.6); }
-
-/* --- Chat Input Area Container --- */
-.frm { /* Fixed input bar container */
-  padding: var(--padding-m) var(--padding-l); background-color: var(--bg-input-area); border-top: 1px solid var(--border-color);
-  flex-shrink: 0; /* Prevents shrinking */ z-index: 10;
+/* --- Message Bubble Common Styles (Futuristic Overhaul) --- */
+.mess, .my_mess {
+  padding: 9px 15px;
+  max-width: 72%;
+  min-width: 45px;
+  word-wrap: break-word;
+  line-height: 1.5;
+  font-size: 0.93rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: auto;
+  transition: transform var(--transition-fast), box-shadow var(--transition-smooth);
+  color: var(--text-primary);
 }
 
-/* --- Form Element (Input + Button) (`C1.js`) --- */
+.my_mess {
+  background-color: var(--bubble-outgoing-bg);
+  color: var(--text-white);
+  margin-left: auto;
+  border-radius: var(--border-radius-medium) var(--border-radius-sharp) var(--border-radius-large) var(--border-radius-medium);
+  box-shadow:
+    0 2px 3px rgba(0,0,0,0.15),
+    0 0 12px -3px var(--bubble-outgoing-glow-strong),
+    0 0 25px -10px var(--accent-primary-glow);
+  background-image: linear-gradient(165deg,
+    color-mix(in srgb, var(--bubble-outgoing-bg) 100%, white 8%) 0%,
+    var(--bubble-outgoing-bg) 70%
+  );
+}
+
+.mess {
+  background-color: var(--bubble-incoming-bg);
+  margin-right: auto;
+  border-radius: var(--border-radius-sharp) var(--border-radius-medium) var(--border-radius-medium) var(--border-radius-large);
+  box-shadow:
+    0 2px 3px rgba(0,0,0,0.2),
+    0 0 12px -3px var(--bubble-incoming-glow-strong),
+    0 0 25px -10px rgba(0, 198, 255, 0.1);
+  background-image: linear-gradient(195deg,
+    color-mix(in srgb, var(--bubble-incoming-bg) 100%, white 5%) 0%,
+    var(--bubble-incoming-bg) 70%
+  );
+}
+
+.mess:hover, .my_mess:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.25),
+    0 0 18px -2px var(--dynamic-bubble-glow-hover),
+    0 0 35px -8px var(--accent-primary-glow);
+}
+.my_mess:hover { --dynamic-bubble-glow-hover: var(--bubble-outgoing-glow-hover); }
+.mess:hover { --dynamic-bubble-glow-hover: var(--bubble-incoming-glow-hover); }
+
+/* --- Content Inside Bubbles --- */
+.sender-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: var(--padding-s);
+  color: var(--text-sender);
+  padding-right: calc(var(--padding-l) + 15px);
+  text-shadow: 0 0 5px var(--bubble-sendername-glow);
+  position: relative;
+  z-index: 1;
+}
+.message-text {
+  padding-bottom: 20px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  color: inherit;
+  position: relative;
+  z-index: 1;
+}
+
+.message-timestamp {
+  font-size: 0.72rem;
+  position: absolute;
+  bottom: 6px;
+  right: 15px;
+  white-space: nowrap;
+  line-height: 1;
+  opacity: 0.75;
+  z-index: 1;
+}
+.my_mess .message-timestamp { color: rgba(224, 232, 240, 0.75); }
+.mess .message-timestamp { color: var(--text-secondary); }
+
+
+/* --- Message Image Styling --- */
+.message-image-container {
+  margin-bottom: var(--padding-s);
+  max-width: 280px;
+  border-radius: var(--border-radius-soft);
+  overflow: hidden; cursor: pointer;
+  position: relative; z-index: 0;
+}
+.message-image {
+  display: block; width: 100%; height: auto;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.message-image:hover { transform: scale(1.05); opacity: 0.9; }
+
+.mess:has(.message-image-container:only-child),
+.my_mess:has(.message-image-container:only-child) {
+  padding: var(--padding-xs); background-color: transparent; background-image: none;
+  box-shadow: none;
+}
+.mess:has(.message-image-container:only-child) .message-image-container,
+.my_mess:has(.message-image-container:only-child) .message-image-container {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2), 0 0 10px rgba(0, 223, 162, 0.05);
+}
+.mess:has(.message-image-container:only-child) .message-timestamp,
+.my_mess:has(.message-image-container:only-child) .message-timestamp {
+    background-color: var(--bg-overlay-light);
+    color: var(--text-white);
+    padding: 3px 6px;
+    border-radius: var(--border-radius-sharp);
+    bottom: calc(var(--padding-xs) + 5px);
+    right: calc(var(--padding-xs) + 5px);
+    opacity: 0.9;
+}
+
+
+/* --- Chat Input Area --- */
+.frm {
+  padding: var(--padding-m) var(--padding-l);
+  background-color: var(--bg-header-footer);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0; z-index: 10; position: relative;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+}
 .forms { display: flex; align-items: center; gap: var(--padding-m); }
-.forms input[type="text"] {
-  flex: 1; padding: 11px var(--padding-m); border: none; border-radius: 50px;
-  background-color: var(--bg-input-field); color: var(--text-input); font-size: 0.95rem; font-family: inherit;
-  outline: none; transition: box-shadow 0.2s ease-in-out;
-}
-.forms input::placeholder { color: var(--text-secondary); opacity: 0.5; }
-.forms input:focus { box-shadow: 0 0 0 2px var(--focus-ring-color); }
-
-/* --- Send Button (`C1.js`) --- */
-.send-button {
-  flex-shrink: 0; padding: 0; background-color: transparent; color: var(--icon-color); border: none; border-radius: 50%;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.15s ease, transform 0.1s ease;
-  width: 44px; height: 44px; outline: none;
-}
-.send-button:disabled { cursor: not-allowed; opacity: 0.5; }
-.send-button:not(:disabled):hover { color: var(--accent-primary); }
-.send-button:not(:disabled):active { transform: scale(0.9); }
-.send-button svg { width: 26px; height: 26px; fill: currentColor; }
-
-/* --- Login Form Styling (`C1.js`) --- */
-.signin-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--padding-xl); height: 100%; width: 100%; }
-.signin { display: flex; flex-direction: column; gap: var(--padding-m); padding: var(--padding-xl); background-color: var(--bg-input-area); border-radius: var(--border-radius-medium); box-shadow: 0 4px 12px rgba(0,0,0,0.3); width: 100%; max-width: 320px; }
-.signin h2 { text-align: center; color: var(--text-primary); margin-bottom: var(--padding-l); font-weight: 600; }
-.signin input[type="text"], .signin input[type="password"] { padding: 11px var(--padding-m); border: 1px solid var(--border-color); border-radius: var(--border-radius-small); background-color: var(--bg-input-field); color: var(--text-input); font-size: 0.95rem; font-family: inherit; outline: none; transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out; }
-.signin input[type="text"]::placeholder, .signin input[type="password"]::placeholder { color: var(--text-secondary); }
-.signin input[type="text"]:focus, .signin input[type="password"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px var(--focus-ring-color); }
-.login-button { padding: 10px var(--padding-m); background-color: var(--accent-primary); color: var(--text-white); border: none; border-radius: var(--border-radius-small); font-size: 1rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease-in-out; margin-top: var(--padding-s); }
-.login-button:hover { background-color: var(--accent-secondary); }
-.error-message { color: #ff6b6b; font-size: 0.85rem; text-align: center; margin-top: var(--padding-s); min-height: 1.2em; }
-
-/* --- Scrollbar Styling --- */
-.users::-webkit-scrollbar, .message-list-container::-webkit-scrollbar { width: 7px; }
-.users::-webkit-scrollbar-track, .message-list-container::-webkit-scrollbar-track { background: var(--scrollbar-track); margin: 3px 0; }
-.users::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); border-radius: 4px; border: 1px solid var(--bg-sidebar); }
-.message-list-container::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); border-radius: 4px; border: 1px solid var(--bg-chat-area); }
-.users::-webkit-scrollbar-thumb:hover, .message-list-container::-webkit-scrollbar-thumb:hover { background-color: #4a545b; }
-.users, .message-list-container { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
-
-/* --- Cleanup Rule (No longer needed if Mess.js is updated) --- */
-/* .messages, .tex, .sender, .me_sender { display: none !important; } */
-
-
-/* --- C1.jsx Styling Additions --- */
-.chat-input-form {
-    position: relative; /* For preview positioning if needed */
-    display: flex;
-    align-items: center; /* Align items vertically */
-    padding: 8px 12px;
-    background-color: var(--bg-input-area, #f0f0f0); /* Example background */
-    border-top: 1px solid var(--border-color, #ddd);
-}
 
 .input-area {
-    display: flex;
-    flex-grow: 1;
-    align-items: center;
-    background-color: var(--bg-input, #fff); /* Input background */
-    border-radius: 18px; /* Rounded corners for the input area */
-    padding: 0px 8px 0px 15px; /* Padding inside */
-    margin-right: 8px;
-    border: 1px solid var(--border-color-input, #ccc);
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  background-color: var(--bg-input-field);
+  border-radius: var(--border-radius-pill); /* Key for shape */
+  padding: 0 var(--padding-s) 0 var(--padding-m);
+  transition: box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  position: relative;
+  outline: none !important; /* Force remove any default outline on the container */
+}
+
+.input-area:focus-within {
+  border-color: var(--accent-primary); /* Color of the actual 1px border becomes accent */
+  /* The box-shadow provides the outer "glow" focus ring. */
+  /* It respects the border-radius of .input-area. */
+  box-shadow:
+    inset 0 1px 2px rgba(0,0,0,0.1), /* Slightly reduced inset shadow on focus */
+    0 0 0 2.5px var(--focus-ring-color); /* Outer pill-shaped focus glow */
 }
 
 .input-area input[type="text"] {
-    flex-grow: 1;
-    border: none;
-    outline: none;
-    padding: 10px 5px;
-    background: transparent; /* Make input transparent */
-    font-size: 0.95rem;
-    color: var(--text-primary, #333);
+  flex-grow: 1;
+  border: none !important; /* Ensure no border */
+  outline: none !important; /* CRITICAL: Force remove default input focus outline */
+  box-shadow: none !important; /* Ensure no default box-shadow */
+  padding: 12px 0;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--text-input);
+  font-family: inherit;
+  letter-spacing: 0.2px;
 }
+.input-area input[type="text"]::placeholder { color: var(--text-secondary); opacity: 0.7; }
 
-/* Style the label to look like a button */
 .file-input-label {
-    cursor: pointer;
-    padding: 8px;
-    margin-left: 8px;
-    color: var(--icon-color, #555);
-    transition: color 0.2s ease;
+  cursor: pointer; color: var(--icon-color);
+  display: flex; align-items: center; justify-content: center;
+  width: var(--icon-button-size); height: var(--icon-button-size);
+  border-radius: 50%; margin-left: var(--padding-xs);
+  transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
 }
-.file-input-label:hover {
-    color: var(--icon-color-hover, #000);
-}
-.file-input-label.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
+.file-input-label:hover { color: var(--accent-primary); background-color: var(--bg-hover-item); transform: scale(1.1); }
+.file-input-label.disabled { cursor: not-allowed; opacity: 0.4; transform: scale(1); }
+.file-input-label svg { width: 20px; height: 20px; fill: currentColor; }
 
+.send-button {
+  flex-shrink: 0; padding: 0;
+  background-color: var(--accent-primary); color: var(--text-white);
+  border: none; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px;
+  outline: none;
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-smooth);
+  box-shadow: 0 2px 5px rgba(0, 223, 162, 0.2), 0 0 15px var(--accent-primary-glow);
+}
+.send-button:focus-visible {
+  box-shadow: 0 0 0 2.5px var(--bg-app), 0 0 0 5px var(--accent-primary), 0 0 20px var(--accent-primary-glow);
+}
+.send-button:disabled {
+  cursor: not-allowed; background-color: var(--bg-input-field);
+  color: var(--icon-color); opacity: 0.5; transform: scale(1);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.send-button:not(:disabled):hover {
+  background-color: var(--accent-secondary); transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 223, 162, 0.3), 0 0 25px var(--accent-primary-glow);
+}
+.send-button:not(:disabled):active { transform: scale(0.98); background-color: var(--accent-primary); }
+.send-button svg { width: 22px; height: 22px; fill: currentColor; }
+
+.send-button .spinner {
+  width: 22px; height: 22px; border-width: 2.5px;
+  border-top-color: var(--text-white);
+  border-left-color: transparent; border-right-color: transparent; border-bottom-color: transparent;
+}
+.send-button:disabled .spinner { border-top-color: var(--icon-color); }
+
+
+/* --- Image Preview & Input Errors --- */
 .image-preview-container {
-    position: absolute; /* Position above input */
-    bottom: 100%; /* Place it right above the form */
-    left: 10px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    margin-bottom: 5px; /* Space between preview and input form */
-    max-width: 150px; /* Limit preview width */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    display: flex; /* Use flexbox for positioning remove button */
-    align-items: flex-start; /* Align items to top */
+  position: absolute; bottom: calc(100% + var(--padding-s)); left: var(--padding-l);
+  background-color: var(--bg-input-field); border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-medium); padding: var(--padding-s);
+  max-width: 220px; max-height: 160px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.35), 0 0 15px rgba(0,0,0,0.2);
+  z-index: 20; overflow: hidden; backdrop-filter: blur(3px);
 }
-
 .image-preview {
-    max-width: 100%;
-    max-height: 100px; /* Limit preview height */
-    display: block;
-    object-fit: contain;
+  display: block; max-width: 100%; max-height: calc(160px - 2 * var(--padding-s));
+  object-fit: contain; border-radius: var(--border-radius-soft);
 }
-
 .remove-preview-btn {
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 5px;
-    font-size: 12px;
-    line-height: 14px; /* Adjust line height */
-    width: 16px; /* Fixed width */
-    height: 16px; /* Fixed height */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute; /* Position inside container */
-    top: -5px; /* Adjust position */
-    right: -5px; /* Adjust position */
+  background: var(--bg-overlay-light);
+  color: var(--text-primary); border: 1px solid rgba(224, 232, 240, 0.15);
+  border-radius: 50%; cursor: pointer; padding: 0;
+  font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  position: absolute; top: var(--padding-xs); right: var(--padding-xs);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
-.remove-preview-btn:hover {
-    background: rgba(0,0,0,0.8);
-}
+.remove-preview-btn:hover { background: rgba(0,0,0,0.7); color: var(--text-white); transform: scale(1.15); }
 
 .error-message.input-error {
-    position: absolute;
-    bottom: 100%;
-    left: 150px; /* Adjust position */
-    margin-bottom: 8px;
-    background-color: var(--error-bg, #ffebee);
-    color: var(--error-text, #c62828);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    z-index: 10; /* Ensure it's above preview */
+  position: absolute; bottom: calc(100% + var(--padding-s));
+  left: 50%; transform: translateX(-50%);
+  width: auto; min-width: 180px; max-width: calc(100% - 2 * var(--padding-l));
+  background-color: var(--error-bg); color: var(--error-text);
+  padding: var(--padding-s) var(--padding-m);
+  border-radius: var(--border-radius-soft); font-size: 0.88rem;
+  z-index: 25; box-shadow: 0 4px 10px rgba(93, 26, 26, 0.5); text-align: center;
+  pointer-events: none; text-shadow: 0 0 3px rgba(0,0,0,0.5);
 }
 
+/* --- Login Form Styling --- */
+.signin-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--padding-xl); height: 100%; width: 100%; }
+.signin {
+  display: flex; flex-direction: column; gap: var(--padding-l); padding: var(--padding-xl) var(--padding-l);
+  background-color: var(--bg-header-footer);
+  border-radius: var(--border-radius-large); box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 0 1px var(--border-color);
+  width: 100%; max-width: 370px;
+}
+.signin h2 {
+  text-align: center; color: var(--text-primary); margin-bottom: var(--padding-m);
+  font-weight: 600; font-size: 1.6rem;
+  text-shadow: 0 0 8px var(--accent-primary-glow);
+}
+.signin input[type="text"], .signin input[type="password"] {
+  padding: 13px var(--padding-m);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-soft); background-color: var(--bg-input-field);
+  color: var(--text-input); font-size: 0.95rem; font-family: inherit; outline: none !important; /* Force no outline */
+  transition: box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.signin input[type="text"]::placeholder, .signin input[type="password"]::placeholder { color: var(--text-secondary); opacity: 0.7; }
+
+/* Custom focus for sign-in inputs as well */
+.signin input[type="text"]:focus, .signin input[type="password"]:focus {
+  border-color: var(--accent-primary);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 0 0 2.5px var(--focus-ring-color);
+}
+
+.login-button {
+  padding: 13px var(--padding-m); background-color: var(--accent-primary); color: var(--text-white);
+  border: none; border-radius: var(--border-radius-soft); font-size: 1rem; font-weight: 500;
+  cursor: pointer; transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-smooth);
+  margin-top: var(--padding-s);
+  box-shadow: 0 2px 5px rgba(0, 223, 162, 0.2), 0 0 15px var(--accent-primary-glow);
+}
+.login-button:hover:not(:disabled) {
+  background-color: var(--accent-secondary); transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 223, 162, 0.3), 0 0 25px var(--accent-primary-glow);
+}
+.login-button:disabled {
+  background-color: var(--bg-active-item); opacity: 0.6; cursor: not-allowed;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.error-message {
+  color: var(--error-text); background-color: rgba(93, 26, 26, 0.3);
+  border: 1px solid var(--error-bg);
+  padding: var(--padding-s) var(--padding-m); border-radius: var(--border-radius-soft);
+  font-size: 0.88rem; text-align: center; margin-top: var(--padding-s); min-height: 1.3em;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+
+/* --- Scrollbar Styling --- */
+.users::-webkit-scrollbar, .message-list-container::-webkit-scrollbar { width: 8px; }
+.users::-webkit-scrollbar-track, .message-list-container::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.users::-webkit-scrollbar-thumb, .message-list-container::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb); border-radius: var(--border-radius-pill);
+  border: 2px solid transparent;
+}
+.users::-webkit-scrollbar-thumb { border-color: var(--bg-sidebar); }
+.message-list-container::-webkit-scrollbar-thumb { border-color: var(--bg-chat-area); }
+
+.users::-webkit-scrollbar-thumb:hover, .message-list-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+  box-shadow: 0 0 8px var(--accent-primary-glow);
+}
+.users, .message-list-container { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
 
 /* Basic Spinner CSS */
 .spinner {
-  border: 3px solid rgba(255, 255, 255, 0.3); /* Light grey */
-  border-top: 3px solid #fff; /* White */
+  border: 2.5px solid rgba(224, 232, 240, 0.2);
+  border-top-color: var(--text-primary);
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  animation: spin 1s linear infinite;
-  margin: auto; /* Center if needed */
+  width: 20px; height: 20px;
+  animation: spin 0.65s linear infinite;
+  margin: auto;
 }
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* --- Messages.jsx Styling Additions --- */
-.message-image-container {
-    margin-bottom: 5px; /* Space between image and text/timestamp */
-    max-width: 250px; /* Max width for images */
-    border-radius: 8px; /* Optional rounded corners for container */
-    overflow: hidden; /* Clip image to container bounds */
-}
-
-.message-image {
-    display: block; /* Remove extra space below image */
-    width: 100%; /* Make image fill container width */
-    height: auto; /* Maintain aspect ratio */
-    cursor: pointer; /* Optional: indicate it might be clickable */
-     /* Add transition if you plan lightbox effect */
-}
-
-/* Adjust padding/margins for messages containing only images */
-.mess:has(.message-image):not(:has(.message-text)),
-.my_mess:has(.message-image):not(:has(.message-text)) {
-    padding: 5px; /* Reduce padding slightly maybe */
-    background-color: transparent; /* Image might provide the 'bubble' */
-}
-
-/* Specific alignment if needed */
-.my_mess .message-image-container {
-  margin-left: auto; /* Align to right for outgoing */
-}
-.mess .message-image-container {
-  margin-right: auto; /* Align to left for incoming */
-}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
