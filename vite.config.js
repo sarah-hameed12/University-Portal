@@ -10,7 +10,7 @@ export default defineConfig({
       // String shorthand: /api -> http://127.0.0.1:8000/api
       // We forward any request starting with '/api' to the Django backend
       "/api": {
-        target: "http://127.0.0.1:8000", // Your Django backend address
+        target: "https://flask-production-1e2d.up.railway.app", // Your Django backend address
         changeOrigin: true, // Recommended for virtual hosted sites, good practice
         // secure: false, // Uncomment if your backend uses https with self-signed cert
         // rewrite: (path) => path.replace(/^\/api/, ''), // Optional: if backend expects paths WITHOUT /api prefix

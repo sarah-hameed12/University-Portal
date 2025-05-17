@@ -34,6 +34,7 @@ import {
   FiChevronsRight,
   FiUsers,
   FiInfo,
+  FiBell,
   FiUserPlus,
   FiArrowRight,
   // FaPeopleGroup // Add this import
@@ -251,6 +252,94 @@ const styles = {
     backgroundColor: "rgba(220, 38, 38, 0.4)",
     color: "#ef4444",
     transform: "translateY(-1px)",
+  },
+  topnavIconButton: {
+    // Style for icon-only buttons like notification
+    background: "none",
+    border: "none",
+    color: "#a0a3bd",
+    cursor: "pointer",
+    padding: "10px",
+    borderRadius: "50%",
+    fontSize: "1.3rem", // Icon size
+    position: "relative", // For badge positioning
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "background-color 0.2s ease, color 0.2s ease",
+  },
+  topnavIconButtonHover: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    color: "#f0f0f5",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: "6px", // Adjust for precise positioning on the bell
+    right: "6px", // Adjust for precise positioning on the bell
+    width: "10px",
+    height: "10px",
+    backgroundColor: "#ef4444", // Bright red for unread indicator
+    borderRadius: "50%",
+    border: "2px solid #161827", // Match topnav background for a cutout effect
+  },
+  notificationDropdown: {
+    position: "absolute",
+    top: "calc(100% + 10px)", // Position below the bell icon's container
+    right: 0,
+    width: "320px",
+    maxHeight: "400px",
+    overflowY: "auto",
+    backgroundColor: "#1f2937",
+    borderRadius: "8px",
+    boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+    border: "1px solid #374151",
+    zIndex: 20, // Ensure it's above other topnav elements
+    padding: "0", // Items will have their own padding
+    // Custom scrollbar for dropdown
+    scrollbarWidth: "thin",
+    scrollbarColor: "rgba(140, 120, 255, 0.5) transparent",
+  },
+  notificationItem: {
+    padding: "12px 15px",
+    fontSize: "0.9rem",
+    borderBottom: "1px solid #374151",
+    cursor: "pointer",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    transition: "background-color 0.2s ease",
+  },
+  notificationItemText: {
+    flexGrow: 1,
+    marginRight: "10px",
+    // color: '#e5e7eb', // Default, will be overridden if unread
+  },
+  notificationItemUnreadText: {
+    color: "#f0f0f5", // Brighter for unread
+    fontWeight: "500",
+  },
+  notificationItemReadText: {
+    color: "#a0a3bd", // Dimmer for read
+  },
+  notificationItemHover: {
+    backgroundColor: "rgba(140, 120, 255, 0.1)",
+  },
+  notificationItemLast: {
+    borderBottom: "none",
+  },
+  notificationItemUnreadDot: {
+    // Dot next to unread items IN THE DROPDOWN
+    width: "8px",
+    height: "8px",
+    backgroundColor: "#8c78ff", // Purple, distinct from bell badge
+    borderRadius: "50%",
+    flexShrink: 0,
+  },
+  noNotificationsMessage: {
+    padding: "15px",
+    textAlign: "center",
+    color: "#9ca3af",
+    fontSize: "0.9rem",
   },
   // --- Feed Styles ---
   feedContainer: { marginTop: "16px" },
@@ -824,11 +913,40 @@ export const SideNav = () => {
   );
 };
 
-const TopNav = ({ isAuthenticated, user, onLogout, onOpenCreatePost }) => {
+const TopNav = ({
+  isAuthenticated,
+  user,
+  onLogout,
+  onOpenCreatePost,
+  unreadNotificationCount, // <<< New prop
+  notifications, // <<< New prop (array of notification objects)
+  onNotificationBellClick,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const [hoveredButton, setHoveredButton] = useState(null);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] =
+    useState(false);
+  const [hoveredNotificationItem, setHoveredNotificationItem] = useState(null);
+
+  const handleNotificationClick = () => {
+    setIsNotificationDropdownOpen((prev) => {
+      if (onNotificationBellClick) {
+        onNotificationBellClick(prev); // Pass current state (before toggle)
+      }
+      return !prev; // Return new state for dropdown
+    });
+  };
+
+  const handleSingleNotificationClick = (notification) => {
+    console.log("Clicked notification:", notification);
+    // Here you would typically navigate to the relevant page or mark as read
+    // For now, let's just close the dropdown.
+    // Example: navigate(notification.link);
+    // Example: markNotificationAsRead(notification.id); // This would be a prop from Dashboard
+    setIsNotificationDropdownOpen(false);
+  };
 
   const getButtonStyle = (type) => {
     const base = styles.topnavButton;
@@ -917,6 +1035,95 @@ const TopNav = ({ isAuthenticated, user, onLogout, onOpenCreatePost }) => {
         {isAuthenticated ? (
           <>
             {" "}
+            <div style={{ position: "relative", marginRight: "10px" }}>
+              {" "}
+              {/* Container for bell and dropdown */}
+              <button
+                style={{
+                  ...styles.topnavIconButton,
+                  ...(hoveredButton === "notification" &&
+                    styles.topnavIconButtonHover),
+                }}
+                onClick={handleNotificationClick}
+                onMouseEnter={() => setHoveredButton("notification")}
+                onMouseLeave={() => setHoveredButton(null)}
+                aria-label={`Notifications${
+                  unreadNotificationCount > 0
+                    ? ` (${unreadNotificationCount} unread)`
+                    : ""
+                }`}
+                title="Notifications"
+              >
+                <FiBell />
+                {unreadNotificationCount > 0 && (
+                  <span style={styles.notificationBadge}></span>
+                )}
+              </button>
+              <AnimatePresence>
+                {isNotificationDropdownOpen && (
+                  <motion.div
+                    style={styles.notificationDropdown}
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{
+                      opacity: 0,
+                      y: -10,
+                      scale: 0.95,
+                      transition: { duration: 0.15 },
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  >
+                    {notifications && notifications.length > 0 ? (
+                      notifications.slice(0, 7).map(
+                        (
+                          notif,
+                          index,
+                          arr // Show up to 7 recent
+                        ) => (
+                          <div
+                            key={notif.id}
+                            style={{
+                              ...styles.notificationItem,
+                              ...(index === arr.length - 1 &&
+                                styles.notificationItemLast),
+                              ...(hoveredNotificationItem === notif.id &&
+                                styles.notificationItemHover),
+                            }}
+                            onMouseEnter={() =>
+                              setHoveredNotificationItem(notif.id)
+                            }
+                            onMouseLeave={() =>
+                              setHoveredNotificationItem(null)
+                            }
+                            onClick={() => handleSingleNotificationClick(notif)}
+                          >
+                            <span
+                              style={{
+                                ...styles.notificationItemText,
+                                ...(notif.read
+                                  ? styles.notificationItemReadText
+                                  : styles.notificationItemUnreadText),
+                              }}
+                            >
+                              {notif.message}
+                            </span>
+                            {!notif.read && (
+                              <span
+                                style={styles.notificationItemUnreadDot}
+                              ></span>
+                            )}
+                          </div>
+                        )
+                      )
+                    ) : (
+                      <div style={styles.noNotificationsMessage}>
+                        No new notifications.
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <button
               data-testid="create-post-button-topnav"
               style={getButtonStyle("primary")}
@@ -1381,7 +1588,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated, currentUser }) => {
 
     try {
       const response = await axios.post(
-        "https://super-be.onrender.com/api/feed/posts/",
+        "http://127.0.0.1:8000/api/feed/posts/",
         formData,
         {
           headers: {
@@ -1607,6 +1814,8 @@ const Dashboard = () => {
   const [errorFeed, setErrorFeed] = useState(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   // const fetchUserProfile = useCallback(async (userId) => {
   //   /* ... keep implementation ... */
@@ -1634,7 +1843,7 @@ const Dashboard = () => {
         ("checkProfileAndSetState: Checking profile existence via email...");
         try {
           const response = await axios.get(
-            `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
+            `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
               userEmail
             )}`
           );
@@ -1753,7 +1962,7 @@ const Dashboard = () => {
       setErrorFeed(null);
       try {
         const response = await axios.get(
-          "https://super-be.onrender.com/api/feed/posts/",
+          "http://127.0.0.1:8000/api/feed/posts/",
           {
             params: {
               requesting_user_name: user.name,
@@ -1781,6 +1990,77 @@ const Dashboard = () => {
     [profileStatus, user]
   );
 
+  useEffect(() => {
+    if (isAuthenticated && profileStatus === "exists") {
+      const fetchMockNotifications = async () => {
+        console.log("Simulating fetching notifications...");
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate API delay
+        const mockData = [
+          {
+            id: `notif-${Date.now()}-1`,
+            message: "Alice made a new post: 'Exciting News!'",
+            read: false,
+            timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+            link: "/post/123",
+          },
+          {
+            id: `notif-${Date.now()}-2`,
+            message: "Bob liked your photo 'Sunset View'.",
+            read: false,
+            timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+            link: "/profile",
+          },
+          {
+            id: `notif-${Date.now()}-3`,
+            message: "Your comment on 'Tech Trends' got a reply.",
+            read: true,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+            link: "/post/456/comments",
+          },
+          {
+            id: `notif-${Date.now()}-4`,
+            message: "Community 'Book Readers' has a new event.",
+            read: false,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+            link: "/communities/book-readers",
+          },
+        ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort by newest first
+
+        setNotifications(mockData);
+        const unreadCount = mockData.filter((n) => !n.read).length;
+        setUnreadNotificationCount(unreadCount);
+        console.log("Mock notifications fetched, unread count:", unreadCount);
+      };
+      fetchMockNotifications();
+    } else {
+      setNotifications([]);
+      setUnreadNotificationCount(0);
+    }
+  }, [isAuthenticated, profileStatus]);
+
+  const handleNotificationBellClick = (isDropdownCurrentlyOpen) => {
+    console.log(
+      "Dashboard: Notification bell action. Dropdown is currently:",
+      isDropdownCurrentlyOpen ? "Open" : "Closed"
+    );
+    // If the dropdown is about to be opened and there are unread notifications,
+    // mark them as "seen" by clearing the badge.
+    // The actual "read" status of individual notifications in the list remains
+    // until they are interacted with or a "mark all read" action is performed.
+    if (!isDropdownCurrentlyOpen && unreadNotificationCount > 0) {
+      console.log(
+        "Dashboard: Clearing unread notification badge (notifications are now 'seen')."
+      );
+      setUnreadNotificationCount(0); // Clear the badge count immediately
+
+      // Optional: If you want to mark all notifications in the state as read when the dropdown opens:
+      // setTimeout(() => { // Add a small delay so user sees the items before they change state
+      //   const updatedNotifications = notifications.map(n => ({ ...n, read: true }));
+      //   setNotifications(updatedNotifications);
+      //   console.log("Dashboard: All notifications in list marked as read.");
+      // }, 1500);
+    }
+  };
   useEffect(() => {
     if (profileStatus === "exists") {
       fetchPosts();
@@ -1829,7 +2109,7 @@ const Dashboard = () => {
 
       try {
         const response = await axios.post(
-          `https://super-be.onrender.com/api/feed/posts/${postId}/like/`,
+          `http://127.0.0.1:8000/api/feed/posts/${postId}/like/`,
 
           { user_name: userName }
         );
@@ -1873,12 +2153,9 @@ const Dashboard = () => {
       "this is user id::::", currentUserId;
       ("no");
       try {
-        await axios.delete(
-          `https://super-be.onrender.com/api/feed/posts/${postId}/`,
-          {
-            data: { user_id: currentUserId },
-          }
-        );
+        await axios.delete(`http://127.0.0.1:8000/api/feed/posts/${postId}/`, {
+          data: { user_id: currentUserId },
+        });
 
         setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
       } catch (error) {
@@ -1956,6 +2233,9 @@ const Dashboard = () => {
           user={user}
           onLogout={handleLogout}
           onOpenCreatePost={handleOpenCreateModal}
+          unreadNotificationCount={unreadNotificationCount} // <<< Pass state
+          notifications={notifications} // <<< Pass state
+          onNotificationBellClick={handleNotificationBellClick}
         />
         <main style={styles.dashboardScrollableArea}>
           {isAuthenticated &&

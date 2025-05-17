@@ -398,3 +398,91 @@
 .loadingState {
   /* Inherits centering from statusContainer usage */
 }
+
+/* ... existing styles ... */
+.followButtonContainer {
+  margin-top: 15px;
+  margin-bottom: 10px;
+  /* display: flex;
+  justify-content: flex-end; /* Or center, depending on layout */
+}
+
+.followButton {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.followButton.follow {
+  background-color: #8c78ff; /* Your primary color */
+  color: white;
+}
+.followButton.follow:hover {
+  background-color: #7038d4; /* Darker primary */
+}
+
+.followButton.unfollow {
+  background-color: #374151; /* A neutral/secondary dark color */
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+}
+.followButton.unfollow:hover {
+  background-color: #4b5563;
+  border-color: #6b7280;
+}
+
+.followButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.statsContainer {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color-light); /* Assuming you have CSS vars */
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+    cursor: pointer; /* If you make them clickable later */
+    transition: color 0.2s ease;
+}
+.statItem:hover {
+    color: var(--primary-color);
+}
+.statCount {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.statLabel {
+    font-size: 0.85rem;
+}
+
+/* Position follow button inside headerInfo if desired */
+.profileHeader {
+    /* ... existing */
+    position: relative; /* If button is absolutely positioned within */
+}
+.headerInfo {
+    /* ... existing */
+    flex-grow: 1;
+}
+.actionButtons { /* Container for follow/message etc. */
+    margin-left: auto; /* Pushes to the right if headerInfo is flex container */
+    align-self: flex-start; /* Align to top if header is flex column */
+    padding-top: 5px; /* Adjust as needed */
+}

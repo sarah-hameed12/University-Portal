@@ -219,7 +219,7 @@ const Chatbot = () => {
 
       try {
         const response = await axios.post(
-          "https://super-be.onrender.com/api/chatbot/query/",
+          "http://127.0.0.1:8000/api/chatbot/query/",
           {
             history: chatHistory,
           }

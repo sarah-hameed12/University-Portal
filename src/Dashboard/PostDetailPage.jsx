@@ -422,7 +422,11 @@ const PostDetailPage = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && isMounted) {
         axios
-          .get(`/api/profile/?email=${encodeURIComponent(session.user.email)}`)
+          .get(
+            `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
+              session.user.email
+            )}`
+          )
           .then((response) => {
             if (isMounted) {
               setCurrentUser({
@@ -460,8 +464,8 @@ const PostDetailPage = () => {
     setError(null);
     try {
       const [postResponse, commentsResponse] = await Promise.all([
-        axios.get(`/api/feed/posts/${postId}/`),
-        axios.get(`/api/feed/posts/${postId}/comments/`),
+        axios.get(`http://127.0.0.1:8000/api/feed/posts/${postId}/`),
+        axios.get(`http://127.0.0.1:8000/api/feed/posts/${postId}/comments/`),
       ]);
       const fetchedPost = postResponse.data;
       setPost(fetchedPost);
@@ -501,7 +505,7 @@ const PostDetailPage = () => {
       const originalLikeCount = likeCount;
       try {
         const response = await axios.post(
-          `/api/feed/posts/${postIdToLike}/like/`,
+          `http://127.0.0.1:8000/api/feed/posts/${postIdToLike}/like/`,
           { user_name: currentUser.name }
         );
         const backendStatus = response.data?.status === "liked";
@@ -539,9 +543,12 @@ const PostDetailPage = () => {
       }
 
       try {
-        await axios.delete(`/api/feed/posts/${postIdToDelete}/`, {
-          data: { user_id: currentUserId },
-        });
+        await axios.delete(
+          `http://127.0.0.1:8000/api/feed/posts/${postIdToDelete}/`,
+          {
+            data: { user_id: currentUserId },
+          }
+        );
 
         navigate("/");
       } catch (error) {
@@ -569,9 +576,12 @@ const PostDetailPage = () => {
       `Attempting delete for comment ${commentId} by user ${currentUserId}`;
 
       try {
-        await axios.delete(`/api/feed/comments/${commentId}/`, {
-          data: { user_id: currentUserId },
-        });
+        await axios.delete(
+          `http://127.0.0.1:8000/api/feed/comments/${commentId}/`,
+          {
+            data: { user_id: currentUserId },
+          }
+        );
         setComments((prevComments) =>
           prevComments.filter((c) => c.id !== commentId)
         );
@@ -613,12 +623,15 @@ const PostDetailPage = () => {
     setCommentError(null);
 
     try {
-      const response = await axios.post(`/api/feed/posts/${postId}/comments/`, {
-        content: newComment,
-        user_id: currentUser.id, // Send necessary identifiers
-        author_name: currentUser.name,
-        author_email: currentUser.email,
-      });
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/feed/posts/${postId}/comments/`,
+        {
+          content: newComment,
+          user_id: currentUser.id, // Send necessary identifiers
+          author_name: currentUser.name,
+          author_email: currentUser.email,
+        }
+      );
       const createdComment = response.data;
 
       setComments((prevComments) => [...prevComments, response.data]);

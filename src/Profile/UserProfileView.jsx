@@ -4,6 +4,11 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "../Styles/UserProfileView.module.css";
 
+import { createClient } from "@supabase/supabase-js";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+import apiClient from "../axiosconfig";
 import {
   FiUser,
   FiMail,
@@ -14,6 +19,11 @@ import {
   FiBriefcase,
   FiHome,
   FiAlertCircle,
+  FiUserPlus,
+  FiUserMinus,
+  FiLoader,
+  FiClock, // For "Request Sent"
+  FiCheckCircle,
 } from "react-icons/fi";
 
 const pageVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
@@ -38,7 +48,74 @@ const UserProfileView = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const [currentUser, setCurrentUser] = useState(null); // For current logged-in user
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+
+  useEffect(() => {
+    const getAuthUser = async () => {
+      console.log("getAuthUser called");
+      const {
+        data: { user: supabaseUser },
+        error: supabaseError,
+      } = await supabase.auth.getUser();
+
+      if (supabaseError) {
+        console.error("Supabase auth.getUser error:", supabaseError);
+        setCurrentUser(null); // Or handle error appropriately
+        return;
+      }
+
+      if (supabaseUser && supabaseUser.email) {
+        const emailOfCurrentUserFromSupabase = supabaseUser.email;
+        console.log(
+          "getAuthUser: Email from Supabase:",
+          emailOfCurrentUserFromSupabase
+        );
+        console.log(
+          "getAuthUser: Preparing to fetch profile for:",
+          emailOfCurrentUserFromSupabase
+        );
+        try {
+          const urlToFetch = `http://127.0.0.1:8000/api/profile/?email=${encodeURIComponent(
+            emailOfCurrentUserFromSupabase
+          )}`;
+          console.log(
+            "getAuthUser: EXACT URL being fetched for current user:",
+            urlToFetch
+          ); // Log the exact URL
+          const response = await axios.get(urlToFetch);
+          console.log(
+            "getAuthUser: Successfully fetched current user's profile:",
+            response.data
+          );
+          setCurrentUser(response.data);
+        } catch (err) {
+          console.error(
+            `Error fetching current user's profile for ${emailOfCurrentUserFromSupabase}:`,
+            err.response?.data || err.message || err
+          );
+          setCurrentUser({
+            email: emailOfCurrentUserFromSupabase,
+            user_id: null,
+            errorFetching: true,
+          });
+        }
+      } else {
+        console.log("getAuthUser: No Supabase user found or no email.");
+        setCurrentUser(null);
+      }
+    };
+    getAuthUser();
+  }, []);
+
   const fetchUserProfileView = useCallback(async () => {
+    const viewedProfileEmail = email; // from useParams()
+    console.log(
+      "fetchUserProfileView: Email of profile to view (from useParams):",
+      viewedProfileEmail
+    );
     if (!email) {
       setError("No user email specified in the URL.");
       setLoading(false);
@@ -49,13 +126,34 @@ const UserProfileView = () => {
     "Fetching profile view for email:", email;
 
     try {
-      const response = await axios.get(
-        `https://super-be.onrender.com/api/profile/?email=${encodeURIComponent(
-          email
-        )}`
+      const queryParams = { email: viewedProfileEmail };
+      if (currentUser?.email && !currentUser.errorFetching) {
+        // Only add if currentUser was fetched successfully
+        queryParams.requesting_user_email = currentUser.email;
+      } else if (currentUser?.email && currentUser.errorFetching) {
+        console.warn(
+          "fetchUserProfileView: Current user profile fetch failed, not sending requesting_user_email."
+        );
+      }
+      console.log(
+        "fetchUserProfileView: QueryParams for viewed profile:",
+        queryParams
       );
+      // const queryParams = { email: email }; // Pass the raw email from useParams
+      if (currentUser?.email) {
+        // currentUser.email should also be a raw, decoded email string
+        queryParams.requesting_user_email = currentUser.email;
+      }
+
+      console.log("Sending queryParams to backend:", queryParams);
+
+      const response = await axios.get(`http://127.0.0.1:8000/api/profile/`, {
+        params: queryParams, // Axios will handle the necessary URL encoding
+      });
       "Profile view data received:", response.data;
       setProfileData(response.data);
+      setIsFollowing(response.data.is_followed_by_requester || false);
+      setFollowersCount(response.data.followers_count || 0);
     } catch (err) {
       console.error(
         "Error fetching profile view:",
@@ -72,11 +170,45 @@ const UserProfileView = () => {
     } finally {
       setLoading(false);
     }
-  }, [email]);
+  }, [email, currentUser]);
 
   useEffect(() => {
     fetchUserProfileView();
   }, [fetchUserProfileView]);
+  const handleFollowToggle = async () => {
+    if (
+      !currentUser ||
+      !currentUser.user_id ||
+      !profileData ||
+      !profileData.user_id
+    ) {
+      alert("Cannot perform action. User information missing.");
+      return;
+    }
+    if (currentUser.user_id === profileData.user_id) {
+      alert("You cannot follow yourself.");
+      return;
+    }
+
+    setFollowLoading(true);
+    const action = isFollowing ? "unfollow" : "follow";
+    const url = `http://127.0.0.1:8000/api/users/${profileData.user_id}/${action}`;
+
+    try {
+      const response = await axios.post(url, {
+        follower_id: currentUser.user_id,
+      });
+      setIsFollowing(action === "follow");
+      setFollowersCount(response.data.follower_count); // Update count from backend response
+      // Optionally refetch profile data if more than just count changes:
+      // fetchUserProfileView();
+    } catch (err) {
+      console.error(`Error ${action}ing user:`, err.response?.data || err);
+      alert(`Failed to ${action} user. ${err.response?.data?.detail || ""}`);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   const formatMultiLine = (text) => {
     if (!text)
@@ -190,6 +322,9 @@ const UserProfileView = () => {
       profileData?.name || email || "User" // Fallback seed
     }`;
 
+  const canFollow =
+    currentUser && profileData && currentUser.user_id !== profileData.user_id;
+
   return (
     <motion.div
       className={styles.pageContainer}
@@ -235,8 +370,42 @@ const UserProfileView = () => {
                 </span>
               )}
             </p>
+            <div className={styles.statsContainer}>
+              <div className={styles.statItem}>
+                <span className={styles.statCount}>{followersCount}</span>
+                <span className={styles.statLabel}>Followers</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statCount}>
+                  {profileData.following_count || 0}
+                </span>
+                <span className={styles.statLabel}>Following</span>
+              </div>
+            </div>
+            {/* </div> */}
           </div>
         </div>
+        {canFollow && (
+          <div className={styles.actionButtons}>
+            <button
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+              className={`${styles.followButton} ${
+                isFollowing ? styles.unfollow : styles.follow
+              }`}
+            >
+              {followLoading ? (
+                <FiLoader className={styles.spinner} />
+              ) : isFollowing ? (
+                <FiUserMinus />
+              ) : (
+                <FiUserPlus />
+              )}
+              {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+          </div>
+        )}
+        {/* </div> */}
         {/* Details Grid */}
         <div className={styles.detailsGrid}>
           {/* Batch */}

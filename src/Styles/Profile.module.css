@@ -296,3 +296,38 @@
      .backToHomeButton { top: 15px; left: 15px; width: 40px; height: 40px; }
      .backToHomeIcon { font-size: 1.1rem; }
 }
+
+/* ... existing styles ... */
+.profileStats {
+  display: flex;
+  gap: 25px; /* Increased gap */
+  margin-top: 10px; /* Space from name/edit button */
+  margin-bottom: 20px; /* Space before separator */
+  justify-content: center; /* Center the stats below the name */
+  width: 100%; /* Take full width to center */
+}
+
+.statBlock {
+  text-align: center;
+  cursor: pointer; /* For future clickability */
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+.statBlock:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.statCount {
+  font-size: 1.3rem; /* Larger count */
+  font-weight: 600;
+  color: #e5e7eb; /* Brighter color for count */
+  display: block; /* Make it block to ensure it's above label */
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #9ca3af; /* Subdued color for label */
+  text-transform: uppercase; /* Optional: uppercase labels */
+  letter-spacing: 0.5px; /* Optional: slight letter spacing */
+}
