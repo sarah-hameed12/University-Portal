@@ -1,8 +1,11 @@
-# React + Vite
+## My Role (Contributor: @sarah-hameed12)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+As part of this group project, I was responsible for building several key modules and features:
 
-Currently, two official plugins are available:
+- **Emails Dashboard** – enabled students to draft and send emails to professors directly from the portal, with tracking of responses and notifications.  
+- **Course Memo** – implemented memo functionality for each subject, providing a personal notepad-style space.  
+- **Document Hub** – created a centralized dashboard integrating multiple features.  
+- **Faculty Office Hours** – developed a searchable listing of professors' office hours.  
+- **Settings Page** – added user settings management.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Full details of my contributions are documented in [CONTRIBUTIONS.md](./CONTRIBUTIONS.md).
