@@ -18,4 +18,4 @@
 
 ## Tools & Skills Used
 - **Languages:** Python, JavaScript, HTML, CSS  
-- **Tools:** GitHub, React
+- **Tools:** GitHub, React, Vite
